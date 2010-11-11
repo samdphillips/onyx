@@ -1,0 +1,343 @@
+
+nil subclass: Object [
+
+    == anObject [
+        ^ self _objectEqual: anObject
+    ]
+
+    = anObject   [ ^ self == anObject ]
+    ~= anObject  [ ^ (self = anObject) not ]
+    ~~ anObject [ ^ (self == anObject) not ]
+
+    class [ 
+        ^ self _objectClass 
+    ]
+
+    error: aString [
+        self _objectError: aString
+    ]
+
+    doesNotUnderstand: aMessage [
+        self _dnu: aMessage
+    ]
+
+    halt [
+        self _objectHalt
+    ]
+
+    yourself [
+        ^ self
+    ]
+
+    -> anObject [
+        ^ Association key: self value: anObject
+    ]
+
+    ifNil: aBlock [
+        ^ nil
+    ]
+
+    ifNotNil: aBlock [
+        ^ aBlock value
+    ]
+
+    ifNil: nilBlock ifNotNil: notNilBlock [
+        ^ notNilBlock value
+    ]
+
+    ifNotNil: notNilBlock ifNil: nilBlock [
+        ^ self ifNil: nilBlock ifNotNil: notNilBlock
+    ]
+
+    isNil      [ ^ false ]
+    isClass    [ ^ false ]
+    isBoolean  [ ^ false ]
+    isNumber   [ ^ false ]
+    isSmallInt [ ^ false ]
+    isArray    [ ^ false ]
+    isString   [ ^ false ]
+    isSymbol   [ ^ false ]
+]
+
+Object subclass: Class [
+    new [
+        ^ self _classNew
+    ]
+]
+
+Object subclass: UndefinedObject [
+    isNil [ ^ true ]
+
+    ifNil: aBlock [
+        ^ aBlock value
+    ]
+
+    ifNotNil: aBlock [
+        ^ nil
+    ]
+
+    ifNil: nilBlock ifNotNil: notNilBlock [
+        ^ nilBlock value
+    ]
+]
+
+Object subclass: Boolean [
+    isBoolean [ ^ true ]
+
+    ifFalse: falseBlock ifTrue: trueBlock [
+        ^ self ifTrue: trueBlock ifFalse: falseBlock
+    ]
+
+]
+
+Boolean subclass: True [
+    ifTrue: aBlock [
+        ^ aBlock value
+    ]
+
+    ifFalse: aBlock [
+        ^ nil
+    ]
+
+    ifTrue: trueBlock ifFalse: falseBlock [
+        ^ trueBlock value
+    ]
+
+    not [ ^ false ]
+
+    and: aBlock [
+        ^ aBlock value
+    ]
+
+    or: aBlock [
+        ^ true
+    ]
+]
+
+Boolean subclass: False [
+    ifTrue: aBlock [
+        ^ nil
+    ]
+
+    ifFalse: aBlock [
+        ^ aBlock value
+    ]
+
+    ifTrue: trueBlock ifFalse: falseBlock [
+        ^ falseBlock value
+    ]
+
+    not [ ^ true ]
+
+    and: aBlock [
+        ^ false
+    ]
+
+    or: aBlock [
+        ^ aBlock value
+    ]
+]
+
+Object subclass: BlockClosure [
+    value [ ^ self _blockValue ]
+
+    value: a [
+        ^ self _blockValue: a
+    ]
+
+    value: a value: b [
+        ^ self _blockValue: a value: b
+    ]
+
+    value: a value: b value: c [
+        ^ self _blockValue: a value: b value: c
+    ]
+
+    value: a value: b value: c value: d [
+        ^ self _blockValue: a value: b value: c value: d
+    ]
+
+    repeat [
+        self value.
+        self repeat
+    ]
+
+    whileTrue: aBlock [
+        [ self value ifFalse: [ ^ nil ]. aBlock value ] repeat
+    ]
+
+    whileFalse: aBlock [
+        [ self value not ] whileTrue: aBlock
+    ]
+]
+
+Object subclass: Number [
+    between: min and: max [
+        ^ self >= min and: [ self <= max ]
+    ]
+
+    sign [
+        ^ self isNegative
+            ifTrue:  [ -1 ]
+            ifFalse: [  1 ]
+    ]
+
+    isNegative [
+        ^ self < 0
+    ]
+
+    isNumber [ ^ true ]
+]
+
+Number subclass: SmallInt [
+    isSmallInt [ ^ true ]
+
+    addToSmallInt: aNumber [
+        ^ aNumber _addSmallInt: self
+    ]
+
+    subToSmallInt: aNumber [
+        ^ aNumber _smallIntSub: self
+    ]
+
+    mulToSmallInt: aNumber [
+        ^ aNumber _mulSmallInt: self
+    ]
+
+    ltToSmallInt: aNumber [
+        ^ aNumber _smallIntLt: self
+    ]
+
+    + aNumber [
+        ^ aNumber addToSmallInt: self
+    ]
+
+    - aNumber [
+        ^ aNumber subToSmallInt: self
+    ]
+
+    * aNumber [
+        ^ aNumber mulToSmallInt: self
+    ]
+
+    < aNumber [
+        ^ aNumber ltToSmallInt: self
+    ]
+
+    > aNumber [
+        ^ aNumber < self
+    ]
+
+    <= aNumber [
+        ^ (self > aNumber) not
+    ]
+
+    >= aNumber [
+        ^ aNumber <= self
+    ]
+
+    to: end [
+        ^ Interval from: self to: end
+    ]
+]
+
+Object subclass: Association [
+    | key value |
+
+    Association class [
+        key: key value: value [
+            ^ self new 
+                initializeKey: key value: value;
+                yourself
+        ]
+    ]
+
+    initializeKey: aKey value: aValue [
+        key := aKey.
+        value := aValue
+    ]
+
+    key   [ ^ key ]
+
+    value [ ^ value ]
+
+    value: anObject [
+        value := anObject
+    ]
+]
+
+Object subclass: Array [
+    Array class [
+        new: size [
+            ^ self _arrayNew: size
+        ]
+
+        new [
+            ^ self new: self defaultSize
+        ]
+
+        defaultSize [
+            ^ 16
+        ]
+
+        with: anObject [
+            ^ (self new: 1)
+                at: 0 put: anObject;
+                yourself
+        ]
+    ]
+
+    size [
+        ^ self _arraySize
+    ]
+
+    checkBounds: i [
+        (i between: 0 and: self size - 1)
+            ifFalse: [ self error: 'out of bounds' ]
+    ]
+
+    basicAt: i put: anObject [
+        self _arrayAt: i put: anObject.
+        ^ anObject
+    ]
+
+    basicAt: i [
+        ^ self _arrayAt: i
+    ]
+
+    at: i put: anObject [
+        self checkBounds: i.
+        ^ self basicAt: i put: anObject
+    ]
+
+    at: i [
+        self checkBounds: i.
+        ^ self basicAt: i
+    ]
+
+]
+
+Object subclass: Interval [
+    | start end step |
+
+    Interval class [
+        from: start to: end [
+            ^ self from: start to: end by: (end - start) sign
+        ]
+
+        from: start to: end by: step [
+            ^ self new
+                initializeFrom: start to: end by: step
+        ]
+    ]
+
+    initializeFrom: startval to: endval by: stepval [
+        start := startval.
+        end   := endval.
+        step  := stepval.
+    ]
+
+    start [ ^ start ]
+    end   [ ^ end   ]
+    step  [ ^ step  ]
+]
