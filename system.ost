@@ -275,11 +275,7 @@ Object subclass: Array [
         ]
 
         new [
-            ^ self new: self defaultSize
-        ]
-
-        defaultSize [
-            ^ 16
+            ^ self new: 0
         ]
 
         with: anObject [
@@ -288,6 +284,8 @@ Object subclass: Array [
                 yourself
         ]
     ]
+
+    isArray [ ^ true ]
 
     size [
         ^ self _arraySize
