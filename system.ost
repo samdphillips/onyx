@@ -163,7 +163,9 @@ Object subclass: BlockClosure [
     ]
 
     whileTrue: aBlock [
-        [ self value ifFalse: [ ^ nil ]. aBlock value ] repeat
+        [ self value 
+            ifFalse: [ ^ nil ]
+            ifTrue:  [ aBlock value ] ] repeat
     ]
 
     whileFalse: aBlock [
