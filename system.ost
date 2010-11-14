@@ -202,6 +202,10 @@ Number subclass: SmallInt [
         ^ aNumber _smallIntSub: self
     ]
 
+    quoToSmallInt: aNumber [
+        ^ aNumber _smallIntQuo: self
+    ]
+
     mulToSmallInt: aNumber [
         ^ aNumber _mulSmallInt: self
     ]
@@ -216,6 +220,10 @@ Number subclass: SmallInt [
 
     - aNumber [
         ^ aNumber subToSmallInt: self
+    ]
+
+    // aNumber [
+        ^ aNumber quoToSmallInt: self
     ]
 
     * aNumber [
@@ -268,7 +276,16 @@ Object subclass: Association [
     ]
 ]
 
-Object subclass: Array [
+Object subclass: Collection [ ]
+
+Collection subclass: SequencedCollection [
+    checkBounds: i [
+        (i between: 0 and: self size - 1)
+            ifFalse: [ self error: 'out of bounds' ]
+    ]
+]
+
+SequencedCollection subclass: Array [
     Array class [
         new: size [
             ^ self _arrayNew: size
@@ -289,11 +306,6 @@ Object subclass: Array [
 
     size [
         ^ self _arraySize
-    ]
-
-    checkBounds: i [
-        (i between: 0 and: self size - 1)
-            ifFalse: [ self error: 'out of bounds' ]
     ]
 
     basicAt: i put: anObject [
@@ -317,27 +329,57 @@ Object subclass: Array [
 
 ]
 
-Object subclass: Interval [
+SequencedCollection subclass: Interval [
     | start end step |
 
     Interval class [
-        from: start to: end [
-            ^ self from: start to: end by: (end - start) sign
+        from: start to: stop [
+            ^ self from: start to: stop by: (stop - start) sign
         ]
 
-        from: start to: end by: step [
+        from: start to: stop by: step [
             ^ self new
-                initializeFrom: start to: end by: step
+                initializeFrom: start to: stop by: step
         ]
     ]
 
-    initializeFrom: startval to: endval by: stepval [
+    initializeFrom: startval to: stopval by: stepval [
         start := startval.
-        end   := endval.
+        stop  := stopval.
         step  := stepval.
     ]
 
     start [ ^ start ]
-    end   [ ^ end   ]
+    stop  [ ^ stop  ]
     step  [ ^ step  ]
+
+    size [
+        "only works for positive ranges so far..."
+        ^ (((stop - start) // step) * step) + start
+    ]
+
+    at: i [
+        self checkBounds: i.
+        ^ (step * i) + start
+    ]
+
+    do: aBlock [
+        | i size |
+        i    := 0.
+        size := self size.
+
+        [ i < size ] whileTrue: [ 
+            aBlock value: (self at: i).
+            i := i + 1
+        ]
+    ]
+
+    asArray [
+        | a i |
+        a := Array new: self size.
+        i := 0.
+
+        self do: [:e | a at: i put: e. i := i + 1 ].
+        ^ a
+    ]
 ]
