@@ -92,69 +92,69 @@ Object subclass: Boolean [
 
 Boolean subclass: True [
     ifTrue: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 
     ifFalse: aBlock [
-        ^ nil
+        nil
     ]
 
     ifTrue: trueBlock ifFalse: falseBlock [
-        ^ trueBlock value
+        trueBlock value
     ]
 
-    not [ ^ false ]
+    not [ false ]
 
     and: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 
     or: aBlock [
-        ^ true
+        true
     ]
 ]
 
 Boolean subclass: False [
     ifTrue: aBlock [
-        ^ nil
+        nil
     ]
 
     ifFalse: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 
     ifTrue: trueBlock ifFalse: falseBlock [
-        ^ falseBlock value
+        falseBlock value
     ]
 
-    not [ ^ true ]
+    not [ true ]
 
     and: aBlock [
-        ^ false
+        false
     ]
 
     or: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 ]
 
 Object subclass: BlockClosure [
-    value [ ^ self _blockValue ]
+    value [ self _blockValue ]
 
     value: a [
-        ^ self _blockValue: a
+        self _blockValue: a
     ]
 
     value: a value: b [
-        ^ self _blockValue: a value: b
+        self _blockValue: a value: b
     ]
 
     value: a value: b value: c [
-        ^ self _blockValue: a value: b value: c
+        self _blockValue: a value: b value: c
     ]
 
     value: a value: b value: c value: d [
-        ^ self _blockValue: a value: b value: c value: d
+        self _blockValue: a value: b value: c value: d
     ]
 
     repeat [
@@ -179,16 +179,16 @@ Object subclass: Number [
     ]
 
     sign [
-        ^ self isNegative
+        self isNegative
             ifTrue:  [ -1 ]
             ifFalse: [  1 ]
     ]
 
     isNegative [
-        ^ self < 0
+        self < 0
     ]
 
-    isNumber [ ^ true ]
+    isNumber [ true ]
 ]
 
 Number subclass: SmallInt [
