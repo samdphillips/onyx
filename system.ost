@@ -339,7 +339,8 @@ SequencedCollection subclass: Interval [
 
         from: start to: stop by: step [
             ^ self new
-                initializeFrom: start to: stop by: step
+                initializeFrom: start to: stop by: step;
+                yourself
         ]
     ]
 
