@@ -2,15 +2,15 @@
 nil subclass: Object [
 
     == anObject [
-        ^ self _objectEqual: anObject
+        self _objectEqual: anObject
     ]
 
-    = anObject   [ ^ self == anObject ]
-    ~= anObject  [ ^ (self = anObject) not ]
-    ~~ anObject [ ^ (self == anObject) not ]
+    = anObject   [ self == anObject ]
+    ~= anObject  [ (self = anObject) not ]
+    ~~ anObject [ (self == anObject) not ]
 
     class [ 
-        ^ self _objectClass 
+        self _objectClass 
     ]
 
     error: aString [
@@ -26,66 +26,66 @@ nil subclass: Object [
     ]
 
     yourself [
-        ^ self
+        self
     ]
 
     -> anObject [
-        ^ Association key: self value: anObject
+        Association key: self value: anObject
     ]
 
     ifNil: aBlock [
-        ^ nil
+        nil
     ]
 
     ifNotNil: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 
     ifNil: nilBlock ifNotNil: notNilBlock [
-        ^ notNilBlock value
+        notNilBlock value
     ]
 
     ifNotNil: notNilBlock ifNil: nilBlock [
-        ^ self ifNil: nilBlock ifNotNil: notNilBlock
+        self ifNil: nilBlock ifNotNil: notNilBlock
     ]
 
-    isNil      [ ^ false ]
-    isClass    [ ^ false ]
-    isBoolean  [ ^ false ]
-    isNumber   [ ^ false ]
-    isSmallInt [ ^ false ]
-    isArray    [ ^ false ]
-    isString   [ ^ false ]
-    isSymbol   [ ^ false ]
+    isNil      [ false ]
+    isClass    [ false ]
+    isBoolean  [ false ]
+    isNumber   [ false ]
+    isSmallInt [ false ]
+    isArray    [ false ]
+    isString   [ false ]
+    isSymbol   [ false ]
 ]
 
 Object subclass: Class [
     new [
-        ^ self _classNew
+        self _classNew
     ]
 ]
 
 Object subclass: UndefinedObject [
-    isNil [ ^ true ]
+    isNil [ true ]
 
     ifNil: aBlock [
-        ^ aBlock value
+        aBlock value
     ]
 
     ifNotNil: aBlock [
-        ^ nil
+        nil
     ]
 
     ifNil: nilBlock ifNotNil: notNilBlock [
-        ^ nilBlock value
+        nilBlock value
     ]
 ]
 
 Object subclass: Boolean [
-    isBoolean [ ^ true ]
+    isBoolean [ true ]
 
     ifFalse: falseBlock ifTrue: trueBlock [
-        ^ self ifTrue: trueBlock ifFalse: falseBlock
+        self ifTrue: trueBlock ifFalse: falseBlock
     ]
 
 ]
@@ -175,7 +175,7 @@ Object subclass: BlockClosure [
 
 Object subclass: Number [
     between: min and: max [
-        ^ self >= min and: [ self <= max ]
+        self >= min and: [ self <= max ]
     ]
 
     sign [
@@ -192,62 +192,62 @@ Object subclass: Number [
 ]
 
 Number subclass: SmallInt [
-    isSmallInt [ ^ true ]
+    isSmallInt [ true ]
 
     addToSmallInt: aNumber [
-        ^ aNumber _addSmallInt: self
+        aNumber _addSmallInt: self
     ]
 
     subToSmallInt: aNumber [
-        ^ aNumber _smallIntSub: self
+        aNumber _smallIntSub: self
     ]
 
     quoToSmallInt: aNumber [
-        ^ aNumber _smallIntQuo: self
+        aNumber _smallIntQuo: self
     ]
 
     mulToSmallInt: aNumber [
-        ^ aNumber _mulSmallInt: self
+        aNumber _mulSmallInt: self
     ]
 
     ltToSmallInt: aNumber [
-        ^ aNumber _smallIntLt: self
+        aNumber _smallIntLt: self
     ]
 
     + aNumber [
-        ^ aNumber addToSmallInt: self
+        aNumber addToSmallInt: self
     ]
 
     - aNumber [
-        ^ aNumber subToSmallInt: self
+        aNumber subToSmallInt: self
     ]
 
     // aNumber [
-        ^ aNumber quoToSmallInt: self
+        aNumber quoToSmallInt: self
     ]
 
     * aNumber [
-        ^ aNumber mulToSmallInt: self
+        aNumber mulToSmallInt: self
     ]
 
     < aNumber [
-        ^ aNumber ltToSmallInt: self
+        aNumber ltToSmallInt: self
     ]
 
     > aNumber [
-        ^ aNumber < self
+        aNumber < self
     ]
 
     <= aNumber [
-        ^ (self > aNumber) not
+        (self > aNumber) not
     ]
 
     >= aNumber [
-        ^ aNumber <= self
+        aNumber <= self
     ]
 
     to: end [
-        ^ Interval from: self to: end
+        Interval from: self to: end
     ]
 ]
 
@@ -256,7 +256,7 @@ Object subclass: Association [
 
     Association class [
         key: key value: value [
-            ^ self new 
+            self new 
                 initializeKey: key value: value;
                 yourself
         ]
@@ -267,9 +267,9 @@ Object subclass: Association [
         value := aValue
     ]
 
-    key   [ ^ key ]
+    key   [ key ]
 
-    value [ ^ value ]
+    value [ value ]
 
     value: anObject [
         value := anObject
@@ -288,43 +288,43 @@ Collection subclass: SequencedCollection [
 SequencedCollection subclass: Array [
     Array class [
         new: size [
-            ^ self _arrayNew: size
+            self _arrayNew: size
         ]
 
         new [
-            ^ self new: 0
+            self new: 0
         ]
 
         with: anObject [
-            ^ (self new: 1)
+            (self new: 1)
                 at: 0 put: anObject;
                 yourself
         ]
     ]
 
-    isArray [ ^ true ]
+    isArray [ true ]
 
     size [
-        ^ self _arraySize
+        self _arraySize
     ]
 
     basicAt: i put: anObject [
         self _arrayAt: i put: anObject.
-        ^ anObject
+        anObject
     ]
 
     basicAt: i [
-        ^ self _arrayAt: i
+        self _arrayAt: i
     ]
 
     at: i put: anObject [
         self checkBounds: i.
-        ^ self basicAt: i put: anObject
+        self basicAt: i put: anObject
     ]
 
     at: i [
         self checkBounds: i.
-        ^ self basicAt: i
+        self basicAt: i
     ]
 
 ]
@@ -334,11 +334,11 @@ SequencedCollection subclass: Interval [
 
     Interval class [
         from: start to: stop [
-            ^ self from: start to: stop by: (stop - start) sign
+            self from: start to: stop by: (stop - start) sign
         ]
 
         from: start to: stop by: step [
-            ^ self new
+            self new
                 initializeFrom: start to: stop by: step;
                 yourself
         ]
@@ -350,18 +350,18 @@ SequencedCollection subclass: Interval [
         step  := stepval.
     ]
 
-    start [ ^ start ]
-    stop  [ ^ stop  ]
-    step  [ ^ step  ]
+    start [ start ]
+    stop  [ stop  ]
+    step  [ step  ]
 
     size [
         "only works for positive ranges so far..."
-        ^ (((stop - start) // step) * step) + start
+        (((stop - start) // step) * step) + start
     ]
 
     at: i [
         self checkBounds: i.
-        ^ (step * i) + start
+        (step * i) + start
     ]
 
     do: aBlock [
@@ -381,6 +381,6 @@ SequencedCollection subclass: Interval [
         i := 0.
 
         self do: [:e | a at: i put: e. i := i + 1 ].
-        ^ a
+        a
     ]
 ]
