@@ -283,6 +283,17 @@ Collection subclass: SequencedCollection [
         (i between: 0 and: self size - 1)
             ifFalse: [ self error: 'out of bounds' ]
     ]
+
+    do: aBlock [
+        | i size |
+        i    := 0.
+        size := self size.
+
+        [ i < size ] whileTrue: [ 
+            aBlock value: (self at: i).
+            i := i + 1
+        ]
+    ]
 ]
 
 SequencedCollection subclass: Array [
@@ -364,16 +375,6 @@ SequencedCollection subclass: Interval [
         (step * i) + start
     ]
 
-    do: aBlock [
-        | i size |
-        i    := 0.
-        size := self size.
-
-        [ i < size ] whileTrue: [ 
-            aBlock value: (self at: i).
-            i := i + 1
-        ]
-    ]
 
     asArray [
         | a i |
