@@ -294,6 +294,15 @@ Collection subclass: SequencedCollection [
             i := i + 1
         ]
     ]
+
+    asArray [
+        | a i |
+        a := Array new: self size.
+        i := 0.
+
+        self do: [:e | a at: i put: e. i := i + 1 ].
+        a
+    ]
 ]
 
 SequencedCollection subclass: Array [
@@ -338,6 +347,7 @@ SequencedCollection subclass: Array [
         self basicAt: i
     ]
 
+    asArray [ self ]
 ]
 
 SequencedCollection subclass: Interval [
@@ -375,13 +385,48 @@ SequencedCollection subclass: Interval [
         (step * i) + start
     ]
 
+]
 
-    asArray [
-        | a i |
-        a := Array new: self size.
-        i := 0.
+SequencedCollection subclass: OrderedCollection [
+    | elements firstIndex lastIndex |
 
-        self do: [:e | a at: i put: e. i := i + 1 ].
-        a
+    OrderedCollection class [
+        new [
+            self new: self defaultSize
+        ]
+
+        new: size [
+            super new initialize: size; yourself
+        ]
+
+        defaultSize [ 16 ]
     ]
+
+    initialize: size [
+        elements := Array new: size.
+        firstIndex := lastIndex := size // 2
+    ]
+
+    size [ lastIndex - firstIndex ]
+
+    checkResize: index [
+        (index between: 0 and: elements size - 1)
+            ifFalse: [ self resize: index ]
+    ]
+
+    add: anObject [
+        self addLast: anObject
+    ]
+
+    addLast: anObject [
+        self checkResize: lastIndex + 1.
+        elements at: lastIndex put: anObject.
+        lastIndex := lastIndex + 1
+    ]
+
+    at: i [
+        self checkBounds: i.
+        elements at: firstIndex + i
+    ]
+
 ]
