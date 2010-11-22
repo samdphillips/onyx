@@ -276,7 +276,11 @@ Object subclass: Association [
     ]
 ]
 
-Object subclass: Collection [ ]
+Object subclass: Collection [
+    asArray [
+        Array withAll: self
+    ]
+]
 
 Collection subclass: SequencedCollection [
     checkBounds: i [
@@ -294,15 +298,6 @@ Collection subclass: SequencedCollection [
             i := i + 1
         ]
     ]
-
-    asArray [
-        | a i |
-        a := Array new: self size.
-        i := 0.
-
-        self do: [:e | a at: i put: e. i := i + 1 ].
-        a
-    ]
 ]
 
 SequencedCollection subclass: Array [
@@ -319,6 +314,18 @@ SequencedCollection subclass: Array [
             (self new: 1)
                 at: 0 put: anObject;
                 yourself
+        ]
+
+        withAll: aCollection [
+            | arr i |
+            arr := self new: aCollection size.
+            i   := 0.
+
+            aCollection do: [:e |
+                arr at: i put: e.
+                i := i + 1
+            ].
+            arr
         ]
     ]
 
