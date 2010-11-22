@@ -280,6 +280,43 @@ Object subclass: Collection [
     asArray [
         Array withAll: self
     ]
+
+    isEmpty [
+        self size = 0
+    ]
+
+    notEmpty [
+        self isEmpty not
+    ]
+
+    allSatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifFalse: [ ^ false ]
+        ].
+        true
+    ]
+
+    anySatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifTrue: [ ^ true ]
+        ].
+        false
+    ]
+
+    includes: anObject [
+        self anySatisfy: [:e | e = anObject ]
+    ]
+
+    inject: acc into: aBlock [
+        | a |
+        a := acc.
+        self do: [:e |
+            a := aBlock value: a value: e
+        ]
+        a
+    ]
 ]
 
 Collection subclass: SequencedCollection [
