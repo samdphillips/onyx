@@ -337,6 +337,37 @@ Collection subclass: SequencedCollection [
     ]
 ]
 
+Object subclass: Character [
+    Character class [
+        codePoint: anInteger [
+            self _characterClassCodePoint: anInteger
+        ]
+    ]
+
+    codePoint [
+        self _characterCodePoint
+    ]
+]
+
+SequencedCollection subclass: String [
+    at: i [
+        self checkBounds: i.
+        self basicAt: i
+    ]
+
+    basicAt: i [
+        self _stringAt: i
+    ]
+
+    size [
+        self _stringSize
+    ]
+
+    , aString [
+        self _stringConcat: aString
+    ]
+]
+
 SequencedCollection subclass: Array [
     Array class [
         new: size [
@@ -440,10 +471,10 @@ SequencedCollection subclass: OrderedCollection [
         ]
 
         new: size [
-            super new initialize: size; yourself
+            super new initialize: size * 2; yourself
         ]
 
-        defaultSize [ 16 ]
+        defaultSize [ 8 ]
     ]
 
     initialize: size [
