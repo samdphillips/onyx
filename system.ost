@@ -424,6 +424,12 @@ SequencedCollection subclass: OrderedCollection [
         lastIndex := lastIndex + 1
     ]
 
+    addFirst: anObject [
+        self checkResize: firstIndex - 1.
+        elements at: firstIndex - 1 put: anObject.
+        firstIndex := firstIndex - 1
+    ]
+
     at: i [
         self checkBounds: i.
         elements at: firstIndex + i
