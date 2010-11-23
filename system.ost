@@ -209,6 +209,10 @@ Object subclass: BlockClosure [
     whileFalse: aBlock [
         [ self value not ] whileTrue: aBlock
     ]
+
+    ensure: aBlock [
+        self _blockEnsure: aBlock
+    ]
 ]
 
 Object subclass: Number [
