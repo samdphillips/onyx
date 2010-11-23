@@ -213,6 +213,10 @@ Object subclass: BlockClosure [
     ensure: aBlock [
         self _blockEnsure: aBlock
     ]
+
+    ifCurtailed: aBlock [
+        self _blockIfCurtailed: aBlock
+    ]
 ]
 
 Object subclass: Number [
