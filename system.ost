@@ -49,6 +49,10 @@ nil subclass: Object [
         self ifNil: nilBlock ifNotNil: notNilBlock
     ]
 
+    isKindOf: aClass [
+        self class inheritsFrom: aClass
+    ]
+
     isNil      [ false ]
     isClass    [ false ]
     isBoolean  [ false ]
@@ -62,6 +66,15 @@ nil subclass: Object [
 Object subclass: Class [
     new [
         self _classNew
+    ]
+
+    superClass [
+        self _classSuper
+    ]
+
+    inheritsFrom: aClass [
+        self == aClass
+            or: [ self superClass inheritsFrom: aClass ]
     ]
 ]
 
@@ -78,6 +91,10 @@ Object subclass: UndefinedObject [
 
     ifNil: nilBlock ifNotNil: notNilBlock [
         nilBlock value
+    ]
+
+    inheritsFrom: aClass [
+        false
     ]
 ]
 
