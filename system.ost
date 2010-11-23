@@ -14,7 +14,7 @@ nil subclass: Object [
     ]
 
     error: aString [
-        self _objectError: aString
+        Error signal: aString
     ]
 
     doesNotUnderstand: aMessage [
@@ -79,6 +79,44 @@ Object subclass: UndefinedObject [
     ifNil: nilBlock ifNotNil: notNilBlock [
         nilBlock value
     ]
+]
+
+Object subclass: Exception [
+    | messageText |
+
+    Exception class [
+        signal [
+            self new signal
+        ]
+
+        signal: messageText [
+            self new
+                messageText: messageText;
+                signal
+        ]
+    ]
+
+    messageText: aString [
+        messageText := aString
+    ]
+
+    messageText [
+        messageText 
+            ifNil:    [ '' ]
+            ifNotNil: [ messageText ]
+    ]
+
+    signal [
+        self _exceptionSignal
+    ]
+
+    defaultAction [
+        self _exceptionRaise
+    ]
+]
+
+Exception subclass: Error [
+
 ]
 
 Object subclass: Boolean [
