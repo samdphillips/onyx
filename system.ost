@@ -249,6 +249,10 @@ Number subclass: SmallInt [
     to: end [
         Interval from: self to: end
     ]
+
+    to: end do: aBlock [
+        (self to: end) do: aBlock
+    ]
 ]
 
 Object subclass: Association [
@@ -445,6 +449,10 @@ SequencedCollection subclass: Array [
     ]
 
     asArray [ self ]
+
+    , aCollection [
+        self _arrayAppend: aCollection asArray
+    ]
 ]
 
 SequencedCollection subclass: Interval [
@@ -509,6 +517,25 @@ SequencedCollection subclass: OrderedCollection [
     checkResize: index [
         (index between: 0 and: elements size - 1)
             ifFalse: [ self resize: index ]
+    ]
+
+    resize: index [
+        | grow |
+        grow := self size // 2.
+
+        index < 0
+            ifTrue:  [ self resizeStart: grow ]
+            ifFalse: [ self resizeEnd:   grow ]
+    ]
+
+    resizeStart: grow [
+        elements   := (Array new: grow), elements.
+        firstIndex := firstIndex + grow.
+        lastIndex  := lastIndex  + grow.
+    ]
+
+    resizeEnd: grow [
+        elements := elements, (Array new: grow)
     ]
 
     add: anObject [
