@@ -49,14 +49,15 @@ nil subclass: Object [
         self ifNil: nilBlock ifNotNil: notNilBlock
     ]
 
-    isNil      [ false ]
-    isClass    [ false ]
-    isBoolean  [ false ]
-    isNumber   [ false ]
-    isSmallInt [ false ]
-    isArray    [ false ]
-    isString   [ false ]
-    isSymbol   [ false ]
+    isNil          [ false ]
+    isClass        [ false ]
+    isBoolean      [ false ]
+    isNumber       [ false ]
+    isSmallInt     [ false ]
+    isArray        [ false ]
+    isString       [ false ]
+    isSymbol       [ false ]
+    isContinuation [ false ]
 ]
 
 Object subclass: Class [
@@ -157,6 +158,22 @@ Object subclass: BlockClosure [
         self _blockValue: a value: b value: c value: d
     ]
 
+    control [
+        self control: Continuation defaultTag
+    ]
+
+    control: promptTag [
+        self _blockControl: promptTag
+    ]
+
+    withPrompt [
+        self withPrompt: Continuation defaultTag
+    ]
+
+    withPrompt: promptTag [
+        self _blockWithPrompt: promptTag
+    ]
+
     repeat [
         self value.
         self repeat
@@ -170,6 +187,27 @@ Object subclass: BlockClosure [
 
     whileFalse: aBlock [
         [ self value not ] whileTrue: aBlock
+    ]
+]
+
+Object subclass: Continuation [
+    Continuation class [
+        defaultTag [
+            "this should really be ... (once class ivars work)"
+            "defaultTag ifNil: [ defaultTag := Object new ].
+             defaultTag"
+            #theDefaultPromptTag
+        ]
+    ]
+
+    isContinuation [ true ]
+
+    value [
+        self value: nil
+    ]
+
+    value: anObject [
+        self _continuationValue: anObject
     ]
 ]
 
