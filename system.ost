@@ -158,12 +158,12 @@ Object subclass: BlockClosure [
         self _blockValue: a value: b value: c value: d
     ]
 
-    control [
+    withCont [
         self control: Continuation defaultTag
     ]
 
-    control: promptTag [
-        self _blockControl: promptTag
+    withCont: promptTag [
+        self _blockWithCont: promptTag
     ]
 
     withPrompt [
@@ -195,6 +195,8 @@ Object subclass: BlockClosure [
 ]
 
 Object subclass: Continuation [
+    | frames |
+
     Continuation class [
         defaultTag [
             "this should really be ... (once class ivars work)"
@@ -214,6 +216,8 @@ Object subclass: Continuation [
         self _continuationValue: anObject
     ]
 
+    "Getting marks from here doesn't make that much sense"
+    "
     marks: tag [
         self _continuationMarks: tag
     ]
@@ -221,6 +225,7 @@ Object subclass: Continuation [
     firstMark: tag [
         self _continuationFirstMark: tag
     ]
+    "
 ]
 
 Object subclass: Number [
