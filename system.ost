@@ -13,6 +13,10 @@ nil subclass: Object [
         self _objectClass 
     ]
 
+    abort: aPromptTag [
+        self _objectAbort: aPromptTag
+    ]
+
     error: aString [
         self _objectError: aString
     ]
