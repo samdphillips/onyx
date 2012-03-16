@@ -175,7 +175,11 @@ Object subclass: BlockClosure [
     ]
 
     withPrompt: promptTag [
-        self _blockWithPrompt: promptTag
+        self withPrompt: promptTag abort: [:x | x ]
+    ]
+
+    withPrompt: promptTag abort: aBlock [
+        self _blockWithPrompt: promptTag abort: aBlock
     ]
 
     withMark: tag value: anObject [
