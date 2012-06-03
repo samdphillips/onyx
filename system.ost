@@ -224,16 +224,16 @@ Object subclass: Continuation [
         self _continuationValue: anObject
     ]
 
-    "Getting marks from here doesn't make that much sense"
-    "
-    marks: tag [
-        self _continuationMarks: tag
+]
+
+Object subclass: ContinuationMark [
+    firstMark: promptTag [
+        self _continuationFirstMark: promptTag
     ]
 
-    firstMark: tag [
-        self _continuationFirstMark: tag
+    marks: promptTag [
+        self _continuationMarks: promptTag
     ]
-    "
 ]
 
 Object subclass: Number [
