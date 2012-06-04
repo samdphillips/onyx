@@ -13,10 +13,6 @@ nil subclass: Object [
         self _objectClass 
     ]
 
-    abort: aPromptTag [
-        self _objectAbort: aPromptTag
-    ]
-
     error: aString [
         self _objectError: aString
     ]
@@ -224,6 +220,13 @@ Object subclass: Continuation [
         self _continuationValue: anObject
     ]
 
+]
+
+Object subclass: PromptTag [
+    abort: aValue [
+        "FIXME: change this primitive"
+        aValue _objectAbort: self
+    ]
 ]
 
 Object subclass: ContinuationMark [
