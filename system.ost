@@ -384,6 +384,17 @@ Object subclass: Collection [
         ]
         a
     ]
+
+    detect: aBlock ifNone: excBlock [
+        self do: [:e |
+            (aBlock value: e) ifTrue: [ ^ e ]
+        ].
+        excBlock value
+    ]
+
+    detect: aBlock [
+        self detect: aBlock ifNone: [ nil ]
+    ]
 ]
 
 Collection subclass: SequencedCollection [
