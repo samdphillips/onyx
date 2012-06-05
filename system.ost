@@ -316,6 +316,14 @@ Number subclass: SmallInt [
     to: end do: aBlock [
         (self to: end) do: aBlock
     ]
+
+    isOdd [
+        self _smallIntIsOdd
+    ]
+
+    isEven [
+        self isOdd not
+    ]
 ]
 
 Object subclass: Association [
