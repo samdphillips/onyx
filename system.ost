@@ -389,7 +389,7 @@ Object subclass: Collection [
         a := acc.
         self do: [:e |
             a := aBlock value: a value: e
-        ]
+        ].
         a
     ]
 
