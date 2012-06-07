@@ -25,6 +25,10 @@ nil subclass: Object [
         self _objectHalt
     ]
 
+    isMemberOf: aClass [
+       self class == aClass 
+    ]
+
     yourself [
         self
     ]
