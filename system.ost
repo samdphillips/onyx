@@ -25,6 +25,16 @@ nil subclass: Object [
         self _objectHalt
     ]
 
+    isKindOf: aClass [
+        | cls |
+        cls := self class.
+        [
+            cls isNil ifTrue: [ ^ false ].
+            cls == aClass ifTrue: [ ^ true ].
+            cls := cls superclass
+        ] repeat
+    ]
+
     isMemberOf: aClass [
        self class == aClass 
     ]
@@ -67,6 +77,10 @@ nil subclass: Object [
 Object subclass: Class [
     new [
         self _classNew
+    ]
+
+    superclass [
+        self _classSuperclass
     ]
 ]
 
