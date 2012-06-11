@@ -13,6 +13,10 @@ nil subclass: Object [
         self _objectClass 
     ]
 
+    stackTrace [
+        self _objectStackTrace
+    ]
+
     debug [
         self _objectDebug
     ]
