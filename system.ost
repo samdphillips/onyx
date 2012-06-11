@@ -260,6 +260,10 @@ Object subclass: Continuation [
 ]
 
 Object subclass: PromptTag [
+    abort [
+        self abort: nil
+    ]
+
     abort: aValue [
         "FIXME: change this primitive"
         aValue _objectAbort: self
