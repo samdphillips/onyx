@@ -13,6 +13,10 @@ nil subclass: Object [
         self _objectClass 
     ]
 
+    debug [
+        self _objectDebug
+    ]
+
     error: aString [
         self _objectError: aString
     ]
