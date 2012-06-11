@@ -214,6 +214,21 @@ Object subclass: BlockClosure [
     whileFalse: aBlock [
         [ self value not ] whileTrue: aBlock
     ]
+
+    on: anExceptionSelector do: aBlock [
+        | promptTag |
+
+        promptTag := PromptTag new.
+
+        [
+            self withMark: ExceptionHandler mark
+                value: (ExceptionHandler new 
+                            selector:  anExceptionSelector 
+                            promptTag: promptTag)
+        ] withPrompt: promptTag
+            abort: [:exc | aBlock value: exc ]
+    ]
+
 ]
 
 Object subclass: Continuation [
@@ -254,6 +269,63 @@ Object subclass: ContinuationMark [
 
     marks: promptTag [
         self _continuationMarks: promptTag
+    ]
+]
+
+ExceptionHandlerMark := ContinuationMark new.
+
+Object subclass: ExceptionHandler [
+    | selector tag |
+
+    ExceptionHandler class [
+        mark [
+            ExceptionHandlerMark
+        ]
+
+        currentHandlers [
+            self mark marks: Continuation defaultTag
+        ]
+
+        findHandlerFor: anException [
+            self currentHandlers detect: [:h | h handles: anException ]
+        ]
+    ]
+
+    selector: anExceptionSelector promptTag: aPromptTag [
+        selector := anExceptionSelector.
+        tag      := aPromptTag.
+        self
+    ]
+
+    handles: anException [
+        selector handles: anException
+    ]
+
+    tag [
+        tag
+    ]
+
+]
+
+Object subclass: Exception [
+    | handler resumer |
+
+    Exception class [
+        handles: anException [
+            anException isKindOf: self
+        ]
+
+        signal [
+            self new signal
+        ]
+    ]
+
+    signal [
+        handler := ExceptionHandler findHandlerFor: self.
+        [:k | 
+            resumer := k. 
+            handler tag abort: self 
+        ] withCont: handler tag
     ]
 ]
 
