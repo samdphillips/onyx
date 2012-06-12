@@ -13,8 +13,12 @@ nil subclass: Object [
         self _objectClass 
     ]
 
-    abort: aPromptTag [
-        self _objectAbort: aPromptTag
+    stackTrace [
+        self _objectStackTrace
+    ]
+
+    debug [
+        self _objectDebug
     ]
 
     error: aString [
@@ -27,6 +31,20 @@ nil subclass: Object [
 
     halt [
         self _objectHalt
+    ]
+
+    isKindOf: aClass [
+        | cls |
+        cls := self class.
+        [
+            cls isNil ifTrue: [ ^ false ].
+            cls == aClass ifTrue: [ ^ true ].
+            cls := cls superclass
+        ] repeat
+    ]
+
+    isMemberOf: aClass [
+       self class == aClass 
     ]
 
     yourself [
@@ -67,6 +85,10 @@ nil subclass: Object [
 Object subclass: Class [
     new [
         self _classNew
+    ]
+
+    superclass [
+        self _classSuperclass
     ]
 ]
 
@@ -200,6 +222,21 @@ Object subclass: BlockClosure [
     whileFalse: aBlock [
         [ self value not ] whileTrue: aBlock
     ]
+
+    on: anExceptionSelector do: aBlock [
+        | promptTag |
+
+        promptTag := PromptTag new.
+
+        [
+            self withMark: ExceptionHandler mark
+                value: (ExceptionHandler new 
+                            selector:  anExceptionSelector 
+                            promptTag: promptTag)
+        ] withPrompt: promptTag
+            abort: [:exc | aBlock value: exc ]
+    ]
+
 ]
 
 Object subclass: Continuation [
@@ -226,6 +263,17 @@ Object subclass: Continuation [
 
 ]
 
+Object subclass: PromptTag [
+    abort [
+        self abort: nil
+    ]
+
+    abort: aValue [
+        "FIXME: change this primitive"
+        aValue _objectAbort: self
+    ]
+]
+
 Object subclass: ContinuationMark [
     firstMark: promptTag [
         self _continuationFirstMark: promptTag
@@ -233,6 +281,68 @@ Object subclass: ContinuationMark [
 
     marks: promptTag [
         self _continuationMarks: promptTag
+    ]
+]
+
+ExceptionHandlerMark := ContinuationMark new.
+
+Object subclass: ExceptionHandler [
+    | selector tag |
+
+    ExceptionHandler class [
+        mark [
+            ExceptionHandlerMark
+        ]
+
+        currentHandlers [
+            self mark marks: Continuation defaultTag
+        ]
+
+        findHandlerFor: anException [
+            self currentHandlers detect: [:h | h handles: anException ]
+        ]
+    ]
+
+    selector: anExceptionSelector promptTag: aPromptTag [
+        selector := anExceptionSelector.
+        tag      := aPromptTag.
+        self
+    ]
+
+    handles: anException [
+        selector handles: anException
+    ]
+
+    tag [
+        tag
+    ]
+
+]
+
+Object subclass: Exception [
+    | handler resumer |
+
+    Exception class [
+        handles: anException [
+            anException isKindOf: self
+        ]
+
+        signal [
+            self new signal
+        ]
+    ]
+
+    signal [
+        handler := ExceptionHandler findHandlerFor: self.
+        [:k | 
+            resumer := k. 
+            handler tag abort: self 
+        ] withCont: handler tag
+    ]
+
+    pass [
+        handler := ExceptionHandler findHandlerFor: self.
+        handler tag abort: self
     ]
 ]
 
