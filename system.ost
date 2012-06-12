@@ -339,6 +339,11 @@ Object subclass: Exception [
             handler tag abort: self 
         ] withCont: handler tag
     ]
+
+    pass [
+        handler := ExceptionHandler findHandlerFor: self.
+        handler tag abort: self
+    ]
 ]
 
 Object subclass: Number [
