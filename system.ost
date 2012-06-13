@@ -9,8 +9,8 @@ nil subclass: Object [
     ~= anObject  [ (self = anObject) not ]
     ~~ anObject [ (self == anObject) not ]
 
-    class [ 
-        self _objectClass 
+    class [
+        self _objectClass
     ]
 
     stackTrace [
@@ -44,7 +44,7 @@ nil subclass: Object [
     ]
 
     isMemberOf: aClass [
-       self class == aClass 
+       self class == aClass
     ]
 
     yourself [
@@ -214,7 +214,7 @@ Object subclass: BlockClosure [
     ]
 
     whileTrue: aBlock [
-        [ self value 
+        [ self value
             ifFalse: [ ^ nil ]
             ifTrue:  [ aBlock value ] ] repeat
     ]
@@ -230,14 +230,15 @@ Object subclass: BlockClosure [
 
         [
             self withMark: ExceptionHandler mark
-                value: (ExceptionHandler new 
-                            selector:  anExceptionSelector 
+                value: (ExceptionHandler new
+                            selector:  anExceptionSelector
                             promptTag: promptTag)
         ] withPrompt: promptTag
-            abort: [:exc || val | 
+            abort: [:exc || val |
                        val := aBlock value: exc.
                        exc exit.
-                       val ]
+                       val
+                   ]
     ]
 
     ifCurtailed: aBlock [
@@ -346,10 +347,10 @@ Object subclass: Exception [
 
     signal [
         handler := ExceptionHandler findHandlerFor: self.
-        [:k | 
-            resumer := k. 
+        [:k |
+            resumer := k.
             exitBlocks := CurtailedMark marks: handler tag.
-            handler tag abort: self 
+            handler tag abort: self
         ] withCont: handler tag
     ]
 
@@ -454,7 +455,7 @@ Object subclass: Association [
 
     Association class [
         key: key value: value [
-            self new 
+            self new
                 initializeKey: key value: value;
                 yourself
         ]
@@ -539,7 +540,7 @@ Collection subclass: SequencedCollection [
         i    := 0.
         size := self size.
 
-        [ i < size ] whileTrue: [ 
+        [ i < size ] whileTrue: [
             aBlock value: (self at: i).
             i := i + 1
         ]
