@@ -247,6 +247,19 @@ Object subclass: BlockClosure [
 
 ]
 
+Object subclass: PromptTag [
+    abort [
+        self abort: nil
+    ]
+
+    abort: aValue [
+        "FIXME: change this primitive"
+        aValue _objectAbort: self
+    ]
+]
+
+DefaultPromptTag := PromptTag new.
+
 Object subclass: Continuation [
     | frames |
 
@@ -255,7 +268,7 @@ Object subclass: Continuation [
             "this should really be ... (once class ivars work)"
             "defaultTag ifNil: [ defaultTag := Object new ].
              defaultTag"
-            #theDefaultPromptTag
+            DefaultPromptTag
         ]
     ]
 
@@ -269,17 +282,6 @@ Object subclass: Continuation [
         self _continuationValue: anObject
     ]
 
-]
-
-Object subclass: PromptTag [
-    abort [
-        self abort: nil
-    ]
-
-    abort: aValue [
-        "FIXME: change this primitive"
-        aValue _objectAbort: self
-    ]
 ]
 
 Object subclass: ContinuationMark [
