@@ -228,17 +228,15 @@ Object subclass: BlockClosure [
 
         promptTag := PromptTag new.
 
-        [
-            self withMark: ExceptionHandler mark
-                value: (ExceptionHandler new
-                            selector:  anExceptionSelector
-                            promptTag: promptTag)
-        ] withPrompt: promptTag
+        [ self withMark: ExceptionHandler mark
+              value: (ExceptionHandler new
+                          selector:  anExceptionSelector
+                          promptTag: promptTag) ]
+            withPrompt: promptTag
             abort: [:exc || val |
                        val := aBlock value: exc.
                        exc exit.
-                       val
-                   ]
+                       val ]
     ]
 
     ifCurtailed: aBlock [
