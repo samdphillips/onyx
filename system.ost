@@ -240,7 +240,7 @@ Object subclass: BlockClosure [
     ]
 
     ifCurtailed: aBlock [
-        self withMark: CurtailedMark value: aBlock
+        [ self withPrompt ] withMark: CurtailedMark value: aBlock
     ]
 
 ]
