@@ -193,7 +193,7 @@ Object subclass: BlockClosure [
     ]
 
     withPrompt [
-        self withPrompt: Continuation defaultTag
+        self withPrompt: PromptTag new
     ]
 
     withPrompt: promptTag [
