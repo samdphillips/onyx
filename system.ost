@@ -322,14 +322,22 @@ Object subclass: ExceptionHandler [
         selector handles: anException
     ]
 
-    tag [
-        tag
+    signalWith: anException [
+        [:k |
+            anException resumer: k;
+                exitBlocks: (CurtailedMark marks: tag).
+            self throw: anException
+        ] withCont: tag
+    ]
+
+    throw: anException [
+        tag abort: anException
     ]
 
 ]
 
 Object subclass: Exception [
-    | handler resumer exitBlocks |
+    | resumer exitBlocks |
 
     Exception class [
         handles: anException [
@@ -340,24 +348,31 @@ Object subclass: Exception [
             self new signal
         ]
     ]
+    
+    resumer: aContinuation [
+        resumer := aContinuation
+    ]
+
+    exitBlocks: aCollection [
+        exitBlocks := aCollection
+    ]
+
+    signal [
+        | handler |
+        handler := ExceptionHandler findHandlerFor: self.
+        handler signalWith: self
+    ]
+
+    pass [
+        | handler |
+        handler := ExceptionHandler findHandlerFor: self.
+        handler throw: self
+    ]
 
     exit [
         exitBlocks do: [:b | b value ]
     ]
 
-    signal [
-        handler := ExceptionHandler findHandlerFor: self.
-        [:k |
-            resumer := k.
-            exitBlocks := CurtailedMark marks: handler tag.
-            handler tag abort: self
-        ] withCont: handler tag
-    ]
-
-    pass [
-        handler := ExceptionHandler findHandlerFor: self.
-        handler tag abort: self
-    ]
 ]
 
 Object subclass: Number [
