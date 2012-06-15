@@ -224,19 +224,12 @@ Object subclass: BlockClosure [
     ]
 
     on: anExceptionSelector do: aBlock [
-        | promptTag |
+        | handler |
+        handler := ExceptionHandler new
+                       selector: anExceptionSelector
+                       handlerBlock: aBlock.
 
-        promptTag := PromptTag new.
-
-        [ self withMark: ExceptionHandler mark
-              value: (ExceptionHandler new
-                          selector:  anExceptionSelector
-                          promptTag: promptTag) ]
-            withPrompt: promptTag
-            abort: [:exc || val |
-                       val := aBlock value: exc.
-                       exc exit.
-                       val ]
+        handler installAndDo: self
     ]
 
     ifCurtailed: aBlock [
@@ -296,7 +289,7 @@ ExceptionHandlerMark := ContinuationMark new.
 CurtailedMark := ContinuationMark new.
 
 Object subclass: ExceptionHandler [
-    | selector tag |
+    | handlerBlock selector tag |
 
     ExceptionHandler class [
         mark [
@@ -312,14 +305,26 @@ Object subclass: ExceptionHandler [
         ]
     ]
 
-    selector: anExceptionSelector promptTag: aPromptTag [
-        selector := anExceptionSelector.
-        tag      := aPromptTag.
+    selector: anExceptionSelector handlerBlock: aBlock [
+        handlerBlock := aBlock.
+        selector     := anExceptionSelector.
+        tag          := PromptTag new.
         self
     ]
 
     handles: anException [
         selector handles: anException
+    ]
+
+    installAndDo: aBlock [
+        [ aBlock
+              withMark: ExceptionHandler mark
+              value: self ]
+            withPrompt: tag
+            abort: [:exc || val |
+                       val := handlerBlock value: exc.
+                       exc exit.
+                       val ]
     ]
 
     signalWith: anException [
