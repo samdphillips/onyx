@@ -90,6 +90,10 @@ Object subclass: Class [
     superclass [
         self _classSuperclass
     ]
+
+    name [
+        self _className
+    ]
 ]
 
 Object subclass: UndefinedObject [
