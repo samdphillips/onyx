@@ -342,7 +342,7 @@ Object subclass: ExceptionHandler [
 ]
 
 Object subclass: Exception [
-    | resumer exitBlocks |
+    | handler resumer exitBlocks |
 
     Exception class [
         handles: anException [
@@ -363,15 +363,27 @@ Object subclass: Exception [
     ]
 
     signal [
-        | handler |
         handler := ExceptionHandler findHandlerFor: self.
         handler signalWith: self
     ]
 
     pass [
-        | handler |
         handler := ExceptionHandler findHandlerFor: self.
         handler throw: self
+    ]
+
+    isResumable [
+        true
+    ]
+
+    resume:  aValue [
+        self isResumable
+            ifFalse: [ self error: 'exception is not resumable' ].
+        handler installAndDo: [ resumer value: aValue ]
+    ]
+
+    resume [
+        self resume: nil
     ]
 
     exit [
