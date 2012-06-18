@@ -26,7 +26,9 @@ nil subclass: Object [
     ]
 
     doesNotUnderstand: aMessage [
-        self _dnu: aMessage
+        MessageNotUnderstood new
+            message: aMessage;
+            signal
     ]
 
     halt [
@@ -110,6 +112,7 @@ Object subclass: UndefinedObject [
     ifNil: nilBlock ifNotNil: notNilBlock [
         nilBlock value
     ]
+
 ]
 
 Object subclass: Boolean [
@@ -167,6 +170,13 @@ Boolean subclass: False [
     or: aBlock [
         aBlock value
     ]
+]
+
+Object subclass: Message [
+    | selector arguments |
+
+    selector  [ selector  ]
+    arguments [ arguments ]
 ]
 
 Object subclass: BlockClosure [
@@ -402,6 +412,14 @@ Object subclass: Exception [
         exitBlocks do: [:b | b value ]
     ]
 
+]
+
+Exception subclass: MessageNotUnderstood [
+    | message |
+
+    message: aMessage [
+        message := aMessage
+    ]
 ]
 
 Object subclass: Number [
