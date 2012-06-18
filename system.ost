@@ -345,6 +345,14 @@ Object subclass: ExceptionHandler [
 
 ]
 
+Object subclass: PrimExceptionHandler [
+    handles: anException [ true ]
+
+    signalWith: anException [
+        self _systemIsBroken: anException
+    ]
+]
+
 Object subclass: Exception [
     | handler resumer exitBlocks |
 
