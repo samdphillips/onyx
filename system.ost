@@ -27,6 +27,7 @@ nil subclass: Object [
 
     doesNotUnderstand: aMessage [
         MessageNotUnderstood new
+            receiver: self;
             message: aMessage;
             signal
     ]
@@ -415,7 +416,11 @@ Object subclass: Exception [
 ]
 
 Exception subclass: MessageNotUnderstood [
-    | message |
+    | receiver message |
+
+    receiver: anObject [
+        receiver := anObject
+    ]
 
     message: aMessage [
         message := aMessage
