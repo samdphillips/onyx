@@ -287,7 +287,11 @@ Object subclass: Continuation [
     ]
 
     value: anObject [
-        self _continuationValue: anObject
+        self apply: [ anObject ]
+    ]
+
+    apply: aBlock [
+        self _continuationApply: aBlock
     ]
 
 ]
