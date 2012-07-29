@@ -75,6 +75,7 @@ nil subclass: Object [
     ]
 
     isNil          [ false ]
+    isNotNil       [ true  ]
     isClass        [ false ]
     isBoolean      [ false ]
     isNumber       [ false ]
@@ -100,7 +101,8 @@ Object subclass: Class [
 ]
 
 Object subclass: UndefinedObject [
-    isNil [ true ]
+    isNil    [ true  ]
+    isNotNil [ false ]
 
     ifNil: aBlock [
         aBlock value
