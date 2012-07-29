@@ -413,6 +413,13 @@ Object subclass: Exception [
         exitBlocks do: [:b | b value ]
     ]
 
+    "need to write:
+      - outer
+      - resignalAs: anException
+      - retry
+      - retryUsing: aBlock
+      - return: anObject
+     "
 ]
 
 Exception subclass: MessageNotUnderstood [
