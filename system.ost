@@ -392,6 +392,12 @@ Object subclass: Exception [
         handler signalWith: self
     ]
 
+    isNested [
+        | handler |
+        handler := ExceptionHandler findHandlerFor: self.
+        handler isNotNil and: [ handler isMemberOf: ExceptionHandler ]
+    ]
+
     pass [
         handler := ExceptionHandler findHandlerFor: self.
         handler throw: self
