@@ -287,11 +287,11 @@ Object subclass: Continuation [
     ]
 
     value: anObject [
-        self apply: [ anObject ]
+        self do: [ anObject ]
     ]
 
-    apply: aBlock [
-        self _continuationApply: aBlock
+    do: aBlock [
+        self _continuationDo: aBlock
     ]
 
 ]
