@@ -22,7 +22,7 @@ nil subclass: Object [
     ]
 
     error: aString [
-        self _objectError: aString
+        Error signal: aString
     ]
 
     doesNotUnderstand: aMessage [
@@ -371,7 +371,7 @@ Object subclass: PrimExceptionHandler [
 ]
 
 Object subclass: Exception [
-    | handler resumer exitBlocks |
+    | handler resumer exitBlocks messageText |
 
     Exception class [
         handles: anException [
@@ -381,8 +381,22 @@ Object subclass: Exception [
         signal [
             self new signal
         ]
+
+        signal: aString [
+            self new
+                messageText: aString;
+                signal
+        ]
     ]
-    
+
+    messageText: aString [
+        messageText := aString
+    ]
+
+    messageText [
+        messageText
+    ]
+
     resumer: aContinuation [
         resumer := aContinuation
     ]
@@ -433,6 +447,8 @@ Object subclass: Exception [
       - return: anObject
      "
 ]
+
+Exception subclass: Error [ ]
 
 Exception subclass: MessageNotUnderstood [
     | receiver message |
