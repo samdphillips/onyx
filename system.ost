@@ -362,14 +362,6 @@ Object subclass: ExceptionHandler [
 
 ]
 
-Object subclass: PrimExceptionHandler [
-    handles: anException [ true ]
-
-    signalWith: anException [
-        self _systemIsBroken: anException
-    ]
-]
-
 Object subclass: Exception [
     | handler resumer exitBlocks messageText |
 
@@ -405,9 +397,14 @@ Object subclass: Exception [
         exitBlocks := aCollection
     ]
 
+    defaultAction [
+        self _systemIsBroken: messageText
+    ]
+
     signal [
         handler := ExceptionHandler findHandlerFor: self.
-        handler signalWith: self
+        handler ifNil: [ self defaultAction ].
+        handler signalWith: self.
     ]
 
     isNested [
