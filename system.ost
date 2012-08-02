@@ -408,9 +408,7 @@ Object subclass: Exception [
     ]
 
     isNested [
-        | handler |
-        handler := ExceptionHandler findHandlerFor: self.
-        handler isNotNil and: [ handler isMemberOf: ExceptionHandler ]
+        (ExceptionHandler findHandlerFor: self) isNotNil
     ]
 
     pass [
