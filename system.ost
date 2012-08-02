@@ -462,6 +462,8 @@ Exception subclass: MessageNotUnderstood [
     ]
 ]
 
+Exception subclass: ImmutableCollectionError [ ]
+
 Object subclass: Number [
     between: min and: max [
         self >= min and: [ self <= max ]
@@ -628,6 +630,10 @@ Object subclass: Collection [
 
     detect: aBlock [
         self detect: aBlock ifNone: [ nil ]
+    ]
+
+    immutableError [
+        ImmutableCollectionError signal
     ]
 ]
 
