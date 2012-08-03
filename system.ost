@@ -648,6 +648,18 @@ Collection subclass: SequencedCollection [
             i := i + 1
         ]
     ]
+
+    at: i put: anObject [
+        self checkBounds: i.
+        self basicAt: i put: anObject.
+        anObject
+    ]
+
+    at: i [
+        self checkBounds: i.
+        self basicAt: i
+    ]
+
 ]
 
 Object subclass: Character [
@@ -681,13 +693,12 @@ SequencedCollection subclass: Symbol [
 SequencedCollection subclass: String [
     isString [ true ]
 
-    at: i [
-        self checkBounds: i.
-        self basicAt: i
-    ]
-
     basicAt: i [
         self _stringAt: i
+    ]
+
+    basicAt: i put: aChar [
+        self _stringAt: i put: aChar
     ]
 
     size [
@@ -739,22 +750,11 @@ SequencedCollection subclass: Array [
     ]
 
     basicAt: i put: anObject [
-        self _arrayAt: i put: anObject.
-        anObject
+        self _arrayAt: i put: anObject
     ]
 
     basicAt: i [
         self _arrayAt: i
-    ]
-
-    at: i put: anObject [
-        self checkBounds: i.
-        self basicAt: i put: anObject
-    ]
-
-    at: i [
-        self checkBounds: i.
-        self basicAt: i
     ]
 
     asArray [ self ]
