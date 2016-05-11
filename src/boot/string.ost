@@ -1,0 +1,52 @@
+Object subclass: Character [
+    Character class [
+        codePoint: anInteger [
+            self _characterClassCodePoint: anInteger
+        ]
+    ]
+
+    codePoint [
+        self _characterCodePoint
+    ]
+]
+
+SequencedCollection subclass: Symbol [
+    Symbol class [
+        internString: aString [
+            aString _stringAsSymbol
+        ]
+    ]
+
+    asString [
+        self _symbolAsString
+    ]
+
+    asSymbol [ self ]
+
+    isSymbol [ true ]
+]
+
+SequencedCollection subclass: String [
+    isString [ true ]
+
+    basicAt: i [
+        self _stringAt: i
+    ]
+
+    basicAt: i put: aChar [
+        self _stringAt: i put: aChar
+    ]
+
+    size [
+        self _stringSize
+    ]
+
+    , aString [
+        self _stringConcat: aString
+    ]
+
+    asSymbol [
+        Symbol internString: self
+    ]
+]
+

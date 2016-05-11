@@ -1,0 +1,269 @@
+
+Object subclass: Association [
+    | key value |
+
+    Association class [
+        key: key value: value [
+            self new
+                initializeKey: key value: value;
+                yourself
+        ]
+    ]
+
+    initializeKey: aKey value: aValue [
+        key := aKey.
+        value := aValue
+    ]
+
+    key   [ key ]
+
+    value [ value ]
+
+    value: anObject [
+        value := anObject
+    ]
+]
+
+Object subclass: Collection [
+    asArray [
+        Array withAll: self
+    ]
+
+    isEmpty [
+        self size = 0
+    ]
+
+    notEmpty [
+        self isEmpty not
+    ]
+
+    allSatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifFalse: [ ^ false ]
+        ].
+        true
+    ]
+
+    anySatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifTrue: [ ^ true ]
+        ].
+        false
+    ]
+
+    includes: anObject [
+        self anySatisfy: [:e | e = anObject ]
+    ]
+
+    inject: acc into: aBlock [
+        | a |
+        a := acc.
+        self do: [:e |
+            a := aBlock value: a value: e
+        ].
+        a
+    ]
+
+    detect: aBlock ifNone: excBlock [
+        self do: [:e |
+            (aBlock value: e) ifTrue: [ ^ e ]
+        ].
+        excBlock value
+    ]
+
+    detect: aBlock [
+        self detect: aBlock ifNone: [ nil ]
+    ]
+
+    immutableError [
+        ImmutableCollectionError signal
+    ]
+]
+
+Collection subclass: SequencedCollection [
+    checkBounds: i [
+        (i between: 0 and: self size - 1)
+            ifFalse: [ self error: 'out of bounds' ]
+    ]
+
+    do: aBlock [
+        | i size |
+        i    := 0.
+        size := self size.
+
+        [ i < size ] whileTrue: [
+            aBlock value: (self at: i).
+            i := i + 1
+        ]
+    ]
+
+    at: i put: anObject [
+        self checkBounds: i.
+        self basicAt: i put: anObject.
+        anObject
+    ]
+
+    at: i [
+        self checkBounds: i.
+        self basicAt: i
+    ]
+
+]
+
+SequencedCollection subclass: Array [
+    Array class [
+        new: size [
+            self _arrayNew: size
+        ]
+
+        new [
+            self new: 0
+        ]
+
+        with: anObject [
+            (self new: 1)
+                at: 0 put: anObject;
+                yourself
+        ]
+
+        withAll: aCollection [
+            | arr i |
+            arr := self new: aCollection size.
+            i   := 0.
+
+            aCollection do: [:e |
+                arr at: i put: e.
+                i := i + 1
+            ].
+            arr
+        ]
+    ]
+
+    isArray [ true ]
+
+    size [
+        self _arraySize
+    ]
+
+    basicAt: i put: anObject [
+        self _arrayAt: i put: anObject
+    ]
+
+    basicAt: i [
+        self _arrayAt: i
+    ]
+
+    asArray [ self ]
+
+    , aCollection [
+        self _arrayAppend: aCollection asArray
+    ]
+]
+
+SequencedCollection subclass: Interval [
+    | start end step |
+
+    Interval class [
+        from: start to: stop [
+            self from: start to: stop by: (stop - start) sign
+        ]
+
+        from: start to: stop by: step [
+            self new
+                initializeFrom: start to: stop by: step;
+                yourself
+        ]
+    ]
+
+    initializeFrom: startval to: stopval by: stepval [
+        start := startval.
+        stop  := stopval.
+        step  := stepval.
+    ]
+
+    start [ start ]
+    stop  [ stop  ]
+    step  [ step  ]
+
+    size [
+        "only works for positive ranges so far..."
+        (((stop - start) // step) * step) + start
+    ]
+
+    at: i [
+        self checkBounds: i.
+        (step * i) + start
+    ]
+
+]
+
+SequencedCollection subclass: OrderedCollection [
+    | elements firstIndex lastIndex |
+
+    OrderedCollection class [
+        new [
+            self new: self defaultSize
+        ]
+
+        new: size [
+            super new initialize: size * 2; yourself
+        ]
+
+        defaultSize [ 8 ]
+    ]
+
+    initialize: size [
+        elements := Array new: size.
+        firstIndex := lastIndex := size // 2
+    ]
+
+    size [ lastIndex - firstIndex ]
+
+    checkResize: index [
+        (index between: 0 and: elements size - 1)
+            ifFalse: [ self resize: index ]
+    ]
+
+    resize: index [
+        | grow |
+        grow := self size // 2.
+
+        index < 0
+            ifTrue:  [ self resizeStart: grow ]
+            ifFalse: [ self resizeEnd:   grow ]
+    ]
+
+    resizeStart: grow [
+        elements   := (Array new: grow), elements.
+        firstIndex := firstIndex + grow.
+        lastIndex  := lastIndex  + grow.
+    ]
+
+    resizeEnd: grow [
+        elements := elements, (Array new: grow)
+    ]
+
+    add: anObject [
+        self addLast: anObject
+    ]
+
+    addLast: anObject [
+        self checkResize: lastIndex + 1.
+        elements at: lastIndex put: anObject.
+        lastIndex := lastIndex + 1
+    ]
+
+    addFirst: anObject [
+        self checkResize: firstIndex - 1.
+        elements at: firstIndex - 1 put: anObject.
+        firstIndex := firstIndex - 1
+    ]
+
+    at: i [
+        self checkBounds: i.
+        elements at: firstIndex + i
+    ]
+
+]

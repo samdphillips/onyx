@@ -1,0 +1,257 @@
+
+nil subclass: Object [
+
+    == anObject [
+        self _objectEqual: anObject
+    ]
+
+    = anObject   [ self == anObject ]
+    ~= anObject  [ (self = anObject) not ]
+    ~~ anObject [ (self == anObject) not ]
+
+    class [
+        self _objectClass
+    ]
+
+    stackTrace [
+        self _objectStackTrace
+    ]
+
+    debug [
+        self _objectDebug
+    ]
+
+    error: aString [
+        Error signal: aString
+    ]
+
+    doesNotUnderstand: aMessage [
+        MessageNotUnderstood new
+            receiver: self;
+            message: aMessage;
+            signal
+    ]
+
+    halt [
+        self _objectHalt
+    ]
+
+    isKindOf: aClass [
+        | cls |
+        cls := self class.
+        [
+            cls isNil ifTrue: [ ^ false ].
+            cls == aClass ifTrue: [ ^ true ].
+            cls := cls superclass
+        ] repeat
+    ]
+
+    isMemberOf: aClass [
+       self class == aClass
+    ]
+
+    yourself [
+        self
+    ]
+
+    -> anObject [
+        Association key: self value: anObject
+    ]
+
+    ifNil: aBlock [
+        nil
+    ]
+
+    ifNotNil: aBlock [
+        aBlock value
+    ]
+
+    ifNil: nilBlock ifNotNil: notNilBlock [
+        notNilBlock value
+    ]
+
+    ifNotNil: notNilBlock ifNil: nilBlock [
+        self ifNil: nilBlock ifNotNil: notNilBlock
+    ]
+
+    isNil          [ false ]
+    isNotNil       [ true  ]
+    isClass        [ false ]
+    isBoolean      [ false ]
+    isNumber       [ false ]
+    isSmallInt     [ false ]
+    isArray        [ false ]
+    isString       [ false ]
+    isSymbol       [ false ]
+    isContinuation [ false ]
+]
+
+Object subclass: Class [
+    new [
+        self _classNew
+    ]
+
+    superclass [
+        self _classSuperclass
+    ]
+
+    name [
+        self _className
+    ]
+]
+
+Object subclass: UndefinedObject [
+    isNil    [ true  ]
+    isNotNil [ false ]
+
+    ifNil: aBlock [
+        aBlock value
+    ]
+
+    ifNotNil: aBlock [
+        nil
+    ]
+
+    ifNil: nilBlock ifNotNil: notNilBlock [
+        nilBlock value
+    ]
+
+]
+
+Object subclass: Boolean [
+    isBoolean [ true ]
+
+    ifFalse: falseBlock ifTrue: trueBlock [
+        self ifTrue: trueBlock ifFalse: falseBlock
+    ]
+
+]
+
+Boolean subclass: True [
+    ifTrue: aBlock [
+        aBlock value
+    ]
+
+    ifFalse: aBlock [
+        nil
+    ]
+
+    ifTrue: trueBlock ifFalse: falseBlock [
+        trueBlock value
+    ]
+
+    not [ false ]
+
+    and: aBlock [
+        aBlock value
+    ]
+
+    or: aBlock [
+        true
+    ]
+]
+
+Boolean subclass: False [
+    ifTrue: aBlock [
+        nil
+    ]
+
+    ifFalse: aBlock [
+        aBlock value
+    ]
+
+    ifTrue: trueBlock ifFalse: falseBlock [
+        falseBlock value
+    ]
+
+    not [ true ]
+
+    and: aBlock [
+        false
+    ]
+
+    or: aBlock [
+        aBlock value
+    ]
+]
+
+Object subclass: Message [
+    | selector arguments |
+
+    selector  [ selector  ]
+    arguments [ arguments ]
+]
+
+Object subclass: BlockClosure [
+    value [ self _blockValue ]
+
+    value: a [
+        self _blockValue: a
+    ]
+
+    value: a value: b [
+        self _blockValue: a value: b
+    ]
+
+    value: a value: b value: c [
+        self _blockValue: a value: b value: c
+    ]
+
+    value: a value: b value: c value: d [
+        self _blockValue: a value: b value: c value: d
+    ]
+
+    withCont [
+        self control: Continuation defaultTag
+    ]
+
+    withCont: promptTag [
+        self _blockWithCont: promptTag
+    ]
+
+    withPrompt [
+        self withPrompt: PromptTag new
+    ]
+
+    withPrompt: promptTag [
+        self withPrompt: promptTag abort: [:x | x ]
+    ]
+
+    withPrompt: promptTag abort: aBlock [
+        self _blockWithPrompt: promptTag abort: aBlock
+    ]
+
+    withMark: tag value: anObject [
+        self _blockWithMark: tag value: anObject
+    ]
+
+    repeat [
+        self value.
+        self repeat
+    ]
+
+    whileTrue: aBlock [
+        [ self value
+            ifFalse: [ ^ nil ]
+            ifTrue:  [ aBlock value ] ] repeat
+    ]
+
+    whileFalse: aBlock [
+        [ self value not ] whileTrue: aBlock
+    ]
+
+    on: anExceptionSelector do: aBlock [
+        | handler |
+        handler := ExceptionHandler new
+                       selector: anExceptionSelector
+                       handlerBlock: aBlock.
+
+        handler installAndDo: self
+    ]
+
+    ifCurtailed: aBlock [
+        [ self withPrompt ] withMark: CurtailedMark value: aBlock
+    ]
+
+]
+
