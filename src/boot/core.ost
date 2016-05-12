@@ -54,6 +54,16 @@ nil subclass: Object [
         self
     ]
 
+    printString [
+        | clsName article |
+        clsName := self class name asString.
+        article :=
+            (Character vowels includes: (clsName at: 0) asLowercase)
+                ifTrue: [ 'an' ] ifFalse: [ 'a' ].
+
+        article, ' ', clsName, ' object'
+    ]
+
     -> anObject [
         Association key: self value: anObject
     ]

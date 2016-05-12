@@ -201,9 +201,8 @@ Exception subclass: MessageNotUnderstood [
     ]
 
     messageText [
-        "self debug."
-        receiver class name asString,
-            ' object received unknown message #',
+        receiver printString,
+            ' received an unknown message #',
             message selector asString
     ]
 ]

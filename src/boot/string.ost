@@ -3,6 +3,10 @@ Object subclass: Character [
         codePoint: anInteger [
             self _characterClassCodePoint: anInteger
         ]
+
+        vowels [
+            #($a $e $i $o $u)
+        ]
     ]
 
     codePoint [
