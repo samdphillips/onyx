@@ -8,6 +8,10 @@ Object subclass: Character [
     codePoint [
         self _characterCodePoint
     ]
+
+    asLowercase [
+        self _characterAsLowercase
+    ]
 ]
 
 SequencedCollection subclass: Symbol [
