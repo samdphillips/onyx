@@ -142,7 +142,7 @@ Object subclass: Exception [
     ]
 
     defaultAction [
-        self _systemIsBroken: messageText
+        self _systemIsBroken: self messageText
     ]
 
     signal [
@@ -198,6 +198,13 @@ Exception subclass: MessageNotUnderstood [
 
     message: aMessage [
         message := aMessage
+    ]
+
+    messageText [
+        "self debug."
+        receiver class name asString,
+            ' object received unknown message #',
+            message selector asString
     ]
 ]
 
