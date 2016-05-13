@@ -72,6 +72,7 @@ Number subclass: SmallInt [
         aNumber <= self
     ]
 
+    "XXX: move Interval creation to Number (per ANSI)"
     to: stop [
         Interval from: self to: stop
     ]
@@ -88,6 +89,7 @@ Number subclass: SmallInt [
         (self to: stop by: step) do: aBlock
     ]
 
+    "XXX: ANSI names don't include /is/ (but /is/ reads better)"
     isOdd [
         self _smallIntIsOdd
     ]
