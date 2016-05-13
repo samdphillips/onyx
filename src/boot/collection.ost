@@ -77,6 +77,24 @@ Object subclass: Collection [
         self detect: aBlock ifNone: [ nil ]
     ]
 
+    species [
+        self class
+    ]
+
+    select: aBlock [
+        | newColl i |
+        newColl := self species new: self size.
+        i := 0.
+        self do: [:e|
+            (aBlock value: e)
+                ifTrue: [
+                    newColl at: i put: e.
+                    i := i + 1
+                ]
+        ].
+        newColl resize: i
+    ]
+
     immutableError [
         ImmutableCollectionError signal
     ]
@@ -108,6 +126,25 @@ Collection subclass: SequencedCollection [
     at: i [
         self checkBounds: i.
         self basicAt: i
+    ]
+
+    copyFrom: start to: end [
+        | size newColl |
+        size := end - start + 1.
+        newColl := self species new: size.
+        0 to: size - 1 do: [:i |
+            newColl at: i put: (self at: i + start)
+        ].
+        newColl
+    ]
+
+    resize: amount [
+        amount < self size
+            ifTrue:  [ self copyFrom: 0 to: amount - 1 ]
+            ifFalse: [ (self species new: amount)
+                           replaceFrom: 0
+                           to: amount - 1
+                           with: self ]
     ]
 
 ]
@@ -196,6 +233,10 @@ SequencedCollection subclass: Interval [
         (step * i) + start
     ]
 
+    species [
+        Array
+    ]
+
 ]
 
 SequencedCollection subclass: OrderedCollection [
@@ -222,25 +263,25 @@ SequencedCollection subclass: OrderedCollection [
 
     checkResize: index [
         (index between: 0 and: elements size - 1)
-            ifFalse: [ self resize: index ]
+            ifFalse: [ self growForIndex: index ]
     ]
 
-    resize: index [
+    growForIndex: index [
         | grow |
         grow := self size // 2.
 
         index < 0
-            ifTrue:  [ self resizeStart: grow ]
-            ifFalse: [ self resizeEnd:   grow ]
+            ifTrue:  [ self growStart: grow ]
+            ifFalse: [ self growEnd:   grow ]
     ]
 
-    resizeStart: grow [
+    growStart: grow [
         elements   := (Array new: grow), elements.
         firstIndex := firstIndex + grow.
         lastIndex  := lastIndex  + grow.
     ]
 
-    resizeEnd: grow [
+    growEnd: grow [
         elements := elements, (Array new: grow)
     ]
 
