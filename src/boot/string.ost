@@ -16,6 +16,12 @@ Object subclass: Character [
     asLowercase [
         self _characterAsLowercase
     ]
+
+    asString [
+        (String new: 1)
+            at: 0 put: self;
+            yourself
+    ]
 ]
 
 SequencedCollection subclass: Symbol [
@@ -35,6 +41,12 @@ SequencedCollection subclass: Symbol [
 ]
 
 SequencedCollection subclass: String [
+    String class [
+        new: amount [
+            self _stringNew: amount
+        ]
+    ]
+
     isString [ true ]
 
     basicAt: i [
