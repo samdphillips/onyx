@@ -72,12 +72,20 @@ Number subclass: SmallInt [
         aNumber <= self
     ]
 
-    to: end [
-        Interval from: self to: end
+    to: stop [
+        Interval from: self to: stop
     ]
 
-    to: end do: aBlock [
-        (self to: end) do: aBlock
+    to: stop do: aBlock [
+        (self to: stop) do: aBlock
+    ]
+
+    to: stop by: step [
+        Interval from: self to: stop by: step
+    ]
+
+    to: stop by: step do: aBlock [
+        (self to: stop by: step) do: aBlock
     ]
 
     isOdd [

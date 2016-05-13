@@ -188,8 +188,7 @@ SequencedCollection subclass: Interval [
     step  [ step  ]
 
     size [
-        "only works for positive ranges so far..."
-        (((stop - start) // step) * step) + start
+        stop - start // step + 1
     ]
 
     at: i [
