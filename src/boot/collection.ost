@@ -255,7 +255,7 @@ SequencedCollection subclass: OrderedCollection [
 
     size [ lastIndex - firstIndex ]
 
-    checkResize: index [
+    checkGrow: index [
         (index between: 0 and: elements size - 1)
             ifFalse: [ self growForIndex: index ]
     ]
@@ -284,13 +284,13 @@ SequencedCollection subclass: OrderedCollection [
     ]
 
     addLast: anObject [
-        self checkResize: lastIndex + 1.
+        self checkGrow: lastIndex + 1.
         elements at: lastIndex put: anObject.
         lastIndex := lastIndex + 1
     ]
 
     addFirst: anObject [
-        self checkResize: firstIndex - 1.
+        self checkGrow: firstIndex - 1.
         elements at: firstIndex - 1 put: anObject.
         firstIndex := firstIndex - 1
     ]
