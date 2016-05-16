@@ -7,6 +7,10 @@ Object subclass: Character [
         vowels [
             #($a $e $i $o $u)
         ]
+
+        newline [
+            self codePoint: 10
+        ]
     ]
 
     codePoint [
@@ -67,6 +71,10 @@ SequencedCollection subclass: String [
 
     asSymbol [
         Symbol internString: self
+    ]
+
+    printString [
+        self
     ]
 ]
 

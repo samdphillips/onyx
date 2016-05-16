@@ -64,6 +64,15 @@ nil subclass: Object [
         article, ' ', clsName, ' object'
     ]
 
+    print [
+        self printString _stringPrint
+    ]
+
+    printNl [
+        self print.
+        Character newline asString print
+    ]
+
     -> anObject [
         Association key: self value: anObject
     ]
