@@ -82,17 +82,13 @@ Object subclass: Collection [
     ]
 
     select: aBlock [
-        | newColl i |
-        newColl := self species new: self size.
-        i := 0.
+        | tempColl |
+        tempColl := OrderedCollection new: self size.
         self do: [:e|
             (aBlock value: e)
-                ifTrue: [
-                    newColl at: i put: e.
-                    i := i + 1
-                ]
+                ifTrue: [ tempColl addLast: e ]
         ].
-        newColl resize: i
+        self species withAll: tempColl
     ]
 
     immutableError [
@@ -136,15 +132,6 @@ Collection subclass: SequencedCollection [
             newColl at: i put: (self at: i + start)
         ].
         newColl
-    ]
-
-    resize: amount [
-        amount < self size
-            ifTrue:  [ self copyFrom: 0 to: amount - 1 ]
-            ifFalse: [ (self species new: amount)
-                           replaceFrom: 0
-                           to: amount - 1
-                           with: self ]
     ]
 
 ]
@@ -252,6 +239,13 @@ SequencedCollection subclass: OrderedCollection [
         ]
 
         defaultSize [ 8 ]
+
+        withAll: aCollection [
+            | coll |
+            coll := self new: aCollection size.
+            aCollection do: [:e | coll addLast: e ].
+            coll
+        ]
     ]
 
     initialize: size [
