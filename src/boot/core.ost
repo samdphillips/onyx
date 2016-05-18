@@ -96,6 +96,7 @@ nil subclass: Object [
     isNil          [ false ]
     isNotNil       [ true  ]
     isClass        [ false ]
+    isTrait        [ false ]
     isBoolean      [ false ]
     isNumber       [ false ]
     isSmallInt     [ false ]
@@ -121,6 +122,18 @@ Object subclass: Class [
     printString [
         'the ', self name asString, ' class'
     ]
+]
+
+Object subclass: Trait [
+    Trait class [
+        build: aTrait [
+            aTrait asTrait
+        ]
+    ]
+
+    asTrait [ self ]
+
+    isTrait [ true ]
 ]
 
 Object subclass: UndefinedObject [
