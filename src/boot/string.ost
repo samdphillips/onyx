@@ -1,5 +1,4 @@
 Object subclass: Character [
-    "XXX: Characters should be immutable?"
     Character class [
         codePoint: anInteger [
             self _characterClassCodePoint: anInteger

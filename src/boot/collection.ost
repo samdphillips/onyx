@@ -216,7 +216,6 @@ SequencedCollection subclass: Interval [
     ]
 
     at: i [
-        "XXX: checkBounds needs to be special for Interval"
         self checkBounds: i.
         (step * i) + start
     ]
