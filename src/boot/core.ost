@@ -126,6 +126,10 @@ Object subclass: Class [
 
 Object subclass: Trait [
     Trait class [
+        new [
+            self _traitNew
+        ]
+
         build: aTrait [
             aTrait asTrait
         ]
@@ -134,6 +138,17 @@ Object subclass: Trait [
     asTrait [ self ]
 
     isTrait [ true ]
+
+    + aTrait [
+        Trait new
+            merge: self;
+            merge: aTrait asTrait;
+            yourself
+    ]
+
+    merge: aTrait [
+        self _traitMerge: aTrait asTrait
+    ]
 ]
 
 Object subclass: UndefinedObject [

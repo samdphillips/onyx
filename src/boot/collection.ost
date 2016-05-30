@@ -94,6 +94,11 @@ Object subclass: Collection [
     immutableError [
         ImmutableCollectionError signal
     ]
+
+    asTrait [
+        self inject: Trait new
+             into: [:a :b | a + b ]
+    ]
 ]
 
 Collection subclass: SequencedCollection [
