@@ -117,6 +117,10 @@ Object subclass: Class [
     name [
         self _className
     ]
+
+    printString [
+        'the ', self name asString, ' class'
+    ]
 ]
 
 Object subclass: UndefinedObject [
