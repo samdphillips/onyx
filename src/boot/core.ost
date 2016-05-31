@@ -139,6 +139,12 @@ Object subclass: Trait [
 
     isTrait [ true ]
 
+    copy [
+        Trait new
+            merge: self;
+            yourself
+    ]
+
     + aTrait [
         Trait new
             merge: self;
@@ -146,8 +152,21 @@ Object subclass: Trait [
             yourself
     ]
 
+    @ aCollection [
+        | trait |
+        trait := self copy.
+        aCollection do: [:assoc |
+            trait rename: assoc key to: assoc value
+        ].
+        trait
+    ]
+
     merge: aTrait [
         self _traitMerge: aTrait asTrait
+    ]
+
+    rename: srcSelector to: destSelector [
+        self _traitRename: srcSelector to: destSelector
     ]
 ]
 
