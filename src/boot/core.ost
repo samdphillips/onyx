@@ -54,6 +54,10 @@ nil subclass: Object [
         self
     ]
 
+    asString [
+        self printString
+    ]
+
     printString [
         | clsName article |
         clsName := self class name asString.

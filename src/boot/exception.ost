@@ -178,6 +178,10 @@ Object subclass: Exception [
         exitBlocks do: [:b | b value ]
     ]
 
+    printString [
+        self class name asString, ': ', self messageText
+    ]
+
     "need to write:
       - outer
       - resignalAs: anException

@@ -1,0 +1,187 @@
+
+Object subclass: Test [
+    | name setupBlock testBlock |
+
+    Test class [
+        name: aString setup: setupBlock test: testBlock [
+            self new
+                name: aString;
+                setup: setupBlock;
+                test: testBlock;
+                yourself
+        ]
+    ]
+
+    setup: aBlock [
+        setupBlock := aBlock
+    ]
+
+    test: aBlock [
+        testBlock := aBlock
+    ]
+
+    name [ name ]
+
+    name: aString [
+        name := aString
+    ]
+
+    run: reporter [
+        [ | obj |
+            obj := setupBlock value.
+            (testBlock value: obj)
+                ifTrue:  [ reporter reportSuccess: self ]
+                ifFalse: [ reporter reportFailure: self ]
+        ] on: Exception
+          do: [:exc | reporter reportError: exc onTest: self ]
+    ]
+]
+
+Object subclass: TestErrorResult [
+    | test exception |
+
+    TestErrorResult class [
+        on: aTest with: anException [
+            self new
+                test: aTest;
+                exception: anException;
+                yourself
+        ]
+    ]
+
+    test: aTest [
+        test := aTest
+    ]
+
+    exception: anException [
+        exception := anException
+    ]
+
+    isFailureResult [ false ]
+    isErrorResult [ true ]
+
+    report [
+        (exception printString,
+            Character newline asString,
+            '    raised while running test: ',
+            test name) printNl
+    ]
+]
+
+Object subclass: TestSuccess [
+    | test |
+
+    TestSuccess class [
+        on: aTest [
+            self new
+                test: aTest;
+                yourself
+        ]
+    ]
+
+    test: aTest [
+        test := aTest
+    ]
+
+    isFailureResult [ false ]
+    isErrorResult [ false ]
+]
+
+Object subclass: TestFailure [
+    | test |
+
+    TestFailure class [
+        on: aTest [
+            self new
+                test: aTest;
+                yourself
+        ]
+    ]
+
+    test: aTest [
+        test := aTest
+    ]
+
+    isFailureResult [ true ]
+    isErrorResult [ false ]
+
+    report [
+        (test name, ' failed') printNl
+    ]
+]
+
+Object subclass: TestReporter [
+    | results |
+
+    TestReporter class [
+        new [ super new initialize; yourself ]
+    ]
+
+    initialize [
+        results := OrderedCollection new
+    ]
+
+    reportSuccess: aTest [
+        '.' print.
+        results add: (TestSuccess on: aTest)
+    ]
+
+    reportFailure: aTest [
+        'F' print.
+        results add: (TestFailure on: aTest)
+    ]
+
+    reportError: anException onTest: aTest [
+        'E' print.
+        results add: (TestErrorResult on: aTest with: anException)
+    ]
+
+    failures [
+        results select: [:r | r isFailureResult ]
+    ]
+
+    errors [
+        results select: [:r | r isErrorResult ]
+    ]
+
+    printResults [
+        Character newline asString print.
+
+        self failures do: [:result|
+            result report
+        ].
+
+        self errors do: [:result|
+            result report
+        ]
+    ]
+]
+
+Object subclass: Tester [
+    | setup tests reporter |
+
+    Tester class [
+        new [ super new initialize; yourself ]
+    ]
+
+    initialize [
+        tests := OrderedCollection new.
+    ]
+
+    setup: aBlock [
+        setup := aBlock
+    ]
+
+    add: aString test: aBlock [
+        tests add: (Test name: aString setup: setup test: aBlock)
+    ]
+
+    run [
+        reporter := TestReporter new.
+        tests do: [:t | t run: reporter ]
+    ]
+
+    report [
+        reporter printResults
+    ]
+]
