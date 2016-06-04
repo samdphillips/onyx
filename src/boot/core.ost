@@ -152,6 +152,14 @@ Object subclass: Trait [
             yourself
     ]
 
+    - aCollection [
+        trait := self copy.
+        aCollection do: [:selector |
+            trait remove: selector
+        ].
+        trait
+    ]
+
     @ aCollection [
         | trait |
         trait := self copy.
@@ -167,6 +175,10 @@ Object subclass: Trait [
 
     rename: srcSelector to: destSelector [
         self _traitRename: srcSelector to: destSelector
+    ]
+
+    remove: aSelector [
+        self _traitRemove: aSelector
     ]
 ]
 
