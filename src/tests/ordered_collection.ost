@@ -1,0 +1,32 @@
+
+Tester new
+    setup: [ OrderedCollection new ];
+
+    add: 'OrderedCollection>>add:'
+    test: [:oc | oc add: 1. (oc at: 0) = 1];
+
+    add: 'OrderedCollection>>size'
+    test: [:oc | oc add: 1. oc size = 1];
+
+    add: 'OrderedCollection>>size = 0'
+    test: [:oc | oc size = 0];
+
+    add: 'OrderedCollection>>addAll:'
+    test: [:oc || i result |
+        result := true.
+        int := 1 to: 10.
+        oc addAll: int.
+        int do: [:i | result := result and: [ (oc at: i - 1) = i ] ].
+        result
+    ];
+
+    add: 'OrderedCollection>>remove:'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 5.
+        (oc includes: 5) not
+    ];
+
+    run;
+    report
+
