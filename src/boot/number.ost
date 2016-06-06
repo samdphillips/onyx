@@ -14,6 +14,10 @@ Object subclass: Number [
         self < 0
     ]
 
+    isZero [
+        self = 0
+    ]
+
     isNumber [ true ]
 ]
 
