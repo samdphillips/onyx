@@ -20,11 +20,25 @@ Tester new
         result
     ];
 
-    add: 'OrderedCollection>>remove:'
+    add: 'OrderedCollection>>remove: begin'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 1.
+        (oc includes: 1) not
+    ];
+
+    add: 'OrderedCollection>>remove: middle'
     test: [:oc |
         oc addAll: (1 to: 10).
         oc remove: 5.
         (oc includes: 5) not
+    ];
+
+    add: 'OrderedCollection>>remove: end'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 10.
+        (oc includes: 10) not
     ];
 
     run;

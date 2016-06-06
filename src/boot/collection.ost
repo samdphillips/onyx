@@ -101,6 +101,85 @@ Object subclass: Collection [
     ]
 ]
 
+
+Trait named: TExtensibleCollection [
+    "
+    Implementations required:
+    add:
+    remove:
+    "
+
+    addAll: aCollection [
+        aCollection do: [:e | self add: e ]
+    ]
+
+    remove: anElement ifAbsent: exceptionBlock [
+        (self includes: anElement)
+            ifTrue:  [ self remove: anElement ]
+            ifFalse: [ exceptionBlock value ]
+    ]
+
+    removeAll: aCollection [
+        aCollection do: [:e | self remove: e ]
+    ]
+]
+
+
+Trait named: TSeqReadableCollection [
+    "
+    ,
+    =
+    after:
+    at:
+    at:ifAbsent:
+    before:
+    copyFrom:to:
+    copyReplaceAll:with:
+    copyReplaceFrom:to:with:
+    copyReplaceFrom:to:withObject:
+    copyReplacing:withObject:
+    copyWith:
+    copyWithout:
+    do:
+    findLast:
+    first
+    from:to:do:
+    indexOf:ifAbsent:
+    indexOfSubCollection:startingAt:
+    indexOfSubCollection:startingAt:ifAbsent:
+    last
+    reverse
+    reverseDo:
+    with:do:
+    "
+
+    findFirst: aBlock [
+        self keysAndValuesDo: [:i :v |
+            (aBlock value: v)
+                ifTrue: [ ^i ]
+        ].
+        nil
+    ]
+
+    from: start to: end keysAndValuesDo: aBlock [
+        start to: end do: [:i |
+            aBlock value: i value: (self at: i)
+        ]
+    ]
+
+    indexOf: anElement [
+        self findFirst: [:e | e = anElement ]
+    ]
+
+    keysAndValuesDo: aBlock [
+        self from: 0
+             to: self size - 1
+             keysAndValuesDo: aBlock
+    ]
+]
+
+
+"XXX: move to trait"
 Collection subclass: SequencedCollection [
     checkBounds: i [
         (i between: 0 and: self size - 1)
@@ -139,7 +218,14 @@ Collection subclass: SequencedCollection [
         newColl
     ]
 
+    replaceFrom: start to: end with: replace startingAt: replaceStart [
+        0 to: end - start do: [:i |
+            self at: start + i
+                 put: (replace at: replaceStart + i)
+        ]
+    ]
 ]
+
 
 SequencedCollection subclass: Array [
     Array class [
@@ -228,11 +314,14 @@ SequencedCollection subclass: Interval [
     species [
         Array
     ]
-
 ]
 
 SequencedCollection subclass: OrderedCollection [
     | elements firstIndex lastIndex |
+
+    OrderedCollection uses:
+        { TExtensibleCollection.
+          TSeqReadableCollection }.
 
     OrderedCollection class [
         new [
@@ -282,6 +371,31 @@ SequencedCollection subclass: OrderedCollection [
 
     growEnd: grow [
         elements := elements, (Array new: grow)
+    ]
+
+    remove: anElement [
+        | index |
+        index := self indexOf: anElement.
+        index ifNotNil: [
+            index = (self size - 1) ifTrue: [
+                lastIndex := lastIndex - 1.
+                ^anElement
+            ].
+
+            index isZero ifTrue: [
+                firstIndex := firstIndex + 1.
+                ^anElement
+            ].
+
+            index := firstIndex + index.
+            elements
+                replaceFrom: index
+                to: (lastIndex - 1)
+                with: elements
+                startingAt: index + 1.
+            ^anElement
+        ].
+        nil
     ]
 
     add: anObject [
