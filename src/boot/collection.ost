@@ -278,7 +278,7 @@ SequencedCollection subclass: Array [
 ]
 
 SequencedCollection subclass: Interval [
-    | start end step |
+    | start stop step |
 
     Interval class [
         from: start to: stop [
