@@ -302,6 +302,10 @@ SequencedCollection subclass: Interval [
     stop  [ stop  ]
     step  [ step  ]
 
+    printString [
+        start asString, ' to: ', stop asString, ' step: ', step asString
+    ]
+
     size [
         stop - start // step + 1
     ]

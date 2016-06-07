@@ -19,6 +19,10 @@ Object subclass: Number [
     ]
 
     isNumber [ true ]
+
+    asString [
+        self _numberAsString
+    ]
 ]
 
 Number subclass: SmallInt [
