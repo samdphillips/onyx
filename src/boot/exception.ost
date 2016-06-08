@@ -213,3 +213,17 @@ Exception subclass: MessageNotUnderstood [
 
 Exception subclass: ImmutableCollectionError [ ]
 
+Exception subclass: IncompleteTrait [
+    | missingSelectors |
+
+    IncompleteTrait class [
+        missingSelectors: aCollection [
+            self new missingSelectors: aCollection; yourself
+        ]
+    ]
+
+    missingSelectors: aCollection [
+        missingSelectors := aCollection
+    ]
+]
+

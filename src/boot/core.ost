@@ -184,6 +184,10 @@ Object subclass: Trait [
     remove: aSelector [
         self _traitRemove: aSelector
     ]
+
+    validateUse: aClass [
+        self _traitValidateUse: aClass
+    ]
 ]
 
 Object subclass: UndefinedObject [
