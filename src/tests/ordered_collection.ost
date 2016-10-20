@@ -20,6 +20,18 @@ Tester new
         result
     ];
 
+    add: 'OrderedCollection>>first'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc first = 1
+    ];
+
+    add: 'OrderedCollection>>last'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc last = 10
+    ];
+
     add: 'OrderedCollection>>remove: begin'
     test: [:oc |
         oc addAll: (1 to: 10).
@@ -43,4 +55,3 @@ Tester new
 
     run;
     report
-
