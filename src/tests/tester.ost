@@ -157,15 +157,44 @@ Object subclass: TestReporter [
     ]
 ]
 
+TestReporter subclass: VerboseTestReporter [
+    reportSuccess: aTest [
+        (aTest name, '... ok') printNl.
+        results add: (TestSuccess on: aTest)
+    ]
+
+    reportFailure: aTest [
+        (aTest name, '... fail') printNl.
+        results add: (TestFailure on: aTest)
+    ]
+
+    reportError: anException onTest: aTest [
+        (aTest name, '... error') printNl.
+        results add: (TestErrorResult on: aTest with: anException)
+    ]
+]
+
 Object subclass: Tester [
     | setup tests reporter |
 
     Tester class [
-        new [ super new initialize; yourself ]
+        new [
+            self withReporter: TestReporter new
+        ]
+
+        withReporter: aReporter [
+            super new initialize;
+                reporter: aReporter;
+                yourself
+        ]
     ]
 
     initialize [
         tests := OrderedCollection new.
+    ]
+
+    reporter: aReporter [
+        reporter := aReporter
     ]
 
     setup: aBlock [
@@ -177,7 +206,6 @@ Object subclass: Tester [
     ]
 
     run [
-        reporter := TestReporter new.
         tests do: [:t | t run: reporter ]
     ]
 
