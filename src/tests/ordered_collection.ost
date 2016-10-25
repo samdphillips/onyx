@@ -53,5 +53,21 @@ Tester new
         (oc includes: 10) not
     ];
 
+    add: 'OrderedCollection>>keysAndValuesDo:'
+    test: [:oc || success |
+        success := true.
+        oc addAll: (0 to: 9).
+        oc keysAndValuesDo: [:i :v | success := success and: [i = v] ].
+        success
+    ];
+
+    add: 'OrderedCollection>>from:to:do:'
+    test: [:oc || sum |
+        oc addAll: (0 to: 9).
+        sum := 0.
+        oc from: 0 to: 9 do: [:i | sum := sum + i ].
+        sum = 45
+    ];
+
     run;
     report

@@ -142,7 +142,6 @@ Trait named: TSeqReadableCollection [
     copyWithout:
     do:
     findLast:
-    from:to:do:
     indexOf:ifAbsent:
     indexOfSubCollection:startingAt:
     indexOfSubCollection:startingAt:ifAbsent:
@@ -165,6 +164,12 @@ Trait named: TSeqReadableCollection [
 
     last [
         self at: self size - 1
+    ]
+
+    from: start to: end do: aBlock [
+        start to: end do: [:i |
+            aBlock value: (self at: i)
+        ]
     ]
 
     from: start to: end keysAndValuesDo: aBlock [
