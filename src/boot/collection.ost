@@ -140,7 +140,6 @@ Trait named: TSeqReadableCollection [
     copyReplacing:withObject:
     copyWith:
     copyWithout:
-    do:
     findLast:
     indexOf:ifAbsent:
     indexOfSubCollection:startingAt:
@@ -149,6 +148,17 @@ Trait named: TSeqReadableCollection [
     reverseDo:
     with:do:
     "
+
+    do: aBlock [
+        | i size |
+        i    := 0.
+        size := self size.
+
+        [ i < size ] whileTrue: [
+            aBlock value: (self at: i).
+            i := i + 1
+        ]
+    ]
 
     findFirst: aBlock [
         self keysAndValuesDo: [:i :v |
@@ -189,23 +199,12 @@ Trait named: TSeqReadableCollection [
     ]
 ]
 
-
-"XXX: move to trait"
 Collection subclass: SequencedCollection [
+    SequencedCollection uses: TSeqReadableCollection.
+
     checkBounds: i [
         (i between: 0 and: self size - 1)
             ifFalse: [ self error: 'out of bounds' ]
-    ]
-
-    do: aBlock [
-        | i size |
-        i    := 0.
-        size := self size.
-
-        [ i < size ] whileTrue: [
-            aBlock value: (self at: i).
-            i := i + 1
-        ]
     ]
 
     at: i put: anObject [
