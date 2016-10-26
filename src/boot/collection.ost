@@ -219,8 +219,29 @@ Trait named: TSeqReadableCollection [
     ]
 ]
 
+Trait named: TSequencedCollection [
+    TSequencedCollection uses: TSeqReadableCollection.
+
+    "
+    at:put:
+    atAll:put:
+    atAllPut:
+    replaceFrom:to:with:startingAt:
+    replaceFrom:to:withObject:
+    "
+
+    replaceFrom: start to: end with: replace [
+        "replace debug.
+        (start asString, ' -> ', end asString) printNl."
+        start to: end do: [:i |
+            "(i asString, ' <- ', (i - start) asString) printNl."
+            self at: i put: (replace at: i - start)
+        ]
+    ]
+]
+
 Collection subclass: SequencedCollection [
-    SequencedCollection uses: TSeqReadableCollection.
+    SequencedCollection uses: TSequencedCollection.
 
     at: i put: anObject [
         self checkBounds: i.
@@ -281,9 +302,6 @@ SequencedCollection subclass: Array [
 
     asArray [ self ]
 
-    , aCollection [
-        self _arrayAppend: aCollection asArray
-    ]
 ]
 
 SequencedCollection subclass: Interval [
@@ -377,13 +395,20 @@ SequencedCollection subclass: OrderedCollection [
     ]
 
     growStart: grow [
-        elements   := (Array new: grow), elements.
+        | size newElements |
+        size := elements size + grow.
+        newElements := Array new: size.
+        newElements replaceFrom: grow to: size - 1 with: elements.
+        elements := newElements.
         firstIndex := firstIndex + grow.
         lastIndex  := lastIndex  + grow.
     ]
 
     growEnd: grow [
-        elements := elements, (Array new: grow)
+        | newElements |
+        newElements := Array new: elements size + grow.
+        newElements replaceFrom: 0 to: elements size - 1 with: elements.
+        elements := newElements
     ]
 
     remove: anElement [
