@@ -124,10 +124,8 @@ Trait named: TExtensibleCollection [
     ]
 ]
 
-
 Trait named: TSeqReadableCollection [
     "
-    ,
     =
     after:
     at:ifAbsent:
@@ -146,6 +144,10 @@ Trait named: TSeqReadableCollection [
     reverseDo:
     with:do:
     "
+
+    , aCollection [
+        ConcatenatedSequence with: self with: aCollection
+    ]
 
     at: i [
         self checkBounds: i.
@@ -233,7 +235,6 @@ Collection subclass: SequencedCollection [
         ]
     ]
 ]
-
 
 SequencedCollection subclass: Array [
     Array class [
@@ -431,4 +432,33 @@ SequencedCollection subclass: OrderedCollection [
         elements at: firstIndex + i
     ]
 
+]
+
+Collection subclass: ConcatenatedSequence [
+    | collections |
+    ConcatenatedSequence uses: TSeqReadableCollection.
+
+    ConcatenatedSequence class [
+        with: aSequence with: bSequence [
+            self new initialize: { aSequence. bSequence }; yourself
+        ]
+    ]
+
+    initialize: aCollection [
+        collections := aCollection
+    ]
+
+    basicAt: anIndex [
+        | i |
+        i := anIndex.
+        collections do: [:coll |
+            i < coll size
+                ifTrue: [ ^ coll at: i ].
+            i := i - coll size.
+        ]
+    ]
+
+    size [
+        collections inject: 0 into: [:sum :coll | sum + coll size ]
+    ]
 ]

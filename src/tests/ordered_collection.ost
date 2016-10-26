@@ -69,5 +69,16 @@ Tester new
         sum = 45
     ];
 
+    add: 'OrderedCollection>>,'
+    test: [:oc || other success |
+        other := OrderedCollection new.
+        oc addAll: (0 to: 5).
+        other addAll: (6 to: 9).
+        result := oc, other.
+        success := result size = 10.
+        result keysAndValuesDo: [:i :v | success := success and: [i = v] ].
+        success
+    ];
+
     run;
     report
