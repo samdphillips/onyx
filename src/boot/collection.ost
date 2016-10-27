@@ -338,8 +338,7 @@ SequencedCollection subclass: Interval [
         stop - start // step + 1
     ]
 
-    at: i [
-        self checkBounds: i.
+    basicAt: i [
         (step * i) + start
     ]
 
@@ -453,8 +452,7 @@ SequencedCollection subclass: OrderedCollection [
         firstIndex := firstIndex - 1
     ]
 
-    at: i [
-        self checkBounds: i.
+    basicAt: i [
         elements at: firstIndex + i
     ]
 
