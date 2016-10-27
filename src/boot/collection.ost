@@ -25,18 +25,6 @@ Object subclass: Association [
 ]
 
 Object subclass: Collection [
-    asArray [
-        Array withAll: self
-    ]
-
-    isEmpty [
-        self size = 0
-    ]
-
-    notEmpty [
-        self isEmpty not
-    ]
-
     allSatisfy: aBlock [
         self do: [:e |
             (aBlock value: e)
@@ -53,6 +41,30 @@ Object subclass: Collection [
         false
     ]
 
+    asArray [
+        Array withAll: self
+    ]
+
+    asTrait [
+        self inject: Trait new
+             into: [:a :b | a + b ]
+    ]
+
+    detect: aBlock [
+        self detect: aBlock ifNone: [ nil ]
+    ]
+
+    detect: aBlock ifNone: excBlock [
+        self do: [:e |
+            (aBlock value: e) ifTrue: [ ^ e ]
+        ].
+        excBlock value
+    ]
+
+    immutableError [
+        ImmutableCollectionError signal
+    ]
+
     includes: anObject [
         self anySatisfy: [:e | e = anObject ]
     ]
@@ -66,19 +78,12 @@ Object subclass: Collection [
         a
     ]
 
-    detect: aBlock ifNone: excBlock [
-        self do: [:e |
-            (aBlock value: e) ifTrue: [ ^ e ]
-        ].
-        excBlock value
+    isEmpty [
+        self size = 0
     ]
 
-    detect: aBlock [
-        self detect: aBlock ifNone: [ nil ]
-    ]
-
-    species [
-        self class
+    notEmpty [
+        self isEmpty not
     ]
 
     select: aBlock [
@@ -91,13 +96,8 @@ Object subclass: Collection [
         self species withAll: tempColl
     ]
 
-    immutableError [
-        ImmutableCollectionError signal
-    ]
-
-    asTrait [
-        self inject: Trait new
-             into: [:a :b | a + b ]
+    species [
+        self class
     ]
 ]
 
