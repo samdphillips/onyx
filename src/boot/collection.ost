@@ -238,6 +238,13 @@ Trait named: TSequencedCollection [
             self at: i put: (replace at: i - start)
         ]
     ]
+
+    replaceFrom: start to: end with: replace startingAt: replaceStart [
+        0 to: end - start do: [:i |
+            self at: start + i
+                 put: (replace at: replaceStart + i)
+        ]
+    ]
 ]
 
 Collection subclass: SequencedCollection [
@@ -249,12 +256,6 @@ Collection subclass: SequencedCollection [
         anObject
     ]
 
-    replaceFrom: start to: end with: replace startingAt: replaceStart [
-        0 to: end - start do: [:i |
-            self at: start + i
-                 put: (replace at: replaceStart + i)
-        ]
-    ]
 ]
 
 SequencedCollection subclass: Array [
