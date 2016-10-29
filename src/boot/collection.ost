@@ -147,6 +147,17 @@ Trait named: TSeqReadableCollection [
         ConcatenatedSequence with: self with: aCollection
     ]
 
+    = aCollection [
+        (self class = aCollection class
+            and: [ self size = aCollection size ])
+            ifFalse: [ ^ false ].
+
+        self with: aCollection do: [:a :b |
+            a = b ifFalse: [ ^ false ]
+        ].
+        ^ true
+    ]
+
     at: index [
         self at: index
              ifAbsent: [ self error: 'out of bounds' ]

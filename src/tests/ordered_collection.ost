@@ -110,5 +110,36 @@ Tester new
         ] on: Error do: [ true ]
     ];
 
+    add: 'OrderedCollection>>= true'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (0 to: 10).
+        oc = b
+    ];
+
+    add: 'OrderedCollection>>= false - sizes'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (0 to: 5).
+        (oc = b) not
+    ];
+
+    add: 'OrderedCollection>>= false - values'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (10 to: 20).
+        (oc = b) not
+    ];
+
+    add: 'OrderedCollection>>= false - types'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := 0 to: 10.
+        (oc = b) not
+    ];
+
     run;
     report
