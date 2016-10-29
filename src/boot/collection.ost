@@ -128,7 +128,6 @@ Trait named: TSeqReadableCollection [
     "
     =
     after:
-    at:ifAbsent:
     before:
     copyReplaceAll:with:
     copyReplaceFrom:to:with:
@@ -149,14 +148,19 @@ Trait named: TSeqReadableCollection [
         ConcatenatedSequence with: self with: aCollection
     ]
 
-    at: i [
-        self checkBounds: i.
-        self basicAt: i
+    at: index [
+        self at: index
+             ifAbsent: [ self error: 'out of bounds' ]
     ]
 
-    checkBounds: i [
-        (i between: 0 and: self size - 1)
-            ifFalse: [ self error: 'out of bounds' ]
+    at: index ifAbsent: exceptionBlock [
+        self checkBounds: index ifOutOfBounds: [ ^ exceptionBlock value ].
+        self basicAt: index
+    ]
+
+    checkBounds: index ifOutOfBounds: exceptionBlock [
+        (index between: 0 and: self size - 1)
+            ifFalse: exceptionBlock
     ]
 
     copyFrom: start to: end [
@@ -250,9 +254,9 @@ Trait named: TSequencedCollection [
 Collection subclass: SequencedCollection [
     SequencedCollection uses: TSequencedCollection.
 
-    at: i put: anObject [
-        self checkBounds: i.
-        self basicAt: i put: anObject.
+    at: index put: anObject [
+        self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
+        self basicAt: index put: anObject.
         anObject
     ]
 
@@ -352,7 +356,7 @@ SequencedCollection subclass: OrderedCollection [
 
     OrderedCollection uses:
         { TExtensibleCollection.
-          TSeqReadableCollection }.
+          TSequencedCollection }.
 
     OrderedCollection class [
         new [

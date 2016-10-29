@@ -80,5 +80,17 @@ Tester new
         success
     ];
 
+    add: 'OrderedCollection>>at:ifAbsent: begin'
+    test: [:oc |
+        oc addAll: (0 to: 5).
+        (oc at: -1 ifAbsent: [ true ]) = true
+    ];
+
+    add: 'OrderedCollection>>at:ifAbsent: end'
+    test: [:oc |
+        oc addAll: (0 to: 5).
+        (oc at: 6 ifAbsent: [ true ]) = true
+    ];
+
     run;
     report
