@@ -141,7 +141,6 @@ Trait named: TSeqReadableCollection [
     indexOfSubCollection:startingAt:ifAbsent:
     reverse
     reverseDo:
-    with:do:
     "
 
     , aCollection [
@@ -220,6 +219,17 @@ Trait named: TSeqReadableCollection [
         self from: 0
              to: self size - 1
              keysAndValuesDo: aBlock
+    ]
+
+    with: otherCollection do: aBlock [
+        self size = otherCollection size
+            ifFalse: [ self error: 'collections are different sizes' ].
+
+        0 to: self size - 1 do: [:index |
+            aBlock
+                value: (self at: index)
+                value: (otherCollection at: index)
+        ]
     ]
 ]
 
