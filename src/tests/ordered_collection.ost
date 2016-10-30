@@ -141,5 +141,14 @@ Tester new
         (oc = b) not
     ];
 
+    add: 'OrderedCollection>>reverse'
+    test: [:oc || b result |
+        result := true.
+        b := 0 to: 10.
+        oc addAll: b.
+        oc reverse with: b reverse do: [:a :b | result := result and: [ a = b ] ].
+        result
+    ];
+
     run;
     report

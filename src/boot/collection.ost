@@ -232,6 +232,10 @@ Trait named: TSeqReadableCollection [
              keysAndValuesDo: aBlock
     ]
 
+    reverse [
+        ReversedSequence withAll: self
+    ]
+
     with: otherCollection do: aBlock [
         self size = otherCollection size
             ifFalse: [ self error: 'collections are different sizes' ].
@@ -509,5 +513,28 @@ Collection subclass: ConcatenatedSequence [
 
     size [
         collections inject: 0 into: [:sum :coll | sum + coll size ]
+    ]
+]
+
+Collection subclass: ReversedSequence [
+    | collection |
+    ReversedSequence uses: TSeqReadableCollection.
+
+    ReversedSequence class [
+        withAll: aCollection [
+            self new initialize: aCollection; yourself.
+        ]
+    ]
+
+    initialize: aCollection [
+        collection := aCollection
+    ]
+
+    basicAt: index [
+        collection basicAt: (self size - 1 - index)
+    ]
+
+    size [
+        collection size
     ]
 ]
