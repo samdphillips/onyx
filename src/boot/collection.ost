@@ -501,9 +501,9 @@ Collection subclass: ConcatenatedSequence [
         collections := aCollection
     ]
 
-    basicAt: anIndex [
+    basicAt: index [
         | i |
-        i := anIndex.
+        i := index.
         collections do: [:coll |
             i < coll size
                 ifTrue: [ ^ coll at: i ].
