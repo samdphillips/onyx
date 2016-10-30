@@ -150,5 +150,16 @@ Tester new
         result
     ];
 
+    add: 'OrderedCollection>>reverseDo:'
+    test: [:oc || i result |
+        result := true.
+        i := 10.
+        oc addAll: (0 to: 10).
+        oc reverseDo: [:v |
+            result := result and: [ i = v ].
+            i := i - 1 ].
+        result
+    ];
+
     run;
     report

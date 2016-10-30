@@ -236,6 +236,10 @@ Trait named: TSeqReadableCollection [
         ReversedSequence withAll: self
     ]
 
+    reverseDo: aBlock [
+        self reverse do: aBlock
+    ]
+
     with: otherCollection do: aBlock [
         self size = otherCollection size
             ifFalse: [ self error: 'collections are different sizes' ].
