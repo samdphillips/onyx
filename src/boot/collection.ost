@@ -54,11 +54,11 @@ Object subclass: Collection [
         self detect: aBlock ifNone: [ nil ]
     ]
 
-    detect: aBlock ifNone: excBlock [
+    detect: aBlock ifNone: exceptionBlock [
         self do: [:e |
             (aBlock value: e) ifTrue: [ ^ e ]
         ].
-        excBlock value
+        exceptionBlock value
     ]
 
     immutableError [
@@ -87,13 +87,13 @@ Object subclass: Collection [
     ]
 
     select: aBlock [
-        | tempColl |
-        tempColl := OrderedCollection new: self size.
+        | temp |
+        temp := OrderedCollection new: self size.
         self do: [:e|
             (aBlock value: e)
-                ifTrue: [ tempColl addLast: e ]
+                ifTrue: [ temp addLast: e ]
         ].
-        self species withAll: tempColl
+        self species withAll: temp
     ]
 
     species [
@@ -174,13 +174,13 @@ Trait named: TSeqReadableCollection [
     ]
 
     copyFrom: start to: end [
-        | size newColl |
+        | size new |
         size := end - start + 1.
-        newColl := self species new: size.
+        new := self species new: size.
         0 to: size - 1 do: [:i |
-            newColl at: i put: (self at: i + start)
+            new at: i put: (self at: i + start)
         ].
-        newColl
+        new
     ]
 
     do: aBlock [
@@ -308,15 +308,15 @@ SequencedCollection subclass: Array [
         ]
 
         withAll: aCollection [
-            | arr i |
-            arr := self new: aCollection size.
+            | anArray i |
+            anArray := self new: aCollection size.
             i   := 0.
 
             aCollection do: [:e |
-                arr at: i put: e.
+                anArray at: i put: e.
                 i := i + 1
             ].
-            arr
+            anArray
         ]
     ]
 
@@ -353,10 +353,10 @@ SequencedCollection subclass: Interval [
         ]
     ]
 
-    initializeFrom: startval to: stopval by: stepval [
-        start := startval.
-        stop  := stopval.
-        step  := stepval.
+    initializeFrom: startVal to: stopVal by: stepVal [
+        start := startVal.
+        stop  := stopVal.
+        step  := stepVal.
     ]
 
     start [ start ]
@@ -399,10 +399,10 @@ SequencedCollection subclass: OrderedCollection [
         defaultSize [ 8 ]
 
         withAll: aCollection [
-            | coll |
-            coll := self new: aCollection size.
-            aCollection do: [:e | coll addLast: e ].
-            coll
+            | new |
+            new := self new: aCollection size.
+            aCollection do: [:e | new addLast: e ].
+            new
         ]
     ]
 
@@ -508,15 +508,17 @@ Collection subclass: ConcatenatedSequence [
     basicAt: index [
         | i |
         i := index.
-        collections do: [:coll |
-            i < coll size
-                ifTrue: [ ^ coll at: i ].
-            i := i - coll size.
+        collections do: [:subCollection |
+            i < subCollection size
+                ifTrue: [ ^ subCollection at: i ].
+            i := i - subCollection size.
         ]
     ]
 
     size [
-        collections inject: 0 into: [:sum :coll | sum + coll size ]
+        collections
+            inject: 0
+            into: [:sum :subCollection | sum + subCollection size ]
     ]
 ]
 
