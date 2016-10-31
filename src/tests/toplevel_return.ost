@@ -1,0 +1,42 @@
+
+Object subclass: Gar [
+    bar [
+        | a |
+        a := [ ^ 42 ] returnTo.
+        ^ a + 42
+    ]
+
+    baz: trace [
+        [
+            trace add: 'a'.
+            [
+                trace add: 'b'.
+                ^ nil.
+                trace add: 'c'.
+            ] returnTo.
+            trace add: 'd'.
+            [ ^ nil ] value.
+            trace add: 'e'.
+        ] returnTo.
+        trace add: 'f'.
+    ]
+]
+
+Tester new
+    setup: [ Gar new ];
+
+    add: 'toplevel returnTo'
+    test: [:g | [ ^ 42 ] returnTo = 42 ];
+
+    add: 'returnTo within method'
+    test: [:g | g bar = 84 ];
+
+    add: 'returnTo with multiple blocks'
+    test: [:g || oc |
+        oc := OrderedCollection new.
+        g baz: oc.
+        oc asArray = #('a' 'b' 'd' 'f').
+    ];
+
+    run;
+    report.
