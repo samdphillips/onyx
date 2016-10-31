@@ -319,6 +319,10 @@ Object subclass: BlockClosure [
         self _blockWithMark: tag value: anObject
     ]
 
+    returnTo [
+        self _blockReturnTo
+    ]
+
     repeat [
         self value.
         self repeat
@@ -348,4 +352,3 @@ Object subclass: BlockClosure [
     ]
 
 ]
-
