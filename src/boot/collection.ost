@@ -170,7 +170,7 @@ Trait named: TSequenceReadableCollection [
     ]
 
     checkBounds: index ifOutOfBounds: exceptionBlock [
-        (index between: 0 and: self size - 1)
+        (index between: 0 and: self lastIndex)
             ifFalse: exceptionBlock
     ]
 
@@ -208,7 +208,11 @@ Trait named: TSequenceReadableCollection [
     ]
 
     last [
-        self at: self size - 1
+        self at: self lastIndex
+    ]
+
+    lastIndex [
+        self size - 1
     ]
 
     from: start to: end do: aBlock [
@@ -229,7 +233,7 @@ Trait named: TSequenceReadableCollection [
 
     keysAndValuesDo: aBlock [
         self from: 0
-             to: self size - 1
+             to: self lastIndex
              keysAndValuesDo: aBlock
     ]
 
@@ -245,7 +249,7 @@ Trait named: TSequenceReadableCollection [
         self size = otherCollection size
             ifFalse: [ self error: 'collections are different sizes' ].
 
-        0 to: self size - 1 do: [:index |
+        0 to: self lastIndex do: [:index |
             aBlock
                 value: (self at: index)
                 value: (otherCollection at: index)
@@ -415,7 +419,7 @@ SequencedCollection subclass: OrderedCollection [
     size [ lastIndex - firstIndex ]
 
     checkGrow: index [
-        (index between: 0 and: elements size - 1)
+        (index between: 0 and: elements lastIndex)
             ifFalse: [ self growForIndex: index ]
     ]
 
@@ -441,7 +445,7 @@ SequencedCollection subclass: OrderedCollection [
     growEnd: grow [
         | newElements |
         newElements := Array new: elements size + grow.
-        newElements replaceFrom: 0 to: elements size - 1 with: elements.
+        newElements replaceFrom: 0 to: elements lastIndex with: elements.
         elements := newElements
     ]
 
@@ -449,7 +453,7 @@ SequencedCollection subclass: OrderedCollection [
         | index |
         index := self indexOf: anElement.
         index ifNotNil: [
-            index = (self size - 1) ifTrue: [
+            index = (self lastIndex) ifTrue: [
                 lastIndex := lastIndex - 1.
                 ^anElement
             ].
@@ -538,7 +542,7 @@ Collection subclass: ReversedSequence [
     ]
 
     basicAt: index [
-        collection basicAt: (self size - 1 - index)
+        collection basicAt: (self lastIndex - index)
     ]
 
     size [
