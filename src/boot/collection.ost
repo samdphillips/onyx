@@ -104,9 +104,9 @@ Object subclass: Collection [
 
 Trait named: TExtensibleCollection [
     "
-    Implementations required:
-    add:
-    remove:
+    Requires:
+     - add:
+     - remove:
     "
 
     addAll: aCollection [
@@ -126,7 +126,10 @@ Trait named: TExtensibleCollection [
 
 Trait named: TSequenceReadableCollection [
     "
-    =
+    Requires:
+     - basicAt:
+     - size
+
     after:
     before:
     copyReplaceAll:with:
@@ -139,8 +142,6 @@ Trait named: TSequenceReadableCollection [
     indexOf:ifAbsent:
     indexOfSubCollection:startingAt:
     indexOfSubCollection:startingAt:ifAbsent:
-    reverse
-    reverseDo:
     "
 
     , aCollection [
