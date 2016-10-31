@@ -124,7 +124,7 @@ Trait named: TExtensibleCollection [
     ]
 ]
 
-Trait named: TSeqReadableCollection [
+Trait named: TSequenceReadableCollection [
     "
     =
     after:
@@ -253,7 +253,7 @@ Trait named: TSeqReadableCollection [
 ]
 
 Trait named: TSequencedCollection [
-    TSequencedCollection uses: TSeqReadableCollection.
+    TSequencedCollection uses: TSequenceReadableCollection.
 
     "
     at:put:
@@ -493,7 +493,7 @@ SequencedCollection subclass: OrderedCollection [
 
 Collection subclass: ConcatenatedSequence [
     | collections |
-    ConcatenatedSequence uses: TSeqReadableCollection.
+    ConcatenatedSequence uses: TSequenceReadableCollection.
 
     ConcatenatedSequence class [
         with: aSequence with: bSequence [
@@ -524,7 +524,7 @@ Collection subclass: ConcatenatedSequence [
 
 Collection subclass: ReversedSequence [
     | collection |
-    ReversedSequence uses: TSeqReadableCollection.
+    ReversedSequence uses: TSequenceReadableCollection.
 
     ReversedSequence class [
         withAll: aCollection [
