@@ -130,7 +130,6 @@ Trait named: TSequenceReadableCollection [
      - basicAt:
      - size
 
-    after:
     before:
     copyReplaceAll:with:
     copyReplaceFrom:to:with:
@@ -157,6 +156,14 @@ Trait named: TSequenceReadableCollection [
             a = b ifFalse: [ ^ false ]
         ].
         ^ true
+    ]
+
+    after: anElement [
+        | i |
+        i := self findFirst: [:e | anElement = e ].
+        i isNil ifTrue: [ self error: 'no element in collection' ].
+        i = self lastIndex ifTrue: [ self error: 'no element after' ].
+        self at: i + 1
     ]
 
     at: index [
