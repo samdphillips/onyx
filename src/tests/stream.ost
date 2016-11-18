@@ -1,11 +1,16 @@
 
-Object subclass: ReadStream [
-]
 
-r := TestReporter new.
-t := Test name: 'ReadStream>>next'
-          setup: [ ReadStream on: #(1 2 3 4) ]
-          test:  [:s | s next = 1].
-t run: r.
-r printResults.
+Tester new
+    setup: [ ReadStream on: #(1 2 3 4) ];
 
+    add: 'ReadStream>>atEnd'
+    test: [:s | s next; next; next; next; atEnd ];
+
+    add: 'ReadStream>>next'
+    test: [:s | s next = 1 ];
+
+    add: 'ReadStream>>peek'
+    test: [:s | [ s peek = 1 ] and: [ s next = 1 ] ];
+
+    run;
+    report.
