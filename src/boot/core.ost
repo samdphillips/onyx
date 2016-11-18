@@ -295,6 +295,10 @@ Object subclass: BlockClosure [
         self _blockValue: a value: b value: c value: d
     ]
 
+    and: aBlock [
+        self value and: aBlock
+    ]
+
     withCont [
         self control: Continuation defaultTag
     ]
