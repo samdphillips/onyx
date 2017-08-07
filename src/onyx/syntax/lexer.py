@@ -2,10 +2,13 @@
 import re
 
 from collections import namedtuple
+from operator import methodcaller
 
 Token = namedtuple('Token', 'type value')
 EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 
+# XXX: InvalidInput
+# XXX: AmbiguousToken
 
 class Match:
     is_success = True
@@ -17,6 +20,8 @@ class Match:
     def scan(self, lexer):
         return self.scanner.scan(lexer, self.re_match)
 
+    def score(self):
+        return len(self.re_match.group())
 
 class Scanner:
     def __init__(self, pattern, token_type, convert=str, scan_func=None):
@@ -43,7 +48,9 @@ class Scanner:
 
 class Lexer:
     scanners = [
-        Scanner(r'\s+', 'whitespace')
+        Scanner(r'\s+', 'whitespace'),
+        Scanner(r'[a-zA-Z_][a-zA-Z0-9]*', 'id'),
+        Scanner(r'[a-zA-Z_][a-zA-Z0-9]*:', 'kw')
     ]
 
     def __init__(self, inp):
@@ -70,7 +77,7 @@ class Lexer:
         return matches
 
     def best_scan_match(self, matches):
-        matches.sort()
+        matches.sort(key=methodcaller('score'), reverse=True)
         if len(matches) > 1:
             a = matches[0]
             b = matches[1]
