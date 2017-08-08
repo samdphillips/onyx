@@ -4,21 +4,19 @@ def lex_string1(s):
     from onyx.syntax.lexer import Lexer
     s_inp = io.StringIO(s)
     lex = Lexer(s_inp)
-    return lex.lex_token()
+    token = lex.lex_token()
+    assert lex.buffer_at_end()
+    return token
 
-def test_lex_whitespace():
-    s = "      "
-    tok = lex_string1(s)
-    assert tok.type == 'whitespace'
 
-def test_lex_identifier():
-    s = "id"
-    tok = lex_string1(s)
-    assert tok.type == 'id'
-    assert tok.value == 'id'
+def _test_lex1(s, type, value=None):
+    def _testit():
+        tok = lex_string1(s)
+        assert tok.type == type
+        if value is not None:
+            assert tok.value == value
+    return _testit
 
-def test_lex_keyword():
-    s = "ifTrue:"
-    tok = lex_string1(s)
-    assert tok.type == 'kw'
-    assert tok.value == 'ifTrue:'
+test_lex_whitespace = _test_lex1('    \t\n', 'whitespace')
+test_lex_identifier = _test_lex1('id', 'id', 'id')
+test_lex_keyword = _test_lex1('if:', 'kw', 'if:')

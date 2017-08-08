@@ -10,6 +10,7 @@ EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 # XXX: InvalidInput
 # XXX: AmbiguousToken
 
+
 class Match:
     is_success = True
 
@@ -22,6 +23,7 @@ class Match:
 
     def score(self):
         return len(self.re_match.group())
+
 
 class Scanner:
     def __init__(self, pattern, token_type, convert=str, scan_func=None):
@@ -45,6 +47,7 @@ class Scanner:
             size = len(sval)
             lexer.advance_buffer(size)
             return self.make_token(sval)
+
 
 class Lexer:
     scanners = [
