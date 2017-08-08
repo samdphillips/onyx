@@ -112,6 +112,8 @@ class Lexer:
         Scanner(r']', 'rsq')
     ]
 
+    skip_tokens = 'whitespace comment'.split()
+
     def __init__(self, inp):
         self.inp = inp
         self.buf = ''
@@ -156,3 +158,9 @@ class Lexer:
         if self.buffer_at_end():
             return Token('eof', None)
         return self.scan_token()
+
+    def lex_token(self):
+        while True:
+            token = self.raw_lex_token()
+            if token.type not in self.skip_tokens:
+                return token

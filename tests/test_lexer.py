@@ -1,20 +1,27 @@
 
-def raw_lex_string1(s):
+from operator import methodcaller
+
+
+def lex_string(s, lex_func):
     import io
     from onyx.syntax.lexer import Lexer
     s_inp = io.StringIO(s)
     lex = Lexer(s_inp)
-    token = lex.raw_lex_token()
-    assert lex.buffer_at_end()
-    return token
+    while True:
+        token = lex_func(lex)
+        yield token
+        if token.type == 'eof':
+            return
 
 
 def _test_raw_lex1(s, type, value=None):
     def _testit():
-        tok = raw_lex_string1(s)
-        assert tok.type == type
+        tokens = lex_string(s, methodcaller('raw_lex_token'))
+        token = tokens.__next__()
+        assert token.type == type
         if value is not None:
-            assert tok.value == value
+            assert token.value == value
+        assert tokens.__next__().type == 'eof'
     return _testit
 
 test_lex_whitespace = _test_raw_lex1('    \t\n', 'whitespace')
@@ -42,7 +49,8 @@ test_lex_rsq = _test_raw_lex1(']', 'rsq')
 test_lex_dot = _test_raw_lex1('.', 'dot')
 
 # symbols
-test_lex_unary_symbol = _test_raw_lex1('#aUnarySymbol', 'symbol', 'aUnarySymbol')
+test_lex_unary_symbol = _test_raw_lex1(
+    '#aUnarySymbol', 'symbol', 'aUnarySymbol')
 test_lex_binary_symbol = _test_raw_lex1('#+', 'symbol', '+')
 test_lex_keyword_symbol = _test_raw_lex1(
     '#aKeyword:symbol:', 'symbol', 'aKeyword:symbol:')
@@ -53,4 +61,13 @@ test_lex_string = _test_raw_lex1("'test string'", 'string', 'test string')
 test_lex_quoted_string = _test_raw_lex1(
     "'test ''string'''", 'string', "test 'string'")
 
-test_lex_eof = _test_raw_lex1('', 'eof')
+
+def test_lex_eof():
+    token = lex_string('', methodcaller('raw_lex_token'))
+    assert token.__next__().type == 'eof'
+
+
+def test_lex_skip_tokens():
+    token = lex_string('    "should not see this"    ',
+                       methodcaller('lex_token'))
+    assert token.__next__().type == 'eof'
