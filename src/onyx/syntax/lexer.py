@@ -59,6 +59,7 @@ class Match:
 
 
 class Scanner:
+
     def __init__(self, pattern, token_type, convert=None, scan_func=None):
         self.re = re.compile(pattern)
         self.token_type = token_type
@@ -150,7 +151,7 @@ class Lexer:
         m = self.best_scan_match(matches)
         return m.scan(self)
 
-    def lex_token(self):
+    def raw_lex_token(self):
         self.fill_buffer()
         if self.buffer_at_end():
             return Token('eof', None)
