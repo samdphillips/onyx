@@ -11,6 +11,39 @@ EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 # XXX: AmbiguousToken
 
 
+def extract_group(n):
+    def _extract(match):
+        return match.group(n)
+    return _extract
+
+
+def convert_character(match):
+    return ord(match.group(1))
+
+
+def convert_int(match):
+    return int(match.group())
+
+
+def scan_string(scanner, lexer):
+    j = 1
+    s = []
+    while True:
+        while lexer.buf[j] != "'":
+            j += 1
+        s.append(lexer.buf[1:j])
+        lexer.advance_buffer(j)
+        lexer.fill_buffer()
+        j = 1
+        if len(lexer.buf) > 1 and lexer.buf[1] == "'":
+            s.append("'")
+            lexer.advance_buffer(1)
+            j = 1
+        else:
+            lexer.advance_buffer(1)
+            return scanner.make_token(''.join(s))
+
+
 class Match:
     is_success = True
 
@@ -26,10 +59,10 @@ class Match:
 
 
 class Scanner:
-    def __init__(self, pattern, token_type, convert=str, scan_func=None):
+    def __init__(self, pattern, token_type, convert=None, scan_func=None):
         self.re = re.compile(pattern)
         self.token_type = token_type
-        self.convert = convert
+        self.convert = convert or extract_group(0)
         self.scan_func = scan_func
 
     def match(self, s):
@@ -38,22 +71,44 @@ class Scanner:
             return Match(self, m)
         return EmptyMatch
 
-    def make_token(self, sval):
-        return Token(self.token_type, self.convert(sval))
+    def make_token(self, val):
+        return Token(self.token_type, val)
 
     def scan(self, lexer, match):
         if self.scan_func is None:
-            sval = match.group()
-            size = len(sval)
+            size = len(match.group())
             lexer.advance_buffer(size)
-            return self.make_token(sval)
+            val = self.convert(match)
+            return self.make_token(val)
+        return self.scan_func(self, lexer)
 
 
 class Lexer:
     scanners = [
         Scanner(r'\s+', 'whitespace'),
+        Scanner(r'"([^"]*)"', 'comment', extract_group(1)),
         Scanner(r'[a-zA-Z_][a-zA-Z0-9]*', 'id'),
-        Scanner(r'[a-zA-Z_][a-zA-Z0-9]*:', 'kw')
+        Scanner(r':([a-zA-Z_][a-zA-Z0-9]*)', 'blockarg', extract_group(1)),
+        Scanner(r'[a-zA-Z_][a-zA-Z0-9]*:', 'kw'),
+        Scanner(r'[+-]?\d+', 'int', convert_int),
+        Scanner(r'[`~!@%&*+=|\\?/<>,-]+', 'binsel'),
+        Scanner(r'\$(.)', 'character', convert_character),
+        Scanner(r'#([a-zA-Z_][a-zA-Z0-9]*)', 'symbol', extract_group(1)),
+        Scanner(r'#([`~!@%&*+=|\\?/<>,-]+)', 'symbol', extract_group(1)),
+        Scanner(r'#(([a-zA-Z_][a-zA-Z0-9]*:)+)', 'symbol', extract_group(1)),
+        Scanner(r"#'([^']+)'", 'symbol', extract_group(1)),
+        Scanner(r"#\(", 'lparray'),
+        Scanner(r"'", 'string', None, scan_string),
+        Scanner(r'\^', 'caret'),
+        Scanner(r';', 'semi'),
+        Scanner(r':=', 'assign'),
+        Scanner(r'\.', 'dot'),
+        Scanner(r'\(', 'lpar'),
+        Scanner(r'\)', 'rpar'),
+        Scanner(r'{', 'lcurl'),
+        Scanner(r'}', 'rcurl'),
+        Scanner(r'\[', 'lsq'),
+        Scanner(r']', 'rsq')
     ]
 
     def __init__(self, inp):
@@ -97,4 +152,6 @@ class Lexer:
 
     def lex_token(self):
         self.fill_buffer()
+        if self.buffer_at_end():
+            return Token('eof', None)
         return self.scan_token()
