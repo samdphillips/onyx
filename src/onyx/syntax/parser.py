@@ -65,7 +65,16 @@ class Parser:
             r = ast.Send(r, self.parse_umsg())
         return r
 
+    def parse_bmsg(self):
+        operator = self.current_token().value
+        self.step()
+        arg = self.parse_primary()
+        arg = self.parse_unary(arg)
+        return self.make_message(operator, [arg])
+
     def parse_binary(self, r):
+        while self.current_is_oneof('binsel'):
+            r = ast.Send(r, self.parse_bmsg())
         return r
 
     def parse_keyword(self, r):
@@ -87,7 +96,6 @@ class Parser:
         r = self.parse_binary(r)
         r = self.parse_keyword(r)
         r = self.parse_cascade(r)
-
         return r
 
     def parse_maybe_assignment(self):

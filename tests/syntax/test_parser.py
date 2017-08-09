@@ -54,3 +54,13 @@ def test_parse_unary_primitive_send():
     assert t.receiver.name == 'Array'
     assert t.message.is_primitive_message
     assert t.message.selector == '_new'
+
+
+def test_parse_binary_send():
+    t = parse_string('3 + 4', 'expr')
+    assert t.is_message_send
+    assert t.receiver.is_const
+    assert t.receiver.value == 3
+    assert t.message.selector == '+'
+    assert t.message.args[0].is_const
+    assert t.message.args[0].value == 4
