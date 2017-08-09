@@ -1,62 +1,46 @@
 
-def test_parse_primary_num():
+def parse_string(s, production):
     import io
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
-    s_inp = io.StringIO('42')
+    s_inp = io.StringIO(s)
     lex = Lexer(s_inp)
     p = Parser(lex)
-    t = p.parse_primary()
+    return getattr(p, 'parse_{}'.format(production))()
+
+
+def test_parse_primary_num():
+    t = parse_string('42', 'primary')
     assert t.is_const
     assert t.value == 42
 
 
 def test_parse_primary_identifier():
-    import io
-    from onyx.syntax.lexer import Lexer
-    from onyx.syntax.parser import Parser
-    s_inp = io.StringIO('id')
-    lex = Lexer(s_inp)
-    p = Parser(lex)
-    t = p.parse_primary()
+    t = parse_string('id', 'primary')
     assert t.is_ref
     assert t.name == 'id'
 
 
-def test_parse_primary_const():
-    import io
-    from onyx.syntax.lexer import Lexer
-    from onyx.syntax.parser import Parser
-    s_inp = io.StringIO('true')
-    lex = Lexer(s_inp)
-    p = Parser(lex)
-    t = p.parse_primary()
+def test_parse_primary_const_true():
+    t = parse_string('true', 'primary')
     assert t.is_const
     assert t.value == True
 
-    s_inp = io.StringIO('false')
-    lex = Lexer(s_inp)
-    p = Parser(lex)
-    t = p.parse_primary()
+
+def test_parse_primary_const_false():
+    t = parse_string('false', 'primary')
     assert t.is_const
     assert t.value == False
 
-    s_inp = io.StringIO('nil')
-    lex = Lexer(s_inp)
-    p = Parser(lex)
-    t = p.parse_primary()
+
+def test_parse_primary_const_nil():
+    t = parse_string('nil', 'primary')
     assert t.is_const
     assert t.value == None
 
 
 def test_parse_unary_send():
-    import io
-    from onyx.syntax.lexer import Lexer
-    from onyx.syntax.parser import Parser
-    s_inp = io.StringIO('10 factorial')
-    lex = Lexer(s_inp)
-    p = Parser(lex)
-    t = p.parse_expr()
+    t = parse_string('10 factorial', 'expr')
     assert t.is_message_send
     assert t.receiver.is_const
     assert t.receiver.value == 10
