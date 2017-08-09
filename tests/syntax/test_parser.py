@@ -63,6 +63,7 @@ def test_parse_assignment():
     assert t.expr.is_const
     assert t.expr.value == 42
 
+
 def test_parse_binary_send():
     t = parse_string('3 + 4', 'expr')
     assert t.is_message_send
@@ -71,3 +72,9 @@ def test_parse_binary_send():
     assert t.message.selector == '+'
     assert t.message.args[0].is_const
     assert t.message.args[0].value == 4
+
+
+def test_parse_keyword_send():
+    import onyx.syntax.ast as t
+    assert (parse_string('x at: 10', 'expr') ==
+            t.Send(t.Ref('x'), t.Message('at:', [t.Const(10)])))

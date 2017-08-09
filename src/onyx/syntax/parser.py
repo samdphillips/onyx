@@ -77,7 +77,23 @@ class Parser:
             r = ast.Send(r, self.parse_bmsg())
         return r
 
+    def parse_kmsg(self):
+        selector = []
+        args = []
+
+        while self.current_is_oneof('kw'):
+            selector.append(self.current_token().value)
+            self.step()
+
+            arg = self.parse_primary()
+            arg = self.parse_unary(arg)
+            args.append(self.parse_binary(arg))
+        selector = ''.join(selector)
+        return self.make_message(selector, args)
+
     def parse_keyword(self, r):
+        if self.current_is_oneof('kw'):
+            r = ast.Send(r, self.parse_kmsg())
         return r
 
     def parse_cascade(self, r):
