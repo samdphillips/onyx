@@ -45,3 +45,12 @@ def test_parse_unary_send():
     assert t.receiver.is_const
     assert t.receiver.value == 10
     assert t.message.selector == 'factorial'
+
+
+def test_parse_unary_primitive_send():
+    t = parse_string('Array _new', 'expr')
+    assert t.is_message_send
+    assert t.receiver.is_ref
+    assert t.receiver.name == 'Array'
+    assert t.message.is_primitive_message
+    assert t.message.selector == '_new'

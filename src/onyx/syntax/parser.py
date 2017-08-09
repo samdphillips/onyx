@@ -16,8 +16,16 @@ class Parser:
         else:
             self.lookahead.pop()
 
+    def current_token(self):
+        if len(self.lookahead) == 0:
+            return self.current
+        return self.lookahead[-1]
+
+    def push_token(self, token):
+        self.lookahead.append(token)
+
     def current_is_oneof(self, *types):
-        return self.current.type in types
+        return self.current_token().type in types
 
     def make_message(self, selector, args=[]):
         msg_class = ast.Message
@@ -27,11 +35,11 @@ class Parser:
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):
-            v = self.current.value
+            v = self.current_token().value
             self.step()
             return ast.Const(v)
         elif self.current_is_oneof('id'):
-            name = self.current.value
+            name = self.current_token().value
             self.step()
             if name in ['true', 'false', 'nil']:
                 return ast.Const.get(name)
@@ -48,7 +56,7 @@ class Parser:
             self.parse_error()
 
     def parse_umsg(self):
-        selector = self.current.value
+        selector = self.current_token().value
         self.step()
         return self.make_message(selector, [])
 
@@ -81,6 +89,17 @@ class Parser:
         r = self.parse_cascade(r)
 
         return r
+
+    def parse_maybe_assignment(self):
+        token = self.current_token()
+        self.step()
+
+        if self.current_is_oneof('assign'):
+            self.step()
+            expr = self.parse_expr()
+            return ast.Assign(token.value, expr)
+        self.push_token(token)
+        return self.parse_message()
 
     def parse_expr(self):
         if self.current_is_oneof('lcurl', 'lpar', 'lparray', 'lsq', 'int', 'symbol', 'character', 'string'):
