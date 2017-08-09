@@ -10,68 +10,52 @@ def parse_string(s, production):
 
 
 def test_parse_primary_num():
-    t = parse_string('42', 'primary')
-    assert t.is_const
-    assert t.value == 42
+    import onyx.syntax.ast as t
+    assert parse_string('42', 'primary') == t.Const(42)
 
 
 def test_parse_primary_identifier():
-    t = parse_string('id', 'primary')
-    assert t.is_ref
-    assert t.name == 'id'
+    import onyx.syntax.ast as t
+    assert parse_string('id', 'primary') == t.Ref('id')
 
 
 def test_parse_primary_const_true():
-    t = parse_string('true', 'primary')
-    assert t.is_const
-    assert t.value == True
+    import onyx.syntax.ast as t
+    assert parse_string('true', 'primary') == t.Const(True)
 
 
 def test_parse_primary_const_false():
-    t = parse_string('false', 'primary')
-    assert t.is_const
-    assert t.value == False
+    import onyx.syntax.ast as t
+    assert parse_string('false', 'primary') == t.Const(False)
 
 
 def test_parse_primary_const_nil():
-    t = parse_string('nil', 'primary')
-    assert t.is_const
-    assert t.value == None
+    import onyx.syntax.ast as t
+    assert parse_string('nil', 'primary') == t.Const(None)
 
 
 def test_parse_unary_send():
-    t = parse_string('10 factorial', 'expr')
-    assert t.is_message_send
-    assert t.receiver.is_const
-    assert t.receiver.value == 10
-    assert t.message.selector == 'factorial'
+    import onyx.syntax.ast as t
+    assert (parse_string('10 factorial', 'expr') ==
+            t.Send(t.Const(10), t.Message('factorial', [])))
 
 
 def test_parse_unary_primitive_send():
-    t = parse_string('Array _new', 'expr')
-    assert t.is_message_send
-    assert t.receiver.is_ref
-    assert t.receiver.name == 'Array'
-    assert t.message.is_primitive_message
-    assert t.message.selector == '_new'
+    import onyx.syntax.ast as t
+    assert (parse_string('Array _new', 'expr') ==
+            t.Send(t.Ref('Array'), t.PrimitiveMessage('_new', [])))
 
 
 def test_parse_assignment():
-    t = parse_string('life := 42', 'expr')
-    assert t.is_assign
-    assert t.var == 'life'
-    assert t.expr.is_const
-    assert t.expr.value == 42
+    import onyx.syntax.ast as t
+    assert (parse_string('life := 42', 'expr') ==
+            t.Assign('life', t.Const(42)))
 
 
 def test_parse_binary_send():
-    t = parse_string('3 + 4', 'expr')
-    assert t.is_message_send
-    assert t.receiver.is_const
-    assert t.receiver.value == 3
-    assert t.message.selector == '+'
-    assert t.message.args[0].is_const
-    assert t.message.args[0].value == 4
+    import onyx.syntax.ast as t
+    assert (parse_string('3 + 4', 'expr') ==
+            t.Send(t.Const(3), t.Message('+', [t.Const(4)])))
 
 
 def test_parse_keyword_send():
