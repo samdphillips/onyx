@@ -3,11 +3,17 @@ from collections import namedtuple
 
 
 class Node:
+    is_assign = False
     is_const = False
     is_message = False
     is_message_send = False
     is_primitive_message = False
     is_ref = False
+
+
+class Assign(namedtuple('Assign', 'var expr'), Node):
+    is_assign = True
+
 
 # XXX: mark value immutable
 class Const(namedtuple('Const', 'value'), Node):
@@ -24,15 +30,17 @@ class Const(namedtuple('Const', 'value'), Node):
         return cls(cls.named_values[name])
 
 
+class Message(namedtuple('Message', 'selector args'), Node):
+    is_message = True
+
+
+class PrimitiveMessage(Message):
+    is_primitive_message = True
+
+
 class Ref(namedtuple('Ref', 'name'), Node):
     is_ref = True
 
 
 class Send(namedtuple('Send', 'receiver message'), Node):
     is_message_send = True
-
-class Message(namedtuple('Message', 'selector args'), Node):
-    is_message = True
-
-class PrimitiveMessage(Message):
-    is_primitive_message = True

@@ -56,6 +56,13 @@ def test_parse_unary_primitive_send():
     assert t.message.selector == '_new'
 
 
+def test_parse_assignment():
+    t = parse_string('life := 42', 'expr')
+    assert t.is_assign
+    assert t.var == 'life'
+    assert t.expr.is_const
+    assert t.expr.value == 42
+
 def test_parse_binary_send():
     t = parse_string('3 + 4', 'expr')
     assert t.is_message_send
