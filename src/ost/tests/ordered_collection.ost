@@ -1,0 +1,183 @@
+
+Tester new
+    setup: [ OrderedCollection new ];
+
+    add: 'OrderedCollection>>add:'
+    test: [:oc | oc add: 1. (oc at: 0) = 1];
+
+    add: 'OrderedCollection>>size'
+    test: [:oc | oc add: 1. oc size = 1];
+
+    add: 'OrderedCollection>>after:'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        (oc after: 5) = 6
+    ];
+
+    add: 'OrderedCollection>>after: last'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        [ oc after: 10 ] on: Error do: [ true ]
+    ];
+
+    add: 'OrderedCollection>>after: missing'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        [ oc after: 20 ] on: Error do: [ true ]
+    ];
+
+    add: 'OrderedCollection>>size = 0'
+    test: [:oc | oc size = 0];
+
+    add: 'OrderedCollection>>addAll:'
+    test: [:oc || i result |
+        result := true.
+        int := 1 to: 10.
+        oc addAll: int.
+        int do: [:i | result := result and: [ (oc at: i - 1) = i ] ].
+        result
+    ];
+
+    add: 'OrderedCollection>>first'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc first = 1
+    ];
+
+    add: 'OrderedCollection>>last'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc last = 10
+    ];
+
+    add: 'OrderedCollection>>remove: begin'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 1.
+        (oc includes: 1) not
+    ];
+
+    add: 'OrderedCollection>>remove: middle'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 5.
+        (oc includes: 5) not
+    ];
+
+    add: 'OrderedCollection>>remove: end'
+    test: [:oc |
+        oc addAll: (1 to: 10).
+        oc remove: 10.
+        (oc includes: 10) not
+    ];
+
+    add: 'OrderedCollection>>keysAndValuesDo:'
+    test: [:oc || success |
+        success := true.
+        oc addAll: (0 to: 9).
+        oc keysAndValuesDo: [:i :v | success := success and: [i = v] ].
+        success
+    ];
+
+    add: 'OrderedCollection>>from:to:do:'
+    test: [:oc || sum |
+        oc addAll: (0 to: 9).
+        sum := 0.
+        oc from: 0 to: 9 do: [:i | sum := sum + i ].
+        sum = 45
+    ];
+
+    add: 'OrderedCollection>>,'
+    test: [:oc || other success |
+        other := OrderedCollection new.
+        oc addAll: (0 to: 5).
+        other addAll: (6 to: 9).
+        result := oc, other.
+        success := result size = 10.
+        result keysAndValuesDo: [:i :v | success := success and: [i = v] ].
+        success
+    ];
+
+    add: 'OrderedCollection>>at:ifAbsent: begin'
+    test: [:oc |
+        oc addAll: (0 to: 5).
+        (oc at: -1 ifAbsent: [ true ]) = true
+    ];
+
+    add: 'OrderedCollection>>at:ifAbsent: end'
+    test: [:oc |
+        oc addAll: (0 to: 5).
+        (oc at: 6 ifAbsent: [ true ]) = true
+    ];
+
+    add: 'OrderedCollection>>with:do:'
+    test: [:oc || result |
+        result := true.
+        oc addAll: (0 to: 10).
+        oc with: oc do: [:a :b | result := result and: [ a = b ] ].
+        result
+    ];
+
+    add: 'OrderedCollection>>with:do: wrong sizes'
+    test: [:oc |
+        [
+            oc addAll: (0 to: 10).
+            i := 0 to: 9.
+            oc with: i do: [:a :b | ].
+            false
+        ] on: Error do: [ true ]
+    ];
+
+    add: 'OrderedCollection>>= true'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (0 to: 10).
+        oc = b
+    ];
+
+    add: 'OrderedCollection>>= false - sizes'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (0 to: 5).
+        (oc = b) not
+    ];
+
+    add: 'OrderedCollection>>= false - values'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := OrderedCollection new.
+        b addAll: (10 to: 20).
+        (oc = b) not
+    ];
+
+    add: 'OrderedCollection>>= false - types'
+    test: [:oc || b |
+        oc addAll: (0 to: 10).
+        b := 0 to: 10.
+        (oc = b) not
+    ];
+
+    add: 'OrderedCollection>>reverse'
+    test: [:oc || b result |
+        result := true.
+        b := 0 to: 10.
+        oc addAll: b.
+        oc reverse with: b reverse do: [:a :b | result := result and: [ a = b ] ].
+        result
+    ];
+
+    add: 'OrderedCollection>>reverseDo:'
+    test: [:oc || i result |
+        result := true.
+        i := 10.
+        oc addAll: (0 to: 10).
+        oc reverseDo: [:v |
+            result := result and: [ i = v ].
+            i := i - 1 ].
+        result
+    ];
+
+    run;
+    report

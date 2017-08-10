@@ -1,0 +1,558 @@
+
+Object subclass: Association [
+    | key value |
+
+    Association class [
+        key: key value: value [
+            self new
+                initializeKey: key value: value;
+                yourself
+        ]
+    ]
+
+    initializeKey: aKey value: aValue [
+        key := aKey.
+        value := aValue
+    ]
+
+    key   [ key ]
+
+    value [ value ]
+
+    value: anObject [
+        value := anObject
+    ]
+]
+
+Object subclass: Collection [
+    allSatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifFalse: [ ^ false ]
+        ].
+        true
+    ]
+
+    anySatisfy: aBlock [
+        self do: [:e |
+            (aBlock value: e)
+                ifTrue: [ ^ true ]
+        ].
+        false
+    ]
+
+    asArray [
+        Array withAll: self
+    ]
+
+    asTrait [
+        self inject: Trait new
+             into: [:a :b | a + b ]
+    ]
+
+    detect: aBlock [
+        self detect: aBlock ifNone: [ nil ]
+    ]
+
+    detect: aBlock ifNone: exceptionBlock [
+        self do: [:e |
+            (aBlock value: e) ifTrue: [ ^ e ]
+        ].
+        exceptionBlock value
+    ]
+
+    immutableError [
+        ImmutableCollectionError signal
+    ]
+
+    includes: anObject [
+        self anySatisfy: [:e | e = anObject ]
+    ]
+
+    inject: acc into: aBlock [
+        | a |
+        a := acc.
+        self do: [:e |
+            a := aBlock value: a value: e
+        ].
+        a
+    ]
+
+    isEmpty [
+        self size = 0
+    ]
+
+    notEmpty [
+        self isEmpty not
+    ]
+
+    select: aBlock [
+        | temp |
+        temp := OrderedCollection new: self size.
+        self do: [:e|
+            (aBlock value: e)
+                ifTrue: [ temp addLast: e ]
+        ].
+        self species withAll: temp
+    ]
+
+    species [
+        self class
+    ]
+]
+
+
+Trait named: TExtensibleCollection [
+    "
+    Requires:
+     - add:
+     - remove:
+    "
+
+    addAll: aCollection [
+        aCollection do: [:e | self add: e ]
+    ]
+
+    remove: anElement ifAbsent: exceptionBlock [
+        (self includes: anElement)
+            ifTrue:  [ self remove: anElement ]
+            ifFalse: [ exceptionBlock value ]
+    ]
+
+    removeAll: aCollection [
+        aCollection do: [:e | self remove: e ]
+    ]
+]
+
+Trait named: TSequenceReadableCollection [
+    "
+    Requires:
+     - basicAt:
+     - size
+
+    before:
+    copyReplaceAll:with:
+    copyReplaceFrom:to:with:
+    copyReplaceFrom:to:withObject:
+    copyReplacing:withObject:
+    copyWith:
+    copyWithout:
+    findLast:
+    indexOf:ifAbsent:
+    indexOfSubCollection:startingAt:
+    indexOfSubCollection:startingAt:ifAbsent:
+    "
+
+    , aCollection [
+        ConcatenatedSequence with: self with: aCollection
+    ]
+
+    = aCollection [
+        (self class = aCollection class
+            and: [ self size = aCollection size ])
+            ifFalse: [ ^ false ].
+
+        self with: aCollection do: [:a :b |
+            a = b ifFalse: [ ^ false ]
+        ].
+        ^ true
+    ]
+
+    after: anElement [
+        | i |
+        i := self findFirst: [:e | anElement = e ].
+        i isNil ifTrue: [ self error: 'no element in collection' ].
+        i = self lastIndex ifTrue: [ self error: 'no element after' ].
+        self at: i + 1
+    ]
+
+    at: index [
+        self at: index
+             ifAbsent: [ self error: 'out of bounds' ]
+    ]
+
+    at: index ifAbsent: exceptionBlock [
+        self checkBounds: index ifOutOfBounds: [ ^ exceptionBlock value ].
+        self basicAt: index
+    ]
+
+    checkBounds: index ifOutOfBounds: exceptionBlock [
+        (index between: 0 and: self lastIndex)
+            ifFalse: exceptionBlock
+    ]
+
+    copyFrom: start to: end [
+        | size new |
+        size := end - start + 1.
+        new := self species new: size.
+        0 to: size - 1 do: [:i |
+            new at: i put: (self at: i + start)
+        ].
+        new
+    ]
+
+    do: aBlock [
+        | i size |
+        i    := 0.
+        size := self size.
+
+        [ i < size ] whileTrue: [
+            aBlock value: (self at: i).
+            i := i + 1
+        ]
+    ]
+
+    findFirst: aBlock [
+        self keysAndValuesDo: [:i :v |
+            (aBlock value: v)
+                ifTrue: [ ^i ]
+        ].
+        nil
+    ]
+
+    first [
+        self at: 0
+    ]
+
+    last [
+        self at: self lastIndex
+    ]
+
+    lastIndex [
+        self size - 1
+    ]
+
+    from: start to: end do: aBlock [
+        start to: end do: [:i |
+            aBlock value: (self at: i)
+        ]
+    ]
+
+    from: start to: end keysAndValuesDo: aBlock [
+        start to: end do: [:i |
+            aBlock value: i value: (self at: i)
+        ]
+    ]
+
+    indexOf: anElement [
+        self findFirst: [:e | e = anElement ]
+    ]
+
+    keysAndValuesDo: aBlock [
+        self from: 0
+             to: self lastIndex
+             keysAndValuesDo: aBlock
+    ]
+
+    reverse [
+        ReversedSequence withAll: self
+    ]
+
+    reverseDo: aBlock [
+        self reverse do: aBlock
+    ]
+
+    with: otherCollection do: aBlock [
+        self size = otherCollection size
+            ifFalse: [ self error: 'collections are different sizes' ].
+
+        0 to: self lastIndex do: [:index |
+            aBlock
+                value: (self at: index)
+                value: (otherCollection at: index)
+        ]
+    ]
+]
+
+Trait named: TSequencedCollection [
+    TSequencedCollection uses: TSequenceReadableCollection.
+
+    "
+    at:put:
+    atAll:put:
+    atAllPut:
+    replaceFrom:to:with:startingAt:
+    replaceFrom:to:withObject:
+    "
+
+    replaceFrom: start to: end with: replace [
+        "replace debug.
+        (start asString, ' -> ', end asString) printNl."
+        start to: end do: [:i |
+            "(i asString, ' <- ', (i - start) asString) printNl."
+            self at: i put: (replace at: i - start)
+        ]
+    ]
+
+    replaceFrom: start to: end with: replace startingAt: replaceStart [
+        0 to: end - start do: [:i |
+            self at: start + i
+                 put: (replace at: replaceStart + i)
+        ]
+    ]
+]
+
+Collection subclass: SequencedCollection [
+    SequencedCollection uses: TSequencedCollection.
+
+    at: index put: anObject [
+        self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
+        self basicAt: index put: anObject.
+        anObject
+    ]
+
+]
+
+SequencedCollection subclass: Array [
+    Array class [
+        new: size [
+            self _arrayNew: size
+        ]
+
+        new [
+            self new: 0
+        ]
+
+        with: anObject [
+            (self new: 1)
+                at: 0 put: anObject;
+                yourself
+        ]
+
+        withAll: aCollection [
+            | anArray i |
+            anArray := self new: aCollection size.
+            i   := 0.
+
+            aCollection do: [:e |
+                anArray at: i put: e.
+                i := i + 1
+            ].
+            anArray
+        ]
+    ]
+
+    isArray [ true ]
+
+    size [
+        self _arraySize
+    ]
+
+    basicAt: i put: anObject [
+        self _arrayAt: i put: anObject
+    ]
+
+    basicAt: i [
+        self _arrayAt: i
+    ]
+
+    asArray [ self ]
+
+]
+
+SequencedCollection subclass: Interval [
+    | start stop step |
+
+    Interval class [
+        from: start to: stop [
+            self from: start to: stop by: (stop - start) sign
+        ]
+
+        from: start to: stop by: step [
+            self new
+                initializeFrom: start to: stop by: step;
+                yourself
+        ]
+    ]
+
+    initializeFrom: startVal to: stopVal by: stepVal [
+        start := startVal.
+        stop  := stopVal.
+        step  := stepVal.
+    ]
+
+    start [ start ]
+    stop  [ stop  ]
+    step  [ step  ]
+
+    printString [
+        start asString, ' to: ', stop asString, ' step: ', step asString
+    ]
+
+    size [
+        stop - start // step + 1
+    ]
+
+    basicAt: i [
+        (step * i) + start
+    ]
+
+    species [
+        Array
+    ]
+]
+
+SequencedCollection subclass: OrderedCollection [
+    | elements firstIndex lastIndex |
+
+    OrderedCollection uses:
+        { TExtensibleCollection.
+          TSequencedCollection }.
+
+    OrderedCollection class [
+        new [
+            self new: self defaultSize
+        ]
+
+        new: size [
+            super new initialize: size * 2; yourself
+        ]
+
+        defaultSize [ 8 ]
+
+        withAll: aCollection [
+            | new |
+            new := self new: aCollection size.
+            aCollection do: [:e | new addLast: e ].
+            new
+        ]
+    ]
+
+    initialize: size [
+        elements := Array new: size.
+        firstIndex := lastIndex := size // 2
+    ]
+
+    size [ lastIndex - firstIndex ]
+
+    checkGrow: index [
+        (index between: 0 and: elements lastIndex)
+            ifFalse: [ self growForIndex: index ]
+    ]
+
+    growForIndex: index [
+        | grow |
+        grow := self size // 2.
+
+        index < 0
+            ifTrue:  [ self growStart: grow ]
+            ifFalse: [ self growEnd:   grow ]
+    ]
+
+    growStart: grow [
+        | size newElements |
+        size := elements size + grow.
+        newElements := Array new: size.
+        newElements replaceFrom: grow to: size - 1 with: elements.
+        elements := newElements.
+        firstIndex := firstIndex + grow.
+        lastIndex  := lastIndex  + grow.
+    ]
+
+    growEnd: grow [
+        | newElements |
+        newElements := Array new: elements size + grow.
+        newElements replaceFrom: 0 to: elements lastIndex with: elements.
+        elements := newElements
+    ]
+
+    remove: anElement [
+        | index |
+        index := self indexOf: anElement.
+        index ifNotNil: [
+            index = (self lastIndex) ifTrue: [
+                lastIndex := lastIndex - 1.
+                ^anElement
+            ].
+
+            index isZero ifTrue: [
+                firstIndex := firstIndex + 1.
+                ^anElement
+            ].
+
+            index := firstIndex + index.
+            elements
+                replaceFrom: index
+                to: (lastIndex - 1)
+                with: elements
+                startingAt: index + 1.
+            ^anElement
+        ].
+        nil
+    ]
+
+    add: anObject [
+        self addLast: anObject
+    ]
+
+    addLast: anObject [
+        self checkGrow: lastIndex + 1.
+        elements at: lastIndex put: anObject.
+        lastIndex := lastIndex + 1
+    ]
+
+    addFirst: anObject [
+        self checkGrow: firstIndex - 1.
+        elements at: firstIndex - 1 put: anObject.
+        firstIndex := firstIndex - 1
+    ]
+
+    basicAt: i [
+        elements at: firstIndex + i
+    ]
+
+]
+
+Collection subclass: ConcatenatedSequence [
+    | collections |
+    ConcatenatedSequence uses: TSequenceReadableCollection.
+
+    ConcatenatedSequence class [
+        with: aSequence with: bSequence [
+            self new initialize: { aSequence. bSequence }; yourself
+        ]
+    ]
+
+    initialize: aCollection [
+        collections := aCollection
+    ]
+
+    basicAt: index [
+        | i |
+        i := index.
+        collections do: [:subCollection |
+            i < subCollection size
+                ifTrue: [ ^ subCollection at: i ].
+            i := i - subCollection size.
+        ]
+    ]
+
+    size [
+        collections
+            inject: 0
+            into: [:sum :subCollection | sum + subCollection size ]
+    ]
+]
+
+Collection subclass: ReversedSequence [
+    | collection |
+    ReversedSequence uses: TSequenceReadableCollection.
+
+    ReversedSequence class [
+        withAll: aCollection [
+            self new initialize: aCollection; yourself.
+        ]
+    ]
+
+    initialize: aCollection [
+        collection := aCollection
+    ]
+
+    basicAt: index [
+        collection basicAt: (self lastIndex - index)
+    ]
+
+    size [
+        collection size
+    ]
+]

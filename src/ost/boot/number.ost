@@ -1,0 +1,107 @@
+
+Object subclass: Number [
+    between: min and: max [
+        self >= min and: [ self <= max ]
+    ]
+
+    sign [
+        self isNegative
+            ifTrue:  [ -1 ]
+            ifFalse: [  1 ]
+    ]
+
+    isNegative [
+        self < 0
+    ]
+
+    isZero [
+        self = 0
+    ]
+
+    isNumber [ true ]
+
+    asString [
+        self _numberAsString
+    ]
+]
+
+Number subclass: SmallInt [
+    isSmallInt [ true ]
+
+    addToSmallInt: aNumber [
+        aNumber _addSmallInt: self
+    ]
+
+    subToSmallInt: aNumber [
+        aNumber _smallIntSub: self
+    ]
+
+    quoToSmallInt: aNumber [
+        aNumber _smallIntQuo: self
+    ]
+
+    mulToSmallInt: aNumber [
+        aNumber _mulSmallInt: self
+    ]
+
+    ltToSmallInt: aNumber [
+        aNumber _smallIntLt: self
+    ]
+
+    + aNumber [
+        aNumber addToSmallInt: self
+    ]
+
+    - aNumber [
+        aNumber subToSmallInt: self
+    ]
+
+    // aNumber [
+        aNumber quoToSmallInt: self
+    ]
+
+    * aNumber [
+        aNumber mulToSmallInt: self
+    ]
+
+    < aNumber [
+        aNumber ltToSmallInt: self
+    ]
+
+    > aNumber [
+        aNumber < self
+    ]
+
+    <= aNumber [
+        (self > aNumber) not
+    ]
+
+    >= aNumber [
+        aNumber <= self
+    ]
+
+    to: stop [
+        Interval from: self to: stop
+    ]
+
+    to: stop do: aBlock [
+        (self to: stop) do: aBlock
+    ]
+
+    to: stop by: step [
+        Interval from: self to: stop by: step
+    ]
+
+    to: stop by: step do: aBlock [
+        (self to: stop by: step) do: aBlock
+    ]
+
+    isOdd [
+        self _smallIntIsOdd
+    ]
+
+    isEven [
+        self isOdd not
+    ]
+]
+

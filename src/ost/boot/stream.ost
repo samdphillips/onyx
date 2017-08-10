@@ -1,0 +1,38 @@
+
+Object subclass: ReadStream [
+    | contents position |
+
+    ReadStream class [
+        on: aCollection [
+            self new
+                initialize: aCollection;
+                yourself
+        ]
+    ]
+
+    initialize: aCollection [
+        contents := aCollection.
+        position := 0.
+    ]
+
+    atEnd [
+        position = contents size
+    ]
+
+    next [
+        | value |
+        value := self peek.
+        self nextPosition.
+
+        value
+    ]
+
+    nextPosition [
+        position := position + 1
+    ]
+
+    peek [
+        contents at: position
+    ]
+
+]

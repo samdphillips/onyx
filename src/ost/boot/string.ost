@@ -1,0 +1,80 @@
+Object subclass: Character [
+    Character class [
+        codePoint: anInteger [
+            self _characterClassCodePoint: anInteger
+        ]
+
+        vowels [
+            #($a $e $i $o $u)
+        ]
+
+        newline [
+            self codePoint: 10
+        ]
+    ]
+
+    codePoint [
+        self _characterCodePoint
+    ]
+
+    asLowercase [
+        self _characterAsLowercase
+    ]
+
+    asString [
+        (String new: 1)
+            at: 0 put: self;
+            yourself
+    ]
+]
+
+SequencedCollection subclass: Symbol [
+    Symbol class [
+        internString: aString [
+            aString _stringAsSymbol
+        ]
+    ]
+
+    asString [
+        self _symbolAsString
+    ]
+
+    asSymbol [ self ]
+
+    isSymbol [ true ]
+]
+
+SequencedCollection subclass: String [
+    String class [
+        new: amount [
+            self _stringNew: amount
+        ]
+    ]
+
+    isString [ true ]
+
+    basicAt: i [
+        self _stringAt: i
+    ]
+
+    basicAt: i put: aChar [
+        self _stringAt: i put: aChar
+    ]
+
+    size [
+        self _stringSize
+    ]
+
+    , aString [
+        self _stringConcat: aString
+    ]
+
+    asSymbol [
+        Symbol internString: self
+    ]
+
+    printString [
+        self
+    ]
+]
+

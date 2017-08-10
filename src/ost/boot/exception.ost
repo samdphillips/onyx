@@ -1,0 +1,229 @@
+
+Object subclass: PromptTag [
+    abort [
+        self abort: nil
+    ]
+
+    abort: aValue [
+        "FIXME: change this primitive"
+        aValue _objectAbort: self
+    ]
+]
+
+DefaultPromptTag := PromptTag new.
+
+Object subclass: Continuation [
+    | frames |
+
+    Continuation class [
+        defaultTag [
+            "this should really be ... (once class ivars work)"
+            "defaultTag ifNil: [ defaultTag := Object new ].
+             defaultTag"
+            DefaultPromptTag
+        ]
+    ]
+
+    isContinuation [ true ]
+
+    value [
+        self value: nil
+    ]
+
+    value: anObject [
+        self do: [ anObject ]
+    ]
+
+    do: aBlock [
+        self _continuationDo: aBlock
+    ]
+
+]
+
+Object subclass: ContinuationMark [
+    firstMark: promptTag [
+        self _continuationFirstMark: promptTag
+    ]
+
+    marks: promptTag [
+        self _continuationMarks: promptTag
+    ]
+]
+
+ExceptionHandlerMark := ContinuationMark new.
+CurtailedMark := ContinuationMark new.
+
+Object subclass: ExceptionHandler [
+    | handlerBlock selector tag |
+
+    ExceptionHandler class [
+        mark [
+            ExceptionHandlerMark
+        ]
+
+        currentHandlers [
+            self mark marks: Continuation defaultTag
+        ]
+
+        findHandlerFor: anException [
+            self currentHandlers detect: [:h | h handles: anException ]
+        ]
+    ]
+
+    selector: anExceptionSelector handlerBlock: aBlock [
+        handlerBlock := aBlock.
+        selector     := anExceptionSelector.
+        tag          := PromptTag new.
+        self
+    ]
+
+    handles: anException [
+        selector handles: anException
+    ]
+
+    installAndDo: aBlock [
+        [ aBlock
+              withMark: ExceptionHandler mark
+              value: self ]
+            withPrompt: tag
+            abort: [:exc || val |
+                       val := handlerBlock value: exc.
+                       exc exit.
+                       val ]
+    ]
+
+    signalWith: anException [
+        [:k |
+            anException resumer: k;
+                exitBlocks: (CurtailedMark marks: tag).
+            self throw: anException
+        ] withCont: tag
+    ]
+
+    throw: anException [
+        tag abort: anException
+    ]
+
+]
+
+Object subclass: Exception [
+    | handler resumer exitBlocks messageText |
+
+    Exception class [
+        handles: anException [
+            anException isKindOf: self
+        ]
+
+        signal [
+            self new signal
+        ]
+
+        signal: aString [
+            self new
+                messageText: aString;
+                signal
+        ]
+    ]
+
+    messageText: aString [
+        messageText := aString
+    ]
+
+    messageText [
+        messageText
+    ]
+
+    resumer: aContinuation [
+        resumer := aContinuation
+    ]
+
+    exitBlocks: aCollection [
+        exitBlocks := aCollection
+    ]
+
+    defaultAction [
+        self _systemIsBroken: self messageText
+    ]
+
+    signal [
+        handler := ExceptionHandler findHandlerFor: self.
+        handler ifNil: [ self defaultAction ].
+        handler signalWith: self.
+    ]
+
+    isNested [
+        (ExceptionHandler findHandlerFor: self) isNotNil
+    ]
+
+    pass [
+        handler := ExceptionHandler findHandlerFor: self.
+        handler throw: self
+    ]
+
+    isResumable [
+        true
+    ]
+
+    resume:  aValue [
+        self isResumable
+            ifFalse: [ self error: 'exception is not resumable' ].
+        handler installAndDo: [ resumer value: aValue ]
+    ]
+
+    resume [
+        self resume: nil
+    ]
+
+    exit [
+        exitBlocks do: [:b | b value ]
+    ]
+
+    printString [
+        self class name asString, ': ', self messageText
+    ]
+
+    "need to write:
+      - outer
+      - resignalAs: anException
+      - retry
+      - retryUsing: aBlock
+      - return: anObject
+     "
+]
+
+Exception subclass: Error [ ]
+
+Exception subclass: MessageNotUnderstood [
+    | receiver message |
+
+    receiver: anObject [
+        receiver := anObject
+    ]
+
+    message: aMessage [
+        message := aMessage
+    ]
+
+    messageText [
+        receiver printString,
+            ' received an unknown message #',
+            message selector asString
+    ]
+]
+
+Exception subclass: ImmutableCollectionError [ ]
+
+Exception subclass: IncompleteTrait [
+    | missingSelectors |
+
+    IncompleteTrait class [
+        missingSelectors: aCollection [
+            self new missingSelectors: aCollection; yourself
+        ]
+    ]
+
+    missingSelectors: aCollection [
+        missingSelectors := aCollection
+    ]
+]
+
