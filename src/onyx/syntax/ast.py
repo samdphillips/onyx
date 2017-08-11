@@ -15,6 +15,7 @@ class Node:
     is_ref = False
     is_return = False
     is_seq = False
+    is_trait = False
 
 
 class Assign(namedtuple('Assign', 'var expr'), Node):
@@ -75,3 +76,7 @@ class Send(namedtuple('Send', 'receiver message'), Node):
 
 class Seq(namedtuple('Seq', 'statements'), Node):
     is_seq = True
+
+
+class Trait(namedtuple('Trait', 'name methods trait_expr'), Node):
+    is_trait = True

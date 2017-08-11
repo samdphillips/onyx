@@ -73,7 +73,18 @@ def test_parse_primary_block():
 def test_parse_system():
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
-    with open('src/ost/boot/core.ost', 'r') as f:
-        lexer = Lexer(f)
-        parser = Parser(lexer)
-        parser.parse_module()
+    for source in 'collection core exception number stream string'.split():
+        with open('src/ost/boot/{}.ost'.format(source), 'r') as f:
+            lexer = Lexer(f)
+            parser = Parser(lexer)
+            parser.parse_module()
+
+
+def test_parse_test_system():
+    from onyx.syntax.lexer import Lexer
+    from onyx.syntax.parser import Parser
+    for source in 'tester ordered_collection stream toplevel_return'.split():
+        with open('src/ost/tests/{}.ost'.format(source), 'r') as f:
+            lexer = Lexer(f)
+            parser = Parser(lexer)
+            parser.parse_module()

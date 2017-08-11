@@ -1,5 +1,6 @@
 
 import onyx.syntax.ast as ast
+import onyx.objects as o
 
 from onyx.syntax.lexer import Token
 
@@ -9,6 +10,7 @@ class ParseError(Exception):
         self.actual = actual
         self.expected = expected
         self.buffer = buffer
+
 
 class Parser:
     def __init__(self, lexer):
@@ -85,9 +87,10 @@ class Parser:
                 break
         return stmts
 
-    def parse_executable_code(self, body):
-        body['temps'] = self.parse_vars()
-        body['statements'] = ast.Seq(self.parse_statements())
+    def parse_executable_code(self):
+        temps = self.parse_vars()
+        statements = ast.Seq(self.parse_statements())
+        return temps, statements
 
     def parse_block(self):
         self.expect('lsq')
@@ -105,9 +108,36 @@ class Parser:
                 self.parse_error('Expected "|"')
 
         block = {'args': args}
-        self.parse_executable_code(block)
+        block['temps'], block['statements'] = self.parse_executable_code()
         self.expect('rsq')
         return ast.Block(**block)
+
+    def parse_expr_array(self):
+        self.expect('lcurl')
+        statements = self.parse_statements()
+        self.expect('rcurl')
+
+        rcvr = ast.Send(ast.Ref('Array'),
+                        ast.Message('new:', [ast.Const(len(statements))]))
+        if len(statements) == 0:
+            return rcvr
+        messages = [ast.Message('at:put:', [ast.Const(i), e])
+                    for i, e in enumerate(statements)]
+        return ast.Cascade(rcvr, messages)
+
+    def parse_literal_array(self):
+        self.expect('lparray')
+        elements = []
+        while self.current_is_oneof('id', 'string', 'int', 'symbol', 'character'):
+            v = self.current_token().value
+            if self.current_is_oneof('character'):
+                v = o.Character(v)
+            elif self.current_is_oneof('symbol', 'id'):
+                v = o.Symbol(v)
+            elements.append(v)
+            self.step()
+        self.expect('rpar')
+        return ast.Const(elements)
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):
@@ -263,7 +293,7 @@ class Parser:
         method = {}
         self.parse_method_header(method)
         self.expect('lsq')
-        self.parse_executable_code(method)
+        method['temps'], method['statements'] = self.parse_executable_code()
         self.expect('rsq')
         method = ast.Method(**method)
         methods = body.get('methods') or dict()
@@ -285,6 +315,11 @@ class Parser:
         self.expect('rsq')
         body['meta'] = meta
 
+    def parse_trait_clause(self):
+        expr = self.parse_expr()
+        self.expect('dot')
+        return expr
+
     def parse_decl_element(self, body):
         if self.current_is_oneof('id'):
             token = self.current_token()
@@ -297,7 +332,7 @@ class Parser:
                 if token.value != body.get('name'):
                     self.parse_error('Trait clause name does not match')
                 self.step()
-                self.parse_trait_clause(body)
+                body['trait_expr'] = self.parse_trait_clause()
             elif self.current_token() == Token('id', 'class'):
                 if token.value != body.get('name'):
                     parse_error("Meta name doesn't match")
@@ -310,9 +345,10 @@ class Parser:
         else:
             self.parse_error('Expected id, binsel, or kw.')
 
-    def parse_decl_body(self, body):
+    def parse_decl_body(self, body, skip_ivars=False):
         self.expect('lsq')
-        body['instance_vars'] = self.parse_vars()
+        if not skip_ivars:
+            body['instance_vars'] = self.parse_vars()
         while not self.current_is_oneof('rsq'):
             self.parse_decl_element(body)
         self.expect('rsq')
@@ -328,10 +364,30 @@ class Parser:
             'name': class_name,
             'superclass_name': superclass_name,
             'meta': None,
-            'trait_expr': None
+            'trait_expr': None,
+            'methods': {}
         }
         self.parse_decl_body(body)
         return ast.Class(**body)
+
+    def parse_trait(self):
+        self.expect('id', 'Trait')
+        self.expect('kw', 'named:')
+        # XXX: check for id
+        trait_name = self.current_token().value
+        self.step()
+        body = {
+            'name': trait_name,
+            'trait_expr': None
+        }
+        self.parse_decl_body(body, skip_ivars=True)
+        return ast.Trait(**body)
+
+    def parse_module_expr(self):
+        expr = self.parse_expr()
+        if not self.current_is_oneof('eof'):
+            self.expect('dot')
+        return expr
 
     def parse_module_element(self):
         if self.current_token() == Token('kw', 'import:'):
