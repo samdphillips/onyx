@@ -1,12 +1,12 @@
 
-def parse_string(s, production):
+def parse_string(s, production, *args):
     import io
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
     s_inp = io.StringIO(s)
     lex = Lexer(s_inp)
     p = Parser(lex)
-    return getattr(p, 'parse_{}'.format(production))()
+    return getattr(p, 'parse_{}'.format(production))(*args)
 
 
 def test_parse_primary_num():
@@ -62,3 +62,18 @@ def test_parse_keyword_send():
     import onyx.syntax.ast as t
     assert (parse_string('x at: 10', 'expr') ==
             t.Send(t.Ref('x'), t.Message('at:', [t.Const(10)])))
+
+
+def test_parse_primary_block():
+    import onyx.syntax.ast as t
+    assert (parse_string('[ ^ false ]', 'primary') ==
+            t.Block([], [], t.Seq([t.Return(t.Const(value=False))])))
+
+
+def test_parse_system():
+    from onyx.syntax.lexer import Lexer
+    from onyx.syntax.parser import Parser
+    with open('src/ost/boot/core.ost', 'r') as f:
+        lexer = Lexer(f)
+        parser = Parser(lexer)
+        parser.parse_module()
