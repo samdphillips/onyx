@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from glob import glob
 from setuptools import find_packages, setup
 
 setup(name='Onyx',
@@ -9,6 +10,6 @@ setup(name='Onyx',
       author_email='samdphillips@gmail.com',
       packages=find_packages('src'),
       package_dir={'': 'src'},
-      setup_requires=['pytest-runner'],
-      tests_require=['pytest', 'pytest-cov']
+      data_files=[('onyx/ost/boot', glob('src/ost/boot/*.ost'))],
+      zip_safe=False
 )
