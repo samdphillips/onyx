@@ -2,7 +2,7 @@
 import onyx.syntax.ast as ast
 import onyx.objects as o
 
-from onyx.syntax.lexer import Token
+from onyx.syntax.lexer import Lexer, Token
 
 
 class ParseError(Exception):
@@ -13,6 +13,11 @@ class ParseError(Exception):
 
 
 class Parser:
+    @classmethod
+    def parse_file(cls, io):
+        parser = cls(Lexer(io))
+        return parser.parse_module()
+
     def __init__(self, lexer):
         self.lexer = lexer
         self.lookahead = []

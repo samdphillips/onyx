@@ -81,10 +81,7 @@ def test_parse_system():
 
 
 def test_parse_test_system():
-    from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
     for source in 'tester ordered_collection stream toplevel_return'.split():
         with open('src/ost/tests/{}.ost'.format(source), 'r') as f:
-            lexer = Lexer(f)
-            parser = Parser(lexer)
-            parser.parse_module()
+            parser = Parser.parse_file(f)
