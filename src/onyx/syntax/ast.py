@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 
+import onyx.utils as u
 
 class Node:
     is_assign = False
@@ -17,6 +18,10 @@ class Node:
     is_return = False
     is_seq = False
     is_trait = False
+
+    def visit(self, visitor, *args):
+        method_name = 'visit_' + u.camel_to_snake(self.__class__.__name__)
+        getattr(visitor, method_name)(self, *args)
 
 
 class Assign(namedtuple('Assign', 'var expr'), Node):
