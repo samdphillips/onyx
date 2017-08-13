@@ -301,8 +301,8 @@ class Parser:
         method['temps'], method['statements'] = self.parse_executable_code()
         self.expect('rsq')
         method = ast.Method(**method)
-        methods = body.get('methods') or dict()
-        methods[method.name] = method
+        methods = body.get('methods') or list()
+        methods.append(method)
         body['methods'] = methods
 
     def parse_meta_element(self, meta):
@@ -370,7 +370,7 @@ class Parser:
             'superclass_name': superclass_name,
             'meta': None,
             'trait_expr': None,
-            'methods': {}
+            'methods': []
         }
         self.parse_decl_body(body)
         return ast.Class(**body)
