@@ -4,6 +4,8 @@ import re
 from collections import namedtuple
 from operator import methodcaller
 
+import onyx.objects as o
+
 Token = namedtuple('Token', 'type value')
 EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 
@@ -17,8 +19,12 @@ def extract_group(n):
     return _extract
 
 
-def convert_character(match):
-    return ord(match.group(1))
+def make_character(match):
+    return o.Character(ord(match.group(1)))
+
+
+def make_symbol(match):
+    return o.get_symbol(match.group(1))
 
 
 def convert_int(match):
@@ -59,7 +65,6 @@ class Match:
 
 
 class Scanner:
-
     def __init__(self, pattern, token_type, convert=None, scan_func=None):
         self.re = re.compile(pattern)
         self.token_type = token_type
@@ -88,16 +93,16 @@ class Lexer:
     scanners = [
         Scanner(r'\s+', 'whitespace'),
         Scanner(r'"([^"]*)"', 'comment', extract_group(1)),
-        Scanner(r'[a-zA-Z_][a-zA-Z0-9]*', 'id'),
+        Scanner(r'([a-zA-Z_][a-zA-Z0-9]*)', 'id', make_symbol),
         Scanner(r':([a-zA-Z_][a-zA-Z0-9]*)', 'blockarg', extract_group(1)),
         Scanner(r'[a-zA-Z_][a-zA-Z0-9]*:', 'kw'),
         Scanner(r'[+-]?\d+', 'int', convert_int),
         Scanner(r'[`~!@%&*+=|\\?/<>,-]+', 'binsel'),
-        Scanner(r'\$(.)', 'character', convert_character),
-        Scanner(r'#([a-zA-Z_][a-zA-Z0-9]*)', 'symbol', extract_group(1)),
-        Scanner(r'#([`~!@%&*+=|\\?/<>,-]+)', 'symbol', extract_group(1)),
-        Scanner(r'#(([a-zA-Z_][a-zA-Z0-9]*:)+)', 'symbol', extract_group(1)),
-        Scanner(r"#'([^']+)'", 'symbol', extract_group(1)),
+        Scanner(r'\$(.)', 'character', make_character),
+        Scanner(r'#([a-zA-Z_][a-zA-Z0-9]*)', 'symbol', make_symbol),
+        Scanner(r'#([`~!@%&*+=|\\?/<>,-]+)', 'symbol', make_symbol),
+        Scanner(r'#(([a-zA-Z_][a-zA-Z0-9]*:)+)', 'symbol', make_symbol),
+        Scanner(r"#'([^']+)'", 'symbol', make_symbol),
         Scanner(r"#\(", 'lparray'),
         Scanner(r"'", 'string', None, scan_string),
         Scanner(r'\^', 'caret'),
