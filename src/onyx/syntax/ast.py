@@ -10,6 +10,7 @@ class Node:
     is_const = False
     is_message = False
     is_message_send = False
+    is_meta = False
     is_method = False
     is_primitive_message = False
     is_ref = False
@@ -49,6 +50,10 @@ class Const(namedtuple('Const', 'value'), Node):
     @classmethod
     def get(cls, name):
         return cls(cls.named_values[name])
+
+
+class Meta(namedtuple('Meta', 'instance_vars methods'), Node):
+    is_meta = True
 
 
 class Method(namedtuple('Method', 'name args temps statements'), Node):
