@@ -11,4 +11,4 @@ def get_symbol(name):
 
 
 class Symbol(str):
-    pass
+    is_class = False

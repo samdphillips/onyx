@@ -1,3 +1,3 @@
 
 class Character(int):
-    pass
+    is_class = False
