@@ -28,7 +28,7 @@ def make_symbol(match):
 
 
 def convert_int(match):
-    return int(match.group())
+    return o.SmallInt(match.group())
 
 
 def scan_string(scanner, lexer):
