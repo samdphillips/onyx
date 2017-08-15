@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 
+import onyx.objects as o
 import onyx.utils as u
 
 class Node:
@@ -47,9 +48,9 @@ class Const(namedtuple('Const', 'value'), Node):
     is_const = True
 
     named_values = {
-        'true': True,
-        'false': False,
-        'nil': None
+        'true':  o.true,
+        'false': o.false,
+        'nil':   None
     }
 
     @classmethod

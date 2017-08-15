@@ -215,4 +215,7 @@ class Interpreter:
         self.doing(k.statements[0])
 
     def primitive_add_small_int_(self, a, b):
-        self.done(a + b)
+        self.done(o.SmallInt(a + b))
+
+    def primitive_small_int_lt_(self, a, b):
+        self.done(o.onyx_bool(a < b))

@@ -15,3 +15,26 @@ class SmallInt(int):
 
 class Super(namedtuple('Super', 'receiver klass')):
     pass
+
+
+class _True:
+    is_class = False
+
+    def onyx_class(self, vm):
+        return vm.globals.lookup('True').value
+
+
+class _False:
+    is_class = False
+
+    def onyx_class(self, vm):
+        return vm.globals.lookup('False').value
+
+true = _True()
+false = _False()
+
+
+def onyx_bool(value):
+    if value:
+        return true
+    return false

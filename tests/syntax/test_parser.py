@@ -20,13 +20,15 @@ def test_parse_primary_identifier():
 
 
 def test_parse_primary_const_true():
+    import onyx.objects as o
     import onyx.syntax.ast as t
-    assert parse_string('true', 'primary') == t.Const(True)
+    assert parse_string('true', 'primary') == t.Const(o.true)
 
 
 def test_parse_primary_const_false():
+    import onyx.objects as o
     import onyx.syntax.ast as t
-    assert parse_string('false', 'primary') == t.Const(False)
+    assert parse_string('false', 'primary') == t.Const(o.false)
 
 
 def test_parse_primary_const_nil():
@@ -65,9 +67,10 @@ def test_parse_keyword_send():
 
 
 def test_parse_primary_block():
+    import onyx.objects as o
     import onyx.syntax.ast as t
     assert (parse_string('[ ^ false ]', 'primary') ==
-            t.Block([], [], t.Seq([t.Return(t.Const(value=False))])))
+            t.Block([], [], t.Seq([t.Return(t.Const(value=o.false))])))
 
 
 def test_parse_system():
