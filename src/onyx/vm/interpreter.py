@@ -108,6 +108,12 @@ class Interpreter:
             method_dict[m.name] = o.Method(**m._asdict())
         return method_dict
 
+    def make_block_env(self, block_closure, args):
+        env = Env(block_closure.env)
+        env.add_args(block_closure.block.args, args)
+        env.add_temps(block_closure.block.temps)
+        return env
+
     def make_method_env(self, method, args, receiver, klass):
         env = Env()
         env.add_args(method.args, args)
@@ -115,6 +121,12 @@ class Interpreter:
         env.add_binding(o.get_symbol('self'), receiver)
         env.add_binding(o.get_symbol('super'), o.Super(receiver, klass))
         return env
+
+    def do_block(self, block_closure, args):
+        self.env = self.make_block_env(block_closure, args)
+        self.receiver = block_closure.receiver
+        self.retp = block_closure.retp
+        self.doing(block_closure.block.statements)
 
     def do_message_dispatch(self, execute, message, value):
         if len(message.args) > 0:
@@ -147,6 +159,10 @@ class Interpreter:
     push_kmessage = pusher(k.KMessage)
     push_kseq = pusher(k.KSeq)
     push_kreceiver = pusher(k.KReceiver)
+
+    def visit_block(self, block):
+        closure = o.BlockClosure(self.env, self.receiver, self.retp, block)
+        self.done(closure)
 
     def visit_class(self, klass):
         self.push_kassign(klass.name)
@@ -213,6 +229,9 @@ class Interpreter:
         if len(k.statements) > 1:
             self.push_kseq(k.statements[1:])
         self.doing(k.statements[0])
+
+    def primitive_block_value(self, block):
+        self.do_block(block, [])
 
     def primitive_add_small_int_(self, a, b):
         self.done(o.SmallInt(a + b))

@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 
+from .block_closure import BlockClosure
 from .character import Character
 from .klass import Class
 from .method import Method

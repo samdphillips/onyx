@@ -56,3 +56,9 @@ _test_evaluation("3 >= 1", o.true)
 _test_evaluation("3 >= 2", o.true)
 _test_evaluation("3 >= 3", o.true)
 _test_evaluation("nil isNil", o.true)
+
+
+_test_evaluation("true  ifTrue: [ 10 ]", 10)
+_test_evaluation("false ifTrue: [ 10 ]", o.nil)
+_test_evaluation("true  ifTrue: [ 10 ] ifFalse: [ 11 ]", 10)
+_test_evaluation("false ifTrue: [ 10 ] ifFalse: [ 11 ]", 11)
