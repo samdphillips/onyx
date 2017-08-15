@@ -33,12 +33,18 @@ class _True:
     def onyx_class(self, vm):
         return vm.globals.lookup('True').value
 
+    def __bool__(self):
+        return True
+
 
 class _False:
     is_class = False
 
     def onyx_class(self, vm):
         return vm.globals.lookup('False').value
+
+    def __bool__(self):
+        return False
 
 true = _True()
 false = _False()
