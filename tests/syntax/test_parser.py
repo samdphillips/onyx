@@ -32,8 +32,9 @@ def test_parse_primary_const_false():
 
 
 def test_parse_primary_const_nil():
+    import onyx.objects as o
     import onyx.syntax.ast as t
-    assert parse_string('nil', 'primary') == t.Const(None)
+    assert parse_string('nil', 'primary') == t.Const(o.nil)
 
 
 def test_parse_unary_send():

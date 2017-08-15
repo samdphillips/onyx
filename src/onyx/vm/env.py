@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 
+import onyx.objects as o
 
 class ImmutableBinding(namedtuple('ImmutableBinding', 'name value')):
     pass
@@ -41,10 +42,10 @@ class Env:
 class GlobalEnv(Env):
     def __init__(self):
         super().__init__()
-        self.add_binding('nil', None, ImmutableBinding)
+        self.add_binding('nil', o.nil, ImmutableBinding)
 
     def lookup(self, name):
         binding = super().lookup(name)
         if binding is None:
-            binding = self.add_binding(name, None)
+            binding = self.add_binding(name, o.nil)
         return binding

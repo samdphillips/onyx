@@ -17,6 +17,16 @@ class Super(namedtuple('Super', 'receiver klass')):
     pass
 
 
+class _Nil:
+    is_class = False
+
+    def __bool__(self):
+        return False
+
+    def onyx_class(self, vm):
+        return vm.globals.lookup('UndefinedObject').value
+
+
 class _True:
     is_class = False
 
@@ -32,6 +42,7 @@ class _False:
 
 true = _True()
 false = _False()
+nil = _Nil()
 
 
 def onyx_bool(value):

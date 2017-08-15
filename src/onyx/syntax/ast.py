@@ -50,7 +50,7 @@ class Const(namedtuple('Const', 'value'), Node):
     named_values = {
         'true':  o.true,
         'false': o.false,
-        'nil':   None
+        'nil':   o.nil
     }
 
     @classmethod

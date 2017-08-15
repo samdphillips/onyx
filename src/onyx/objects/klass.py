@@ -20,7 +20,7 @@ class Class(namedtuple('Class', _class_fields)):
             return success(self, self.method_dict[selector])
         elif self.trait is not None and selector in self.trait:
             return success(self, self.trait[selector])
-        elif self.super_class is None:
+        elif self.super_class:
             return failure()
         else:
             return self.super_class.lookup_instance_method(selector)
