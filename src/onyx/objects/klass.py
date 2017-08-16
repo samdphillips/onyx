@@ -15,6 +15,9 @@ _class_fields = \
 class Class(namedtuple('Class', _class_fields)):
     is_class = True
 
+    def onyx_class(self, vm):
+        return self
+
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:
             return success(self, self.method_dict[selector])
@@ -24,6 +27,17 @@ class Class(namedtuple('Class', _class_fields)):
             return failure()
         else:
             return self.super_class.lookup_instance_method(selector)
+
+    def lookup_class_method(self, vm, selector):
+        if selector in self.class_method_dict:
+            return success(self, self.class_method_dict[selector])
+        elif (self.trait is not None and
+              selector in self.trait.class_method_dict):
+            return success(self, self.trait.class_method_dict[selector])
+        elif self.super_class:
+            return vm.globals.lookup('Class').value.lookup_instance_method(selector)
+        else:
+            return self.super_class.lookup_class_method(vm, selector)
 
     def lookup_method(self, vm, selector, is_class):
         if is_class:
