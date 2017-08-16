@@ -385,7 +385,8 @@ class Parser:
         self.step()
         body = {
             'name': trait_name,
-            'trait_expr': None
+            'trait_expr': None,
+            'meta': None
         }
         self.parse_decl_body(body, skip_ivars=True)
         return ast.Trait(**body)

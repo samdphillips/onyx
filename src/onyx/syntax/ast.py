@@ -89,5 +89,5 @@ class Seq(namedtuple('Seq', 'statements'), Node):
     is_seq = True
 
 
-class Trait(namedtuple('Trait', 'name methods trait_expr'), Node):
+class Trait(namedtuple('Trait', 'name meta methods trait_expr'), Node):
     is_trait = True

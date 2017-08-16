@@ -157,8 +157,9 @@ class Interpreter:
 
     push_kassign = pusher(k.KAssign)
     push_kmessage = pusher(k.KMessage)
-    push_kseq = pusher(k.KSeq)
     push_kreceiver = pusher(k.KReceiver)
+    push_kseq = pusher(k.KSeq)
+    push_ktrait = pusher(k.KTrait)
 
     def visit_assign(self, assignment):
         self.push_kassign(assignment.var)
@@ -211,6 +212,21 @@ class Interpreter:
             self.doing(seq.statements[0])
             self.push_kseq(seq.statements[1:])
 
+    def visit_trait(self, trait):
+        name = trait.name
+        self.push_kassign(name)
+        method_dict = self.make_method_dict(trait.methods)
+        if trait.meta:
+            class_method_dict = self.make_method_dict(trait.meta.methods)
+        else:
+            class_method_dict = {}
+        trait_value = o.Trait(name, None, method_dict, class_method_dict)
+        if trait.trait_expr is None:
+            self.done(trait_value)
+        else:
+            self.push_ktrait(trait_value)
+            self.doing(trait.trait_expr)
+
     def continue_kassign(self, k, value):
         var = self.lookup_var(k.name)
         var.value = value
@@ -233,6 +249,10 @@ class Interpreter:
         if len(k.statements) > 1:
             self.push_kseq(k.statements[1:])
         self.doing(k.statements[0])
+
+    def continue_ktrait(self, k, value):
+        decl = k.declaration
+        self.done(decl._replace(trait=value))
 
     def primitive_block_value(self, block):
         self.do_block(block, [])

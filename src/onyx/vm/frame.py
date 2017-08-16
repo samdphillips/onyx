@@ -53,3 +53,4 @@ KMessage = frame_type('KMessage',
                       'arg_expressions')
 KReceiver = frame_type('KReceiver', 'message')
 KSeq = frame_type('KSeq', 'statements')
+KTrait = frame_type('KTrait', 'declaration')
