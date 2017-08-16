@@ -13,6 +13,9 @@ class SmallInt(int):
     def onyx_class(self, vm):
         return vm.globals.lookup('SmallInt').value
 
+    def lookup_instance_var(self, name):
+        pass
+
 
 class Super(namedtuple('Super', 'receiver klass')):
     pass
