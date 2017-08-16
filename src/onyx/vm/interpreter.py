@@ -160,6 +160,10 @@ class Interpreter:
     push_kseq = pusher(k.KSeq)
     push_kreceiver = pusher(k.KReceiver)
 
+    def visit_assign(self, assignment):
+        self.push_kassign(assignment.var)
+        self.doing(assignment.expr)
+
     def visit_block(self, block):
         closure = o.BlockClosure(self.env, self.receiver, self.retp, block)
         self.done(closure)
