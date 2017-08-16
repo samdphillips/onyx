@@ -156,6 +156,7 @@ class Interpreter:
         self.stack.push(frame)
 
     push_kassign = pusher(k.KAssign)
+    push_kcascade = pusher(k.KCascade)
     push_kmessage = pusher(k.KMessage)
     push_kreceiver = pusher(k.KReceiver)
     push_kseq = pusher(k.KSeq)
@@ -168,6 +169,10 @@ class Interpreter:
     def visit_block(self, block):
         closure = o.BlockClosure(self.env, self.receiver, self.retp, block)
         self.done(closure)
+
+    def visit_cascade(self, cascade, value):
+        self.push_kcascade(value, cascade.messages[1:])
+        cascade.messages[0].visit(self, value)
 
     def visit_class(self, klass):
         self.push_kassign(klass.name)

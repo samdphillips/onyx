@@ -33,7 +33,7 @@ class Block(namedtuple('Block', 'args temps statements'), Node):
     is_block = True
 
 
-class Cascade(namedtuple('Cascade', 'receiver messages'), Node):
+class Cascade(namedtuple('Cascade', 'messages'), Node):
     is_cascade = True
 
 

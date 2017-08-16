@@ -128,7 +128,7 @@ class Parser:
             return rcvr
         messages = [ast.Message('at:put:', [ast.Const(i), e])
                     for i, e in enumerate(statements)]
-        return ast.Cascade(rcvr, messages)
+        return ast.Send(rcvr, ast.Cascade(messages))
 
     def parse_literal_array(self):
         self.expect('lparray')
@@ -224,7 +224,7 @@ class Parser:
             while self.current_is_oneof('semi'):
                 self.step()
                 m.append(self.parse_cascade_message())
-            r = ast.Cascade(r, m)
+            r = ast.Send(r, ast.Cascade(m))
         return r
 
     def parse_message(self):
