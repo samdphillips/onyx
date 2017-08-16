@@ -29,7 +29,7 @@ Number subclass: SmallInt [
     isSmallInt [ true ]
 
     addToSmallInt: aNumber [
-        aNumber _addSmallInt: self
+        aNumber _smallIntAdd: self
     ]
 
     subToSmallInt: aNumber [
@@ -41,7 +41,7 @@ Number subclass: SmallInt [
     ]
 
     mulToSmallInt: aNumber [
-        aNumber _mulSmallInt: self
+        aNumber _smallIntMul: self
     ]
 
     ltToSmallInt: aNumber [
@@ -104,4 +104,3 @@ Number subclass: SmallInt [
         self isOdd not
     ]
 ]
-
