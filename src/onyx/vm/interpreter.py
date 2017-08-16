@@ -41,7 +41,7 @@ class Done(namedtuple('Done', 'value')):
 
 
 class Interpreter:
-    boot_sources = 'core number'.split()
+    boot_sources = 'core exception number collection string stream'.split()
 
     @classmethod
     def boot(cls):
