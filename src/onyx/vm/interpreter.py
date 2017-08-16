@@ -237,6 +237,9 @@ class Interpreter:
     def primitive_block_value(self, block):
         self.do_block(block, [])
 
+    def primitive_class_new(self, klass):
+        self.done(klass.new_instance())
+
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))
 

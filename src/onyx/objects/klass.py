@@ -1,6 +1,8 @@
 
 from collections import namedtuple
 
+from .object import Object
+
 lookup_result = namedtuple('lookup_result', 'is_success klass method')
 
 def success(klass, method):
@@ -17,6 +19,18 @@ class Class(namedtuple('Class', _class_fields)):
 
     def onyx_class(self, vm):
         return self
+
+    def all_instance_vars(self):
+        if self.super_class:
+            return self.super_class.all_instance_vars() + self.instance_vars
+        else:
+            return self.instance_vars
+
+    def num_slots(self):
+        return len(self.all_instance_vars())
+
+    def new_instance(self):
+        return Object(self, self.num_slots())
 
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:
