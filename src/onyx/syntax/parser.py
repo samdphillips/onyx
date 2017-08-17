@@ -126,7 +126,7 @@ class Parser:
                         ast.Message('new:', [ast.Const(len(statements))]))
         if len(statements) == 0:
             return rcvr
-        messages = [ast.Message('at:put:', [ast.Const(i), e])
+        messages = [ast.Message('at:put:', [ast.Const(o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
         return ast.Send(rcvr, ast.Cascade(messages))
 
