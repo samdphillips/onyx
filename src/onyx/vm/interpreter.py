@@ -259,6 +259,16 @@ class Interpreter:
         decl = k.declaration
         self.done(decl._replace(trait=value))
 
+    def primitive_array_at_put_(self, array, index, value):
+        array[index] = value
+        self.done(value)
+
+    def primitive_array_new_(self, klass, size):
+        self.done(o.Array([o.nil] * size))
+
+    def primitive_array_size(self, array):
+        self.done(o.SmallInt(len(array)))
+
     def primitive_block_value(self, block):
         self.do_block(block, [])
 

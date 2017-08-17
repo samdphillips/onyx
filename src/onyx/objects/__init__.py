@@ -2,6 +2,7 @@
 from collections import namedtuple
 
 from .intrinsic import nil, true, false, onyx_bool
+from .array import Array
 from .block_closure import BlockClosure
 from .character import Character
 from .klass import Class
