@@ -204,6 +204,12 @@ class Interpreter:
     def visit_ref(self, ref):
         self.done(self.lookup_var(ref.name).value)
 
+    def visit_return(self, ret):
+        if self.retp is None:
+            raise TopReturnError()
+        self.stack.top = self.retp
+        self.doing(ret.expression)
+
     def visit_send(self, send):
         self.push_kreceiver(send.message)
         self.doing(send.receiver)
