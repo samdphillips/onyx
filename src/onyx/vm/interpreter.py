@@ -287,6 +287,9 @@ class Interpreter:
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())
 
+    def primitive_object_equal_(self, a, b):
+        self.done(o.onyx_bool(a == b))
+
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))
 
