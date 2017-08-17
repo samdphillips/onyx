@@ -236,6 +236,11 @@ class Interpreter:
         var = self.lookup_var(k.name)
         var.value = value
 
+    def continue_kcascade(self, k, value):
+        if len(k.messages) > 1:
+            self.push_kcascade(k.receiver_value, k.messages[1:])
+        k.messages[0].visit(self, k.receiver_value)
+
     def continue_kmessage(self, k, value):
         arg_values = k.arg_values + [value]
         if len(k.arg_expressions) > 0:
