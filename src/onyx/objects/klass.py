@@ -38,9 +38,9 @@ class Class(namedtuple('Class', _class_fields)):
         elif self.trait is not None and selector in self.trait:
             return success(self, self.trait[selector])
         elif self.super_class:
-            return failure()
-        else:
             return self.super_class.lookup_instance_method(selector)
+        else:
+            return failure()
 
     def lookup_class_method(self, vm, selector):
         if selector in self.class_method_dict:
@@ -49,9 +49,9 @@ class Class(namedtuple('Class', _class_fields)):
               selector in self.trait.class_method_dict):
             return success(self, self.trait.class_method_dict[selector])
         elif self.super_class:
-            return vm.globals.lookup('Class').value.lookup_instance_method(selector)
-        else:
             return self.super_class.lookup_class_method(vm, selector)
+        else:
+            return vm.globals.lookup('Class').value.lookup_instance_method(selector)
 
     def lookup_method(self, vm, selector, is_class):
         if is_class:
