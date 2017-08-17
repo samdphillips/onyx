@@ -20,6 +20,9 @@ class Class(namedtuple('Class', _class_fields)):
     def onyx_class(self, vm):
         return self
 
+    def merge_trait(self, trait):
+        return self._replace(trait=trait)
+
     def all_instance_vars(self):
         if self.super_class:
             return self.super_class.all_instance_vars() + self.instance_vars
@@ -35,8 +38,8 @@ class Class(namedtuple('Class', _class_fields)):
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:
             return success(self, self.method_dict[selector])
-        elif self.trait is not None and selector in self.trait:
-            return success(self, self.trait[selector])
+        elif self.trait and selector in self.trait.method_dict:
+            return success(self, self.trait.method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_instance_method(selector)
         else:
@@ -45,8 +48,7 @@ class Class(namedtuple('Class', _class_fields)):
     def lookup_class_method(self, vm, selector):
         if selector in self.class_method_dict:
             return success(self, self.class_method_dict[selector])
-        elif (self.trait is not None and
-              selector in self.trait.class_method_dict):
+        elif self.trait and selector in self.trait.class_method_dict:
             return success(self, self.trait.class_method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_class_method(vm, selector)

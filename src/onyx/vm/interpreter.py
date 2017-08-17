@@ -225,7 +225,7 @@ class Interpreter:
             class_method_dict = self.make_method_dict(trait.meta.methods)
         else:
             class_method_dict = {}
-        trait_value = o.Trait(name, None, method_dict, class_method_dict)
+        trait_value = o.Trait(name, method_dict, class_method_dict)
         if trait.trait_expr is None:
             self.done(trait_value)
         else:
@@ -257,7 +257,8 @@ class Interpreter:
 
     def continue_ktrait(self, k, value):
         decl = k.declaration
-        self.done(decl._replace(trait=value))
+        decl = decl.merge_trait(value)
+        self.done(decl)
 
     def primitive_array_at_put_(self, array, index, value):
         array[index] = value
