@@ -281,3 +281,6 @@ class Interpreter:
 
     def primitive_small_int_lt_(self, a, b):
         self.done(o.onyx_bool(a < b))
+
+    def primitive_small_int_sub_(self, a, b):
+        self.done(o.SmallInt(a - b))
