@@ -66,3 +66,8 @@ assert_eval("false ifTrue: [ 10 ] ifFalse: [ 11 ]", 11)
 assert_eval("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]", o.nil)
 assert_eval("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
 assert_eval("n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n", 10)
+
+assert_eval("(Array new: 10) size", 10)
+assert_eval("Array new size", 0)
+assert_eval("a := Array new: 1. a at: 0 put: 10. a at: 0", 10)
+assert_eval("a := Array with: 10. a at: 0", 10)

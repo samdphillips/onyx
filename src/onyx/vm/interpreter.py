@@ -271,6 +271,9 @@ class Interpreter:
         decl = decl.merge_trait(value)
         self.done(decl)
 
+    def primitive_array_at_(self, array, index):
+        self.done(array[index])
+
     def primitive_array_at_put_(self, array, index, value):
         array[index] = value
         self.done(value)
