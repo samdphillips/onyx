@@ -287,11 +287,17 @@ class Interpreter:
     def primitive_block_value(self, block):
         self.do_block(block, [])
 
+    def primitive_character_code_point(self, c):
+        self.done(o.SmallInt(c))
+
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())
 
+    def primitive_object_class(self, obj):
+        self.done(obj.onyx_class(self))
+
     def primitive_object_equal_(self, a, b):
-        self.done(o.onyx_bool(a == b))
+        self.done(o.onyx_bool(a == b and a.__class__ == b.__class__))
 
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))
@@ -301,3 +307,13 @@ class Interpreter:
 
     def primitive_small_int_sub_(self, a, b):
         self.done(o.SmallInt(a - b))
+
+    def primitive_string_at_(self, s, i):
+        c = ord(s[i])
+        self.done(o.Character(c))
+
+    def primitive_string_concat_(self, a, b):
+        self.done(o.String(a + b))
+
+    def primitive_string_size(self, s):
+        self.done(o.SmallInt(len(s)))

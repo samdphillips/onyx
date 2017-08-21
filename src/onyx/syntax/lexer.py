@@ -47,7 +47,7 @@ def scan_string(scanner, lexer):
             j = 1
         else:
             lexer.advance_buffer(1)
-            return scanner.make_token(''.join(s))
+            return scanner.make_token(o.String(''.join(s)))
 
 
 class Match:
