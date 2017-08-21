@@ -62,3 +62,7 @@ _test_evaluation("true  ifTrue: [ 10 ]", 10)
 _test_evaluation("false ifTrue: [ 10 ]", o.nil)
 _test_evaluation("true  ifTrue: [ 10 ] ifFalse: [ 11 ]", 10)
 _test_evaluation("false ifTrue: [ 10 ] ifFalse: [ 11 ]", 11)
+
+_test_evaluation("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]", o.nil)
+_test_evaluation("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
+_test_evaluation("n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n", 10)
