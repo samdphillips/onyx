@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 
+from .base import Base
 from .object import Object
 
 lookup_result = namedtuple('lookup_result', 'is_success klass method')
@@ -14,7 +15,7 @@ def failure():
 
 _class_fields = \
     'name super_class instance_vars class_vars trait method_dict class_method_dict'
-class Class(namedtuple('Class', _class_fields)):
+class Class(namedtuple('Class', _class_fields), Base):
     is_class = True
 
     def onyx_class(self, vm):

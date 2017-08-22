@@ -141,6 +141,8 @@ class Interpreter:
         if not result.is_success:
             raise Exception('write dnu code')
 
+        receiver = receiver.deref()
+        args = [a.deref() for a in args]
         self.env = self.make_method_env(result.method, args, receiver, result.klass)
         self.receiver = receiver
         self.retp = self.stack.top

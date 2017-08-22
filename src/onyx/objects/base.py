@@ -12,6 +12,9 @@ class Base:
     def lookup_instance_var(self, name):
         pass
 
+    def deref(self):
+        return self
+
 
 class SmallInt(int, Base):
     pass
@@ -22,4 +25,12 @@ class String(str, Base):
 
 
 class Super(namedtuple('Super', 'receiver klass')):
-    pass
+    @property
+    def is_class(self):
+        return self.receiver.is_class
+
+    def onyx_class(self, vm):
+        return self.klass.super_class
+
+    def deref(self):
+        return self.receiver
