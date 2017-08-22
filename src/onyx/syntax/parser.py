@@ -362,6 +362,10 @@ class Parser:
     def parse_trait_clause(self):
         expr = self.parse_expr()
         self.expect('dot')
+        source_info = expr.source_info
+        receiver = ast.Ref(source_info, o.get_symbol('Trait'))
+        message = ast.Message(source_info, o.get_symbol('build:'), [expr])
+        expr = ast.Send(source_info, receiver, message)
         return expr
 
     def parse_decl_element(self, body):
