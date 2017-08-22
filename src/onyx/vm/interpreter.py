@@ -51,7 +51,7 @@ class Interpreter:
             with open(src, 'r') as src_file:
                 mods.append(Parser.parse_file(src_file))
         vm = cls()
-        vm.eval(ast.Seq(mods))
+        vm.eval(ast.Seq(None, mods))
         return vm
 
     def __init__(self):

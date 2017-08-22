@@ -57,7 +57,7 @@ class Parser:
         msg_class = ast.Message
         if selector.startswith('_'):
             msg_class = ast.PrimitiveMessage
-        return msg_class(selector, args)
+        return msg_class(None, selector, args)
 
     def parse_nested_expr(self):
         self.expect('lpar')
@@ -67,7 +67,7 @@ class Parser:
 
     def parse_return(self):
         self.expect('caret')
-        return ast.Return(self.parse_expr())
+        return ast.Return(None, self.parse_expr())
 
     def parse_statement(self):
         if self.current_is_oneof('caret'):
@@ -94,7 +94,7 @@ class Parser:
 
     def parse_executable_code(self):
         temps = self.parse_vars()
-        statements = ast.Seq(self.parse_statements())
+        statements = ast.Seq(None, self.parse_statements())
         return temps, statements
 
     def parse_block(self):
@@ -115,7 +115,7 @@ class Parser:
         block = {'args': args}
         block['temps'], block['statements'] = self.parse_executable_code()
         self.expect('rsq')
-        return ast.Block(**block)
+        return ast.Block(None, **block)
 
     def parse_expr_array(self):
         self.expect('lcurl')
@@ -123,13 +123,16 @@ class Parser:
         self.expect('rcurl')
 
         size = len(statements)
-        rcvr = ast.Send(ast.Ref('Array'),
-                        ast.Message('new:', [ast.Const(o.SmallInt(size))]))
+        rcvr = ast.Send(None,
+                        ast.Ref(None, 'Array'),
+                        ast.Message(None, 'new:',
+                                    [ast.Const(None, o.SmallInt(size))]))
         if size == 0:
             return rcvr
-        messages = [ast.Message('at:put:', [ast.Const(o.SmallInt(i)), e])
+        messages = [ast.Message(None, 'at:put:',
+                                [ast.Const(None, o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
-        return ast.Send(rcvr, ast.Cascade(messages))
+        return ast.Send(None, rcvr, ast.Cascade(None, messages))
 
     def parse_literal_array(self):
         self.expect('lparray')
@@ -143,19 +146,19 @@ class Parser:
             elements.append(v)
             self.step()
         self.expect('rpar')
-        return ast.Const(elements)
+        return ast.Const(None, elements)
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):
             v = self.current_token().value
             self.step()
-            return ast.Const(v)
+            return ast.Const(None, v)
         elif self.current_is_oneof('id'):
             name = self.current_token().value
             self.step()
             if name in ['true', 'false', 'nil']:
-                return ast.Const.get(name)
-            return ast.Ref(name)
+                return ast.Const.get(None, name)
+            return ast.Ref(None, name)
         elif self.current_is_oneof('lpar'):
             return self.parse_nested_expr()
         elif self.current_is_oneof('lparray'):
@@ -174,7 +177,7 @@ class Parser:
 
     def parse_unary(self, r):
         while self.current_is_oneof('id'):
-            r = ast.Send(r, self.parse_umsg())
+            r = ast.Send(None, r, self.parse_umsg())
         return r
 
     def parse_bmsg(self):
@@ -186,7 +189,7 @@ class Parser:
 
     def parse_binary(self, r):
         while self.current_is_oneof('binsel'):
-            r = ast.Send(r, self.parse_bmsg())
+            r = ast.Send(None, r, self.parse_bmsg())
         return r
 
     def parse_kmsg(self):
@@ -205,7 +208,7 @@ class Parser:
 
     def parse_keyword(self, r):
         if self.current_is_oneof('kw'):
-            r = ast.Send(r, self.parse_kmsg())
+            r = ast.Send(None, r, self.parse_kmsg())
         return r
 
     def parse_cascade_message(self):
@@ -225,7 +228,7 @@ class Parser:
             while self.current_is_oneof('semi'):
                 self.step()
                 m.append(self.parse_cascade_message())
-            r = ast.Send(r, ast.Cascade(m))
+            r = ast.Send(None, r, ast.Cascade(None, m))
         return r
 
     def parse_message(self):
@@ -243,7 +246,7 @@ class Parser:
         if self.current_is_oneof('assign'):
             self.step()
             expr = self.parse_expr()
-            return ast.Assign(token.value, expr)
+            return ast.Assign(None, token.value, expr)
         self.push_token(token)
         return self.parse_message()
 
@@ -301,7 +304,7 @@ class Parser:
         self.expect('lsq')
         method['temps'], method['statements'] = self.parse_executable_code()
         self.expect('rsq')
-        method = ast.Method(**method)
+        method = ast.Method(None, **method)
         methods = body.get('methods') or list()
         methods.append(method)
         body['methods'] = methods
@@ -319,7 +322,7 @@ class Parser:
         while not self.current_is_oneof('rsq'):
             self.parse_meta_element(meta)
         self.expect('rsq')
-        body['meta'] = ast.Meta(**meta)
+        body['meta'] = ast.Meta(None, **meta)
 
     def parse_trait_clause(self):
         expr = self.parse_expr()
@@ -375,8 +378,8 @@ class Parser:
         }
         self.parse_decl_body(body)
         if not body['meta']:
-            body['meta'] = ast.Meta(methods=[], instance_vars=[])
-        return ast.Class(**body)
+            body['meta'] = ast.Meta(None, methods=[], instance_vars=[])
+        return ast.Class(None, **body)
 
     def parse_trait(self):
         self.expect('id', 'Trait')
@@ -390,7 +393,7 @@ class Parser:
             'meta': None
         }
         self.parse_decl_body(body, skip_ivars=True)
-        return ast.Trait(**body)
+        return ast.Trait(None, **body)
 
     def parse_module_expr(self):
         expr = self.parse_expr()
@@ -416,4 +419,4 @@ class Parser:
         exprs = []
         while not self.current_is_oneof('eof'):
             exprs.append(self.parse_module_element())
-        return ast.Seq(exprs)
+        return ast.Seq(None, exprs)
