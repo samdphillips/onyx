@@ -34,8 +34,9 @@ class Frame:
         getattr(vm, name)(self, value)
 
 
-_common_frame_fields = 'env receiver retk marks'
+_common_frame_fields = 'env receiver retk marks ast'
 def frame_type(name, *fields):
+    # XXX: just use fields as a string
     all_fields = _common_frame_fields + " " + ' '.join(fields)
     nt = namedtuple(name, all_fields)
     class _frame(nt, Frame):

@@ -130,7 +130,8 @@ class Interpreter:
 
     def do_message_dispatch(self, execute, message, value):
         if len(message.args) > 0:
-            self.push_kmessage(execute, message.selector, value, [], message.args[1:])
+            self.push_kmessage(message.args[0], execute, message.selector,
+                               value, [], message.args[1:])
             self.doing(message.args[0])
         else:
             execute(message.selector, value, [])
@@ -153,8 +154,8 @@ class Interpreter:
         primitive = getattr(self, name)
         primitive(receiver, *args)
 
-    def pushk(self, kcls, *args):
-        frame = kcls(self.env, self.receiver, self.retp, self.marks, *args)
+    def pushk(self, kcls, ast, *args):
+        frame = kcls(self.env, self.receiver, self.retp, self.marks, ast, *args)
         self.stack.push(frame)
 
     push_kassign = pusher(k.KAssign)
@@ -165,7 +166,7 @@ class Interpreter:
     push_ktrait = pusher(k.KTrait)
 
     def visit_assign(self, assignment):
-        self.push_kassign(assignment.var)
+        self.push_kassign(assignment, assignment.var)
         self.doing(assignment.expr)
 
     def visit_block(self, block):
@@ -173,25 +174,24 @@ class Interpreter:
         self.done(closure)
 
     def visit_cascade(self, cascade, value):
-        self.push_kcascade(value, cascade.messages[1:])
+        self.push_kcascade(cascade, value, cascade.messages[1:])
         cascade.messages[0].visit(self, value)
 
     def visit_class(self, klass):
-        self.push_kassign(klass.name)
+        self.push_kassign(klass, klass.name)
         super_class = self.lookup_var(klass.superclass_name).value
         method_dict  = self.make_method_dict(klass.methods)
         if klass.meta:
             class_method_dict = self.make_method_dict(klass.meta.methods)
         else:
             class_method_dict = {}
-        # XXX: add trait expression
         cls = o.Class(klass.name, super_class, klass.instance_vars,
                       klass.meta.instance_vars, None, method_dict,
                       class_method_dict)
         if klass.trait_expr is None:
             self.done(cls)
         else:
-            self.push_ktrait(cls)
+            self.push_ktrait(klass.trait_expr, cls)
             self.doing(klass.trait_expr)
 
     def visit_const(self, const):
@@ -213,7 +213,7 @@ class Interpreter:
         self.doing(ret.expression)
 
     def visit_send(self, send):
-        self.push_kreceiver(send.message)
+        self.push_kreceiver(send, send.message)
         self.doing(send.receiver)
 
     def visit_seq(self, seq):
@@ -223,11 +223,11 @@ class Interpreter:
             self.doing(seq.statements[0])
         else:
             self.doing(seq.statements[0])
-            self.push_kseq(seq.statements[1:])
+            self.push_kseq(seq, seq.statements[1:])
 
     def visit_trait(self, trait):
         name = trait.name
-        self.push_kassign(name)
+        self.push_kassign(trait, name)
         method_dict = self.make_method_dict(trait.methods)
         if trait.meta:
             class_method_dict = self.make_method_dict(trait.meta.methods)
@@ -237,7 +237,7 @@ class Interpreter:
         if trait.trait_expr is None:
             self.done(trait_value)
         else:
-            self.push_ktrait(trait_value)
+            self.push_ktrait(trait.trait_expr, trait_value)
             self.doing(trait.trait_expr)
 
     def continue_kassign(self, k, value):
@@ -254,7 +254,7 @@ class Interpreter:
         if len(k.arg_expressions) > 0:
             expression = k.arg_expressions[0]
             arg_expressions = k.arg_expressions[1:]
-            self.pushk(k.__class__, k.execute, k.selector,
+            self.pushk(k.__class__, expression, k.execute, k.selector,
                        k.receiver_value, arg_values, arg_expressions)
             self.doing(expression)
         else:
@@ -265,7 +265,7 @@ class Interpreter:
 
     def continue_kseq(self, k, value):
         if len(k.statements) > 1:
-            self.push_kseq(k.statements[1:])
+            self.push_kseq(k.statements[0], k.statements[1:])
         self.doing(k.statements[0])
 
     def continue_ktrait(self, k, value):
