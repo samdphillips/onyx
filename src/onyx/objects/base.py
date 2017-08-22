@@ -15,6 +15,9 @@ class Base:
     def deref(self):
         return self
 
+    def debug(self):
+        print(self.__class__.__name__)
+
 
 class SmallInt(int, Base):
     pass
@@ -24,7 +27,7 @@ class String(str, Base):
     pass
 
 
-class Super(namedtuple('Super', 'receiver klass')):
+class Super(namedtuple('Super', 'receiver klass'), Base):
     @property
     def is_class(self):
         return self.receiver.is_class

@@ -298,6 +298,10 @@ class Interpreter:
     def primitive_object_class(self, obj):
         self.done(obj.onyx_class(self))
 
+    def primitive_object_debug(self, obj):
+        obj.debug()
+        self.done(obj)
+
     def primitive_object_equal_(self, a, b):
         self.done(o.onyx_bool(a == b and a.__class__ == b.__class__))
 
