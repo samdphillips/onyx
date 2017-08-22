@@ -277,22 +277,26 @@ Object subclass: Message [
 ]
 
 Object subclass: BlockClosure [
-    value [ self _blockValue ]
+    value [ self withValues: {} ]
 
     value: a [
-        self _blockValue: a
+        self withValues: { a }
     ]
 
     value: a value: b [
-        self _blockValue: a value: b
+        self withValues: { a. b }
     ]
 
     value: a value: b value: c [
-        self _blockValue: a value: b value: c
+        self withValues: { a. b. c }
     ]
 
     value: a value: b value: c value: d [
-        self _blockValue: a value: b value: c value: d
+        self withValues: { a. b. c. d }
+    ]
+
+    withValues: aCollection [
+        self _blockWithValues: aCollection asArray
     ]
 
     and: aBlock [

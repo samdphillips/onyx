@@ -286,8 +286,8 @@ class Interpreter:
     def primitive_array_size(self, array):
         self.done(o.SmallInt(len(array)))
 
-    def primitive_block_value(self, block):
-        self.do_block(block, [])
+    def primitive_block_with_values_(self, block, array):
+        self.do_block(block, array)
 
     def primitive_character_code_point(self, c):
         self.done(o.SmallInt(c))
