@@ -297,8 +297,7 @@ Collection subclass: SequencedCollection [
 
     at: index put: anObject [
         self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
-        self basicAt: index put: anObject.
-        anObject
+        self basicAt: index put: anObject
     ]
 
 ]
@@ -350,6 +349,7 @@ SequencedCollection subclass: Array [
 
 ]
 
+"XXX: TSequencedReadableCollection"
 SequencedCollection subclass: Interval [
     | start stop step |
 

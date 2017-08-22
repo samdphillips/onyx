@@ -28,6 +28,7 @@ Object subclass: Character [
     ]
 ]
 
+"XXX: TSequencedReadableCollection"
 SequencedCollection subclass: Symbol [
     Symbol class [
         internString: aString [
@@ -44,6 +45,7 @@ SequencedCollection subclass: Symbol [
     isSymbol [ true ]
 ]
 
+"XXX: TSequencedReadableCollection"
 SequencedCollection subclass: String [
     String class [
         new: amount [
@@ -77,4 +79,3 @@ SequencedCollection subclass: String [
         self
     ]
 ]
-
