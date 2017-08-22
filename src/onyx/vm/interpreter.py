@@ -314,6 +314,9 @@ class Interpreter:
     def primitive_small_int_mul_(self, a, b):
         self.done(o.SmallInt(a * b))
 
+    def primitive_small_int_quo_(self, a, b):
+        self.done(o.SmallInt(a // b))
+
     def primitive_small_int_sub_(self, a, b):
         self.done(o.SmallInt(a - b))
 
