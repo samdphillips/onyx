@@ -173,7 +173,8 @@ class Interpreter:
         self.done(closure)
 
     def visit_cascade(self, cascade, value):
-        self.push_kcascade(cascade, value, cascade.messages[1:])
+        if len(cascade.messages) > 1:
+            self.push_kcascade(cascade, value, cascade.messages[1:])
         cascade.messages[0].visit(self, value)
 
     def visit_class(self, klass):
@@ -245,7 +246,7 @@ class Interpreter:
 
     def continue_kcascade(self, k, value):
         if len(k.messages) > 1:
-            self.push_kcascade(k.receiver_value, k.messages[1:])
+            self.push_kcascade(k.ast, k.receiver_value, k.messages[1:])
         k.messages[0].visit(self, k.receiver_value)
 
     def continue_kmessage(self, k, value):

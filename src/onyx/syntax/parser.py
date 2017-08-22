@@ -148,7 +148,8 @@ class Parser:
         messages = [ast.Message(source_info, 'at:put:',
                                 [ast.Const(source_info, o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
-        return ast.Send(source_info, rcvr, ast.Cascade(None, messages))
+        messages.append(ast.Message(source_info, 'yourself', []))
+        return ast.Send(source_info, rcvr, ast.Cascade(source_info, messages))
 
     def parse_literal_array(self):
         source_info = self.current_token().source_info
