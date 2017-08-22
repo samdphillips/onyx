@@ -140,15 +140,15 @@ class Parser:
 
         size = len(statements)
         rcvr = ast.Send(source_info,
-                        ast.Ref(source_info, 'Array'),
-                        ast.Message(source_info, 'new:',
+                        ast.Ref(source_info, o.get_symbol('Array')),
+                        ast.Message(source_info, o.get_symbol('new:'),
                                     [ast.Const(source_info, o.SmallInt(size))]))
         if size == 0:
             return rcvr
-        messages = [ast.Message(source_info, 'at:put:',
+        messages = [ast.Message(source_info, o.get_symbol('at:put:'),
                                 [ast.Const(source_info, o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
-        messages.append(ast.Message(source_info, 'yourself', []))
+        messages.append(ast.Message(source_info, o.get_symbol('yourself'), []))
         return ast.Send(source_info, rcvr, ast.Cascade(source_info, messages))
 
     def parse_literal_array(self):
