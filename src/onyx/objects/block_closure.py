@@ -1,8 +1,7 @@
 
 from collections import namedtuple
 
-class BlockClosure(namedtuple('BlockClosure', 'env receiver retp block')):
-    is_class = False
+from .base import Base
 
-    def onyx_class(self, vm):
-        return vm.globals.lookup('BlockClosure').value
+class BlockClosure(namedtuple('BlockClosure', 'env receiver retp block'), Base):
+    pass

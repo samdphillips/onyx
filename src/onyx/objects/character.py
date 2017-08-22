@@ -1,3 +1,5 @@
 
-class Character(int):
-    is_class = False
+from .base import Base
+
+class Character(int, Base):
+    pass

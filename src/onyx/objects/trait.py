@@ -1,12 +1,9 @@
 
 from collections import namedtuple
 
-class Trait(namedtuple('Trait', 'name method_dict class_method_dict')):
-    is_class = False
+from .base import Base
 
-    def onyx_class(self, vm):
-        return vm.globals.lookup('Trait').value
-
+class Trait(namedtuple('Trait', 'name method_dict class_method_dict'), Base):
     def merge_trait(self, trait):
         md = dict(self.method_dict)
         for k,v in trait.method_dict.items():

@@ -1,6 +1,5 @@
 
-class Array(list):
-    is_class = False
+from .base import Base
 
-    def onyx_class(self, vm):
-        return vm.globals.lookup('Array').value
+class Array(list, Base):
+    pass

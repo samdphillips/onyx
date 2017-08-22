@@ -1,36 +1,24 @@
 
-class _Nil:
-    is_class = False
+from .base import Base
 
+class UndefinedObject(Base):
     def __bool__(self):
         return False
 
-    def onyx_class(self, vm):
-        return vm.globals.lookup('UndefinedObject').value
 
-
-class _True:
-    is_class = False
-
-    def onyx_class(self, vm):
-        return vm.globals.lookup('True').value
-
+class _True(Base):
     def __bool__(self):
         return True
 
 
-class _False:
-    is_class = False
-
-    def onyx_class(self, vm):
-        return vm.globals.lookup('False').value
-
+class _False(Base):
     def __bool__(self):
         return False
 
+
 true = _True()
 false = _False()
-nil = _Nil()
+nil = UndefinedObject()
 
 
 def onyx_bool(value):

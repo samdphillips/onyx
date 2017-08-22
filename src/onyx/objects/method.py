@@ -1,5 +1,8 @@
 
 from collections import namedtuple
 
-class Method(namedtuple('Method', 'name args temps statements')):
-    is_class = False
+from .base import Base
+
+
+class Method(namedtuple('Method', 'name args temps statements'), Base):
+    pass

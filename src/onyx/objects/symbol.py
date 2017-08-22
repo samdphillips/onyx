@@ -1,6 +1,8 @@
 
 from weakref import WeakValueDictionary
 
+from .base import Base
+
 _symbols = WeakValueDictionary()
 def get_symbol(name):
     s = _symbols.get(name)
@@ -10,5 +12,5 @@ def get_symbol(name):
     return s
 
 
-class Symbol(str):
-    is_class = False
+class Symbol(str, Base):
+    pass
