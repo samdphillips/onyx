@@ -13,14 +13,41 @@ EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 # XXX: AmbiguousToken
 
 
-class FileSource(namedtuple('FileSource', 'file_name')):
-    pass
+class FileSource:
+    def __init__(self, file_name):
+        self.file_name = file_name
+        self.file = None
+
+    def name(self):
+        return self.file_name
+
+    def __getitem__(self, index):
+        if not self.file:
+            self.file = open(self.file_name, 'r')
+        else:
+            self.file.seek(0)
+
+        self.file.seek(index.start)
+        data = self.file.read(index.stop - index.start)
+        return data
 
 
 class SourceInfo(namedtuple('SourceInfo', 'source start end')):
     def __add__(self, other):
         assert self.source == other.source
         return SourceInfo(self.source, self.start, other.end)
+
+    def source_name(self):
+        if isinstance(self.source, str):
+            return '<<string>>'
+        else:
+            return self.source.name()
+
+    def source_text(self):
+        return self.source[self.start:self.end]
+
+    def __format__(self, format_spec):
+        return '{}\n    {}'.format(self.source_name(), self.source_text())
 
 
 class Token(namedtuple('Token', 'type value source_info')):

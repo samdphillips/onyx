@@ -27,6 +27,10 @@ class Stack:
         self.top += 1
         self.frames[self.top] = frame
 
+    def trace(self):
+        for frame in self.frames[0:self.top]:
+            print("{0.__class__.__name__} {0.ast.source_info}".format(frame))
+
 
 class Frame:
     def do_continue(self, vm, value):
