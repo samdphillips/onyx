@@ -4,20 +4,28 @@ from collections import namedtuple
 import onyx.objects as o
 import onyx.utils as u
 
+
 class Node:
     def visit(self, visitor, *args):
         method_name = 'visit_' + u.camel_to_snake(self.__class__.__name__)
-        getattr(visitor, method_name)(self, *args)
+        return getattr(visitor, method_name)(self, *args)
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all((getattr(self, x) == getattr(other, x)
+                     for x in self.fields)))
+
+
 
 
 _common_ast_node_fields = 'source_info'
-def ast_node(name, fields):
-    all_fields = _common_ast_node_fields + " " + fields
+def ast_node(name, _fields):
+    all_fields = _common_ast_node_fields + " " + _fields
     nt = namedtuple(name, all_fields)
-    class _frame(nt, Node):
-        pass
-    _frame.__name__ = name
-    return _frame
+    class _node(Node, nt):
+        fields = _fields.split()
+    _node.__name__ = name
+    return _node
 
 
 Assign = ast_node('Assign', 'var expr')
@@ -27,8 +35,9 @@ Class = ast_node('Class', 'name superclass_name instance_vars meta methods trait
 
 
 # XXX: mark value immutable
-class Const(namedtuple('Const', 'source_info value'), Node):
+class Const(Node, namedtuple('Const', 'source_info value')):
     is_const = True
+    fields = ['value']
 
     named_values = {
         'true':  o.true,

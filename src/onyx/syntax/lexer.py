@@ -6,11 +6,26 @@ from operator import methodcaller
 
 import onyx.objects as o
 
-Token = namedtuple('Token', 'type value')
+
 EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 
 # XXX: InvalidInput
 # XXX: AmbiguousToken
+
+
+class FileSource(namedtuple('FileSource', 'file_name')):
+    pass
+
+
+class SourceInfo(namedtuple('SourceInfo', 'source start end')):
+    def __add__(self, other):
+        assert self.source == other.source
+        return SourceInfo(self.source, self.start, other.end)
+
+
+class Token(namedtuple('Token', 'type value source_info')):
+    def __eq__(self, other):
+        return self.type == other.type and self.value == other.value
 
 
 def extract_group(n):
@@ -32,6 +47,7 @@ def convert_int(match):
 
 
 def scan_string(scanner, lexer):
+    start = lexer.position
     j = 1
     s = []
     while True:
@@ -47,7 +63,9 @@ def scan_string(scanner, lexer):
             j = 1
         else:
             lexer.advance_buffer(1)
-            return scanner.make_token(o.String(''.join(s)))
+            end = lexer.position
+            source_info = SourceInfo(lexer.source, start, end)
+            return scanner.make_token(o.String(''.join(s)), source_info)
 
 
 class Match:
@@ -77,15 +95,20 @@ class Scanner:
             return Match(self, m)
         return EmptyMatch
 
-    def make_token(self, val):
-        return Token(self.token_type, val)
+    def make_token(self, val, source_info):
+        return Token(self.token_type, val, source_info)
+
+    def make_source_info(self, lexer, size):
+        pos = lexer.position
+        return SourceInfo(lexer.source, pos, pos + size)
 
     def scan(self, lexer, match):
         if self.scan_func is None:
             size = len(match.group())
+            source_info = self.make_source_info(lexer, size)
             lexer.advance_buffer(size)
             val = self.convert(match)
-            return self.make_token(val)
+            return self.make_token(val, source_info)
         return self.scan_func(self, lexer)
 
 
@@ -119,10 +142,20 @@ class Lexer:
 
     skip_tokens = 'whitespace comment'.split()
 
-    def __init__(self, inp):
+    @classmethod
+    def from_file(cls, file_name):
+        f = open(file_name, 'r')
+        return cls(FileSource(file_name), f)
+
+    def __init__(self, source, inp):
+        self.source = source
         self.inp = inp
         self.buf = ''
+        self.position = 0
         self.fill_buffer()
+
+    def close(self):
+        return self.inp.close()
 
     def buffer_at_end(self):
         return self.buf == ''
@@ -132,6 +165,7 @@ class Lexer:
         self.buf += self.inp.read(size)
 
     def advance_buffer(self, size):
+        self.position += size
         self.buf = self.buf[size:]
 
     def scan_matches(self):
@@ -161,7 +195,8 @@ class Lexer:
     def raw_lex_token(self):
         self.fill_buffer()
         if self.buffer_at_end():
-            return Token('eof', None)
+            return Token('eof', None,
+                         SourceInfo(self.source, self.position, self.position))
         return self.scan_token()
 
     def lex_token(self):

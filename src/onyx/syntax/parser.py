@@ -2,6 +2,8 @@
 import onyx.syntax.ast as ast
 import onyx.objects as o
 
+from contextlib import closing
+
 from onyx.syntax.lexer import Lexer, Token
 
 
@@ -14,9 +16,10 @@ class ParseError(Exception):
 
 class Parser:
     @classmethod
-    def parse_file(cls, io):
-        parser = cls(Lexer(io))
-        return parser.parse_module()
+    def parse_file(cls, file_name):
+        with closing(Lexer.from_file(file_name)) as lexer:
+            parser = cls(lexer)
+            return parser.parse_module()
 
     def __init__(self, lexer):
         self.lexer = lexer
@@ -53,11 +56,11 @@ class Parser:
                 self.parse_error([tok_value])
         self.step()
 
-    def make_message(self, selector, args=[]):
+    def make_message(self, source_info, selector, args=[]):
         msg_class = ast.Message
         if selector.startswith('_'):
             msg_class = ast.PrimitiveMessage
-        return msg_class(None, selector, args)
+        return msg_class(source_info, selector, args)
 
     def parse_nested_expr(self):
         self.expect('lpar')
@@ -66,8 +69,11 @@ class Parser:
         return expr
 
     def parse_return(self):
+        source_info = self.current_token().source_info
         self.expect('caret')
-        return ast.Return(None, self.parse_expr())
+        expr = self.parse_expr()
+        source_info += expr.source_info
+        return ast.Return(source_info, expr)
 
     def parse_statement(self):
         if self.current_is_oneof('caret'):
@@ -79,62 +85,73 @@ class Parser:
 
     def parse_statements(self):
         stmts = []
+        source_info = self.current_token().source_info
         while True:
             if self.current_is_oneof('caret', 'int', 'string', 'symbol', 'id',
                                      'lpar', 'lcurl', 'lparray', 'lsq'):
-                stmts.append(self.parse_statement())
+                stmt = self.parse_statement()
+                stmts.append(stmt)
+                source_info += stmt.source_info
             else:
                 break
 
             if self.current_is_oneof('dot'):
+                source_info += self.current_token().source_info
                 self.step()
             else:
                 break
-        return stmts
+        return source_info, stmts
 
     def parse_executable_code(self):
         temps = self.parse_vars()
-        statements = ast.Seq(None, self.parse_statements())
+        source_info, statements = self.parse_statements()
+        statements = ast.Seq(source_info, statements)
         return temps, statements
 
     def parse_block(self):
+        source_info = self.current_token().source_info
         self.expect('lsq')
         args = []
         if self.current_is_oneof('blockarg'):
             while self.current_is_oneof('blockarg'):
                 args.append(self.current_token().value)
                 self.step()
-            if self.current_token() == Token('binsel', '|'):
+            if self.current_token() == Token('binsel', '|', None):
                 self.step()
-            elif self.current_token() == Token('binsel', '||'):
+            elif self.current_token() == Token('binsel', '||', None):
+                source_info = self.current_token().source_info
                 self.step()
-                self.push_token(Token('binsel', '|'))
+                self.push_token(Token('binsel', '|', source_info))
             else:
                 self.parse_error('Expected "|"')
 
         block = {'args': args}
         block['temps'], block['statements'] = self.parse_executable_code()
+        source_info += self.current_token().source_info
         self.expect('rsq')
-        return ast.Block(None, **block)
+        return ast.Block(source_info, **block)
 
     def parse_expr_array(self):
+        source_info = self.current_token().source_info
         self.expect('lcurl')
-        statements = self.parse_statements()
+        _, statements = self.parse_statements()
+        source_info += self.current_token().source_info
         self.expect('rcurl')
 
         size = len(statements)
-        rcvr = ast.Send(None,
-                        ast.Ref(None, 'Array'),
-                        ast.Message(None, 'new:',
-                                    [ast.Const(None, o.SmallInt(size))]))
+        rcvr = ast.Send(source_info,
+                        ast.Ref(source_info, 'Array'),
+                        ast.Message(source_info, 'new:',
+                                    [ast.Const(source_info, o.SmallInt(size))]))
         if size == 0:
             return rcvr
-        messages = [ast.Message(None, 'at:put:',
-                                [ast.Const(None, o.SmallInt(i)), e])
+        messages = [ast.Message(source_info, 'at:put:',
+                                [ast.Const(source_info, o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
-        return ast.Send(None, rcvr, ast.Cascade(None, messages))
+        return ast.Send(source_info, rcvr, ast.Cascade(None, messages))
 
     def parse_literal_array(self):
+        source_info = self.current_token().source_info
         self.expect('lparray')
         elements = []
         while self.current_is_oneof('id', 'string', 'int', 'symbol', 'character'):
@@ -145,20 +162,23 @@ class Parser:
                 v = o.Symbol(v)
             elements.append(v)
             self.step()
+        source_info += self.current_token().source_info
         self.expect('rpar')
-        return ast.Const(None, elements)
+        return ast.Const(source_info, elements)
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):
             v = self.current_token().value
+            si = self.current_token().source_info
             self.step()
-            return ast.Const(None, v)
+            return ast.Const(si, v)
         elif self.current_is_oneof('id'):
             name = self.current_token().value
+            si = self.current_token().source_info
             self.step()
             if name in ['true', 'false', 'nil']:
-                return ast.Const.get(None, name)
-            return ast.Ref(None, name)
+                return ast.Const.get(si, name)
+            return ast.Ref(si, name)
         elif self.current_is_oneof('lpar'):
             return self.parse_nested_expr()
         elif self.current_is_oneof('lparray'):
@@ -172,27 +192,35 @@ class Parser:
 
     def parse_umsg(self):
         selector = self.current_token().value
+        source_info = self.current_token().source_info
         self.step()
-        return self.make_message(selector, [])
+        return self.make_message(source_info, selector, [])
 
     def parse_unary(self, r):
         while self.current_is_oneof('id'):
-            r = ast.Send(None, r, self.parse_umsg())
+            message = self.parse_umsg()
+            source_info = r.source_info + message.source_info
+            r = ast.Send(source_info, r, message)
         return r
 
     def parse_bmsg(self):
         operator = self.current_token().value
+        source_info = self.current_token().source_info
         self.step()
         arg = self.parse_primary()
         arg = self.parse_unary(arg)
-        return self.make_message(operator, [arg])
+        source_info += arg.source_info
+        return self.make_message(source_info, operator, [arg])
 
     def parse_binary(self, r):
         while self.current_is_oneof('binsel'):
-            r = ast.Send(None, r, self.parse_bmsg())
+            message = self.parse_bmsg()
+            source_info = r.source_info + message.source_info
+            r = ast.Send(source_info, r, message)
         return r
 
     def parse_kmsg(self):
+        source_info = self.current_token().source_info
         selector = []
         args = []
 
@@ -204,11 +232,14 @@ class Parser:
             arg = self.parse_unary(arg)
             args.append(self.parse_binary(arg))
         selector = ''.join(selector)
-        return self.make_message(selector, args)
+        source_info += args[-1].source_info
+        return self.make_message(source_info, selector, args)
 
     def parse_keyword(self, r):
         if self.current_is_oneof('kw'):
-            r = ast.Send(None, r, self.parse_kmsg())
+            message = self.parse_kmsg()
+            source_info = r.source_info + message.source_info
+            r = ast.Send(source_info, r, message)
         return r
 
     def parse_cascade_message(self):
@@ -228,7 +259,9 @@ class Parser:
             while self.current_is_oneof('semi'):
                 self.step()
                 m.append(self.parse_cascade_message())
-            r = ast.Send(None, r, ast.Cascade(None, m))
+            source_info = r.source_info + m[-1].source_info
+            m_source_info = m[0].source_info + m[-1].source_info
+            r = ast.Send(source_info, r, ast.Cascade(m_source_info, m))
         return r
 
     def parse_message(self):
@@ -246,7 +279,8 @@ class Parser:
         if self.current_is_oneof('assign'):
             self.step()
             expr = self.parse_expr()
-            return ast.Assign(None, token.value, expr)
+            source_info = token.source_info + expr.source_info
+            return ast.Assign(source_info, token.value, expr)
         self.push_token(token)
         return self.parse_message()
 
@@ -261,13 +295,13 @@ class Parser:
 
     def parse_vars(self):
         vars = []
-        if self.current_token() == Token('binsel', '|'):
+        if self.current_token() == Token('binsel', '|', None):
             self.step()
             while self.current_is_oneof('id'):
                 vars.append(self.current_token().value)
                 self.step()
             self.expect('binsel', '|')
-        elif self.current_token() == Token('binsel', '||'):
+        elif self.current_token() == Token('binsel', '||', None):
             self.step()
         return vars
 
@@ -337,12 +371,12 @@ class Parser:
             if self.current_is_oneof('lsq'):
                 self.push_token(token)
                 self.parse_method(body)
-            elif self.current_token() == Token('kw', 'uses:'):
+            elif self.current_token() == Token('kw', 'uses:', None):
                 if token.value != body.get('name'):
                     self.parse_error('Trait clause name does not match')
                 self.step()
                 body['trait_expr'] = self.parse_trait_clause()
-            elif self.current_token() == Token('id', 'class'):
+            elif self.current_token() == Token('id', 'class', None):
                 if token.value != body.get('name'):
                     parse_error("Meta name doesn't match")
                 self.step()
@@ -402,14 +436,14 @@ class Parser:
         return expr
 
     def parse_module_element(self):
-        if self.current_token() == Token('kw', 'import:'):
+        if self.current_token() == Token('kw', 'import:', None):
             return self.parse_import()
-        elif self.current_token() == Token('id', 'Trait'):
+        elif self.current_token() == Token('id', 'Trait', None):
             return self.parse_trait()
         elif self.current_is_oneof('id'):
             id = self.current_token()
             self.step()
-            if self.current_token() == Token('kw', 'subclass:'):
+            if self.current_token() == Token('kw', 'subclass:', None):
                 self.push_token(id)
                 return self.parse_class()
             self.push_token(id)
@@ -417,6 +451,8 @@ class Parser:
 
     def parse_module(self):
         exprs = []
+        source_info = self.current_token().source_info
         while not self.current_is_oneof('eof'):
             exprs.append(self.parse_module_element())
-        return ast.Seq(None, exprs)
+        source_info += self.current_token().source_info
+        return ast.Seq(source_info, exprs)

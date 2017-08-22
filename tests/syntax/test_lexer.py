@@ -6,7 +6,7 @@ def lex_string(s, lex_func):
     import io
     from onyx.syntax.lexer import Lexer
     s_inp = io.StringIO(s)
-    lex = Lexer(s_inp)
+    lex = Lexer(s, s_inp)
     while True:
         token = lex_func(lex)
         yield token

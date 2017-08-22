@@ -48,8 +48,7 @@ class Interpreter:
         mods = []
         for root_name in cls.boot_sources:
             src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
-            with open(src, 'r') as src_file:
-                mods.append(Parser.parse_file(src_file))
+            mods.append(Parser.parse_file(src))
         vm = cls()
         vm.eval(ast.Seq(None, mods))
         return vm
@@ -86,7 +85,7 @@ class Interpreter:
 
     def eval_string(self, s):
         inp = io.StringIO(s)
-        p = Parser(Lexer(inp))
+        p = Parser(Lexer(s, inp))
         return self.eval(p.parse_module())
 
     def do_continue(self, value):

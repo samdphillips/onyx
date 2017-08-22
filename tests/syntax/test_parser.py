@@ -1,12 +1,48 @@
 
+from contextlib import closing
+
+
+class CheckSourceInfo:
+    def __init__(self, node):
+        self.success = []
+        self.pending_node = [node]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self.pending_node) == 0:
+            raise StopIteration
+        node = self.pending_node.pop(0)
+        return node.visit(self)
+
+    def add(self, parent_node):
+        for attr in parent_node.fields:
+            node = getattr(parent_node, attr)
+            if hasattr(node, 'visit'):
+                self.pending_node.append(node)
+
+    def __getattr__(self, name):
+        if name.startswith('visit_'):
+            return self.visit
+        raise AttributeError(name)
+
+    def visit(self, node):
+        self.add(node)
+        print(node)
+        return node.source_info is not None
+
+
 def parse_string(s, production, *args):
     import io
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
     s_inp = io.StringIO(s)
-    lex = Lexer(s_inp)
+    lex = Lexer(s, s_inp)
     p = Parser(lex)
-    return getattr(p, 'parse_{}'.format(production))(*args)
+    t = getattr(p, 'parse_{}'.format(production))(*args)
+    assert all(CheckSourceInfo(t))
+    return t
 
 
 def test_parse_primary_num():
@@ -85,14 +121,14 @@ def test_parse_system():
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
     for source in 'collection core exception number stream string'.split():
-        with open('src/ost/boot/{}.ost'.format(source), 'r') as f:
-            lexer = Lexer(f)
+        with closing(Lexer.from_file('src/ost/boot/{}.ost'.format(source))) as lexer:
             parser = Parser(lexer)
-            parser.parse_module()
+            t = parser.parse_module()
+        assert all(CheckSourceInfo(t))
 
 
 def test_parse_test_system():
     from onyx.syntax.parser import Parser
     for source in 'tester ordered_collection stream toplevel_return'.split():
-        with open('src/ost/tests/{}.ost'.format(source), 'r') as f:
-            parser = Parser.parse_file(f)
+        t = Parser.parse_file('src/ost/tests/{}.ost'.format(source))
+        assert all(CheckSourceInfo(t))
