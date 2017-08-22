@@ -18,6 +18,26 @@ def test_system_smoketest():
     vm = Interpreter.boot()
     assert vm.eval_string('3 + 4') == 7
 
+def test_ordered_collections():
+    from onyx.vm.interpreter import Interpreter
+    vm = Interpreter.boot()
+    vm.eval_string("c := OrderedCollection new")
+    assert vm.eval_string("c size") ==  0
+    assert vm.eval_string("c asArray") == []
+
+    vm.eval_string("c add: 0")
+    assert vm.eval_string("c size") == 1
+    assert vm.eval_string("c asArray") == [0]
+
+    vm.eval_string("c add: 1")
+    assert vm.eval_string("c size") == 2
+    assert vm.eval_string("c asArray") == [0, 1]
+
+    vm.eval_string("c addFirst: 2")
+    assert vm.eval_string("c size") == 3
+    assert vm.eval_string("c asArray") == [2, 0, 1]
+
+
 assert_eval("1 + 2 + 3 + 4 + 5", 15)
 assert_eval("1 < 1", o.false)
 assert_eval("1 < 2", o.true)
