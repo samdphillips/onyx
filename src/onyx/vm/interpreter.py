@@ -329,3 +329,9 @@ class Interpreter:
 
     def primitive_string_size(self, s):
         self.done(o.SmallInt(len(s)))
+
+    def primitive_trait_merge_(self, a, b):
+        self.done(a.merge_trait(b))
+
+    def primitive_trait_new(self, trait):
+        self.done(o.Trait(None, {}, {}))
