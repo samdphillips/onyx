@@ -122,9 +122,10 @@ class Parser:
         statements = self.parse_statements()
         self.expect('rcurl')
 
+        size = len(statements)
         rcvr = ast.Send(ast.Ref('Array'),
-                        ast.Message('new:', [ast.Const(len(statements))]))
-        if len(statements) == 0:
+                        ast.Message('new:', [ast.Const(o.SmallInt(size))]))
+        if size == 0:
             return rcvr
         messages = [ast.Message('at:put:', [ast.Const(o.SmallInt(i)), e])
                     for i, e in enumerate(statements)]
