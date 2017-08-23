@@ -289,8 +289,17 @@ class Interpreter:
     def primitive_block_with_values_(self, block, array):
         self.do_block(block, array)
 
+    def primitive_character_as_lowercase(self, c):
+        self.done(o.Character(ord(chr(c).lower())))
+
+    def primitive_character_as_string(self, c):
+        self.done(o.String(chr(c)))
+
     def primitive_character_code_point(self, c):
         self.done(o.SmallInt(c))
+
+    def primitive_character_code_point_(self, _, i):
+        self.done(o.Character(i))
 
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())

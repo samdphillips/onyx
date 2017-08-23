@@ -1,7 +1,7 @@
 Object subclass: Character [
     Character class [
         codePoint: anInteger [
-            self _characterClassCodePoint: anInteger
+            self _characterCodePoint: anInteger
         ]
 
         vowels [
@@ -22,9 +22,7 @@ Object subclass: Character [
     ]
 
     asString [
-        (String new: 1)
-            at: 0 put: self;
-            yourself
+        self _characterAsString
     ]
 ]
 
