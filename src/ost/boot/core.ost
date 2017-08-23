@@ -303,12 +303,12 @@ Object subclass: BlockClosure [
         self value and: aBlock
     ]
 
-    withCont [
+    withContinuation [
         self control: Continuation defaultTag
     ]
 
-    withCont: promptTag [
-        self _blockWithCont: promptTag
+    withContinuation: promptTag [
+        self _blockWithContinuation: promptTag
     ]
 
     withPrompt [

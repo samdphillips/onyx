@@ -117,3 +117,38 @@ assert_eval("$a asLowercase == $a", o.true)
 assert_eval("$A asLowercase == $a", o.true)
 assert_eval("$  asLowercase == $ ", o.true)
 assert_eval("$A asString", o.String('A'))
+
+
+assert_eval("p := PromptTag new. [ 2 + 5 ] withPrompt: p", 7)
+
+assert_eval(
+"""
+p := PromptTag new.
+[ 2 + ([:k | 5 ] withContinuation: p) ] withPrompt: p
+""", 7)
+
+assert_eval(
+"""
+p := PromptTag new.
+[ 2 + ([:k | k value: 5 ] withContinuation: p) ] withPrompt: p
+""", 9)
+
+assert_eval(
+"""
+p := PromptTag new.
+[ 2 + (p abort: 0) + 5 ] withPrompt: p
+""", 0)
+
+assert_eval(
+"""
+p := PromptTag new.
+[ 2 + ([ 3 + ([:k | k value: 2 ] withContinuation: p) ] withPrompt: p) ] withPrompt: p
+""", 10)
+
+assert_eval(
+"""
+p := PromptTag new.
+[ 2 + ([:k | p abort: k ] withContinuation: p) ]
+    withPrompt: p
+    abort: [:x | x value: 3 ]
+""", 5)

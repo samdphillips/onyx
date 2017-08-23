@@ -104,6 +104,12 @@ class Interpreter:
                  self.receiver.lookup_instance_variable(name)) or
                 self.globals.lookup(name))
 
+    def make_continuation(self, prompt_tag):
+        # XXX: check for invalid frame index
+        prompt_frame_i = self.stack.find_prompt(prompt_tag)
+        frames = self.stack.get_frames_after(prompt_frame_i)
+        return o.Continuation(frames)
+
     def make_method_dict(self, methods):
         method_dict = {}
         for m in methods:
@@ -163,6 +169,7 @@ class Interpreter:
     push_kassign = pusher(k.KAssign)
     push_kcascade = pusher(k.KCascade)
     push_kmessage = pusher(k.KMessage)
+    push_kprompt = pusher(k.KPrompt)
     push_kreceiver = pusher(k.KReceiver)
     push_kseq = pusher(k.KSeq)
     push_ktrait = pusher(k.KTrait)
@@ -263,6 +270,9 @@ class Interpreter:
         else:
             k.execute(k.selector, k.receiver_value, arg_values)
 
+    def continue_kprompt(self, k, value):
+        pass
+
     def continue_kreceiver(self, k, value):
         k.message.visit(self, value)
 
@@ -289,6 +299,14 @@ class Interpreter:
     def primitive_array_size(self, array):
         self.done(o.SmallInt(len(array)))
 
+    def primitive_block_with_continuation_(self, block, prompt_tag):
+        k = self.make_continuation(prompt_tag)
+        self.do_block(block, [k])
+
+    def primitive_block_with_prompt_abort_(self, block, prompt_tag, abort_block):
+        self.push_kprompt(block.block, prompt_tag, abort_block)
+        self.do_block(block, [])
+
     def primitive_block_with_values_(self, block, array):
         self.do_block(block, array)
 
@@ -307,6 +325,11 @@ class Interpreter:
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())
 
+    def primitive_continuation_do_(self, continuation, block):
+        for f in continuation.frames:
+            self.stack.push(f)
+        self.do_block(block, [])
+
     def primitive_object_class(self, obj):
         self.done(obj.onyx_class(self))
 
@@ -320,6 +343,16 @@ class Interpreter:
     def primitive_object_halt(self, o):
         self.halted = True
         raise Exception('halting')
+
+    def primitive_prompt_abort_(self, prompt_tag, value):
+        # XXX: check for invalid frame index
+        self.stack.trace()
+        prompt_frame_i = self.stack.find_prompt(prompt_tag)
+        print(prompt_frame_i)
+        abort_block = self.stack.frames[prompt_frame_i].abort_block
+        self.stack.top = prompt_frame_i
+        self.do_continue(None)
+        self.do_block(abort_block, [value])
 
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))

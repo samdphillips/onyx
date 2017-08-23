@@ -5,16 +5,13 @@ Object subclass: PromptTag [
     ]
 
     abort: aValue [
-        "FIXME: change this primitive"
-        aValue _objectAbort: self
+        self _promptAbort: aValue
     ]
 ]
 
 DefaultPromptTag := PromptTag new.
 
 Object subclass: Continuation [
-    | frames |
-
     Continuation class [
         defaultTag [
             "this should really be ... (once class ivars work)"
@@ -226,4 +223,3 @@ Exception subclass: IncompleteTrait [
         missingSelectors := aCollection
     ]
 ]
-

@@ -27,6 +27,15 @@ class Stack:
         self.top += 1
         self.frames[self.top] = frame
 
+    def find_prompt(self, prompt_tag):
+        i = self.top
+        while i >= 0 and not self.frames[i].has_tag(prompt_tag):
+            i -= 1
+        return i
+
+    def get_frames_after(self, i):
+        return self.frames[i+1:self.top+1]
+
     def trace(self):
         for frame in self.frames[0:self.top]:
             print("{0.__class__.__name__} {0.ast.source_info}".format(frame))
@@ -36,6 +45,9 @@ class Frame:
     def do_continue(self, vm, value):
         name = "continue_" + self.__class__.__name__.lower()
         getattr(vm, name)(self, value)
+
+    def has_tag(self, prompt_tag):
+        return False
 
 
 _common_frame_fields = 'env receiver retk marks ast'
@@ -57,6 +69,11 @@ KMessage = frame_type('KMessage',
                       'receiver_value',
                       'arg_values',
                       'arg_expressions')
+
+class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
+    def has_tag(self, prompt_tag):
+        return self.prompt_tag == prompt_tag
+
 KReceiver = frame_type('KReceiver', 'message')
 KSeq = frame_type('KSeq', 'statements')
 KTrait = frame_type('KTrait', 'declaration')
