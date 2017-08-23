@@ -47,20 +47,10 @@ SequencedCollection subclass: Symbol [
 
 "XXX: TSequencedReadableCollection"
 SequencedCollection subclass: String [
-    String class [
-        new: amount [
-            self _stringNew: amount
-        ]
-    ]
-
     isString [ true ]
 
     basicAt: i [
         self _stringAt: i
-    ]
-
-    basicAt: i put: aChar [
-        self _stringAt: i put: aChar
     ]
 
     size [
