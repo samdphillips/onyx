@@ -165,7 +165,7 @@ class Parser:
             self.step()
         source_info += self.current_token().source_info
         self.expect('rpar')
-        return ast.Const(source_info, elements)
+        return ast.Const(source_info, o.Array(elements))
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):
