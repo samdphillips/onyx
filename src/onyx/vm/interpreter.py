@@ -61,6 +61,7 @@ class Interpreter:
         self.marks = {}
         self.globals = GlobalEnv()
         self.receiver = None
+        self.halted = True
 
     def doing(self, node):
         self.state = Doing(node)
@@ -75,7 +76,8 @@ class Interpreter:
         self.state.step(self)
 
     def run(self):
-        while self.is_running():
+        self.halted = False
+        while self.is_running() and not self.halted:
             self.step()
         return self.state.value
 
