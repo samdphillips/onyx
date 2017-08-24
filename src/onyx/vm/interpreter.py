@@ -317,6 +317,10 @@ class Interpreter:
     def primitive_object_equal_(self, a, b):
         self.done(o.onyx_bool(a == b and a.__class__ == b.__class__))
 
+    def primitive_object_halt(self, o):
+        self.halted = True
+        raise Exception('halting')
+
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))
 
