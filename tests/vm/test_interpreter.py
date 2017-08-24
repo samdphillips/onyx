@@ -2,13 +2,16 @@
 import onyx.objects as o
 
 counter = 0
-def assert_eval(expression, value):
+def assert_eval(expression, value, name=None):
     global counter
     def _test_fun():
         from onyx.vm.interpreter import Interpreter
         vm = Interpreter.boot()
         assert vm.eval_string(expression) == value
-    name = 'test_evaluate_{:03d}'.format(counter)
+    if name is None:
+        name = 'test_evaluate_{:03d}'.format(counter)
+    else:
+        name = 'test_evaluate_{}'.format(name)
     _test_fun.__name__ = name
     globals()[name] = _test_fun
     counter += 1
@@ -85,7 +88,22 @@ Object subclass: Foo [
 ]
 Foo new bar.
 a
-""", 19)
+""", 19, 'scope_1')
+
+assert_eval("""
+Object subclass: Foo [
+    bar [| a | a := 19 ]
+]
+a := 42.
+Foo new bar.
+a
+""", 42, 'scope_2')
+
+assert_eval("""
+a := 42.
+[| a | a := 19 ] value.
+a
+""", 42, 'scope_3')
 
 assert_eval("true  ifTrue: [ 10 ]", 10)
 assert_eval("false ifTrue: [ 10 ]", o.nil)
