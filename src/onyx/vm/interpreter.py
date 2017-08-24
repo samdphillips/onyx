@@ -96,9 +96,10 @@ class Interpreter:
         self.marks = frame.marks
         frame.do_continue(self, value)
 
-    def lookup_var(self, name):
+    def lookup_variable(self, name):
         return (self.env.lookup(name) or
-                (self.receiver and self.receiver.lookup_instance_var(name)) or
+                (self.receiver and
+                 self.receiver.lookup_instance_variable(name)) or
                 self.globals.lookup(name))
 
     def make_method_dict(self, methods):
@@ -179,7 +180,7 @@ class Interpreter:
 
     def visit_class(self, klass):
         self.push_kassign(klass, klass.name)
-        super_class = self.lookup_var(klass.superclass_name).value
+        super_class = self.lookup_variable(klass.superclass_name).value
         method_dict  = self.make_method_dict(klass.methods)
         if klass.meta:
             class_method_dict = self.make_method_dict(klass.meta.methods)
@@ -204,7 +205,7 @@ class Interpreter:
         self.do_message_dispatch(self.do_primitive, message, value)
 
     def visit_ref(self, ref):
-        self.done(self.lookup_var(ref.name).value)
+        self.done(self.lookup_variable(ref.name).value)
 
     def visit_return(self, ret):
         if self.retp is None:
@@ -241,8 +242,8 @@ class Interpreter:
             self.doing(trait.trait_expr)
 
     def continue_kassign(self, k, value):
-        var = self.lookup_var(k.name)
-        var.value = value
+        var = self.lookup_variable(k.name)
+        var.assign(value)
 
     def continue_kcascade(self, k, value):
         if len(k.messages) > 1:

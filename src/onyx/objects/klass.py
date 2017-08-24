@@ -13,35 +13,38 @@ def failure():
     return lookup_result(False, None, None)
 
 
-_class_fields = \
-    'name super_class instance_vars class_vars trait method_dict class_method_dict'
+_class_fields = """
+name super_class
+instance_variables class_variables
+trait method_dict class_method_dict
+"""
 class Class(namedtuple('Class', _class_fields), Base):
     is_class = True
 
     def onyx_class(self, vm):
         return self
 
-    def lookup_instance_var(self, name):
+    def lookup_instance_variable(self, name):
         pass
 
     def merge_trait(self, trait):
         return self._replace(trait=trait)
 
-    def all_instance_vars(self):
+    def all_instance_variables(self):
         if self.super_class:
-            return self.super_class.all_instance_vars() + self.instance_vars
+            return self.super_class.all_instance_variables() + self.instance_variables
         else:
-            return self.instance_vars
+            return self.instance_variables
 
     def num_slots(self):
-        return len(self.all_instance_vars())
+        return len(self.all_instance_variables())
 
     def new_instance(self):
         return Object.new_instance(self, self.num_slots())
 
-    def instance_var_index(self, name):
+    def instance_variable_index(self, name):
         try:
-            return self.all_instance_vars().index(name)
+            return self.all_instance_variables().index(name)
         except ValueError:
             return -1
 

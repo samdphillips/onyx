@@ -17,5 +17,5 @@ class Trait(namedtuple('Trait', 'name method_dict class_method_dict'), Base):
 
         return self._replace(method_dict=md, class_method_dict=clmd)
 
-    def lookup_instance_var(self, name):
+    def lookup_instance_variable(self, name):
         pass

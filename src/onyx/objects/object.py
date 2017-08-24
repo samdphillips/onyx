@@ -19,8 +19,8 @@ class Object(namedtuple('Object', 'klass slots'), Base):
     def onyx_class(self, vm):
         return self.klass
 
-    def lookup_instance_var(self, name):
-        i = self.klass.instance_var_index(name)
+    def lookup_instance_variable(self, name):
+        i = self.klass.instance_variable_index(name)
         if i < 0:
             return
         return self.slots[i]

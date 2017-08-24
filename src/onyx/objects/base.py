@@ -9,7 +9,7 @@ class Base:
         name = self.__class__.__name__.lstrip('_')
         return vm.globals.lookup(name).value
 
-    def lookup_instance_var(self, name):
+    def lookup_instance_variable(self, name):
         raise Exception('builtin needs to implement')
 
     def deref(self):
@@ -20,12 +20,12 @@ class Base:
 
 
 class SmallInt(int, Base):
-    def lookup_instance_var(self, name):
+    def lookup_instance_variable(self, name):
         pass
 
 
 class String(str, Base):
-    def lookup_instance_var(self, name):
+    def lookup_instance_variable(self, name):
         pass
 
 
