@@ -312,7 +312,9 @@ Object subclass: BlockClosure [
     ]
 
     withPrompt [
-        self withPrompt: PromptTag new
+        | p |
+        p := PromptTag new.
+        [ self value: p ] withPrompt: p
     ]
 
     withPrompt: promptTag [
