@@ -2,4 +2,5 @@
 from .base import Base
 
 class Array(list, Base):
-    pass
+    def lookup_instance_var(self, name):
+        pass

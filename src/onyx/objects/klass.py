@@ -21,6 +21,9 @@ class Class(namedtuple('Class', _class_fields), Base):
     def onyx_class(self, vm):
         return self
 
+    def lookup_instance_var(self, name):
+        pass
+
     def merge_trait(self, trait):
         return self._replace(trait=trait)
 
@@ -34,7 +37,13 @@ class Class(namedtuple('Class', _class_fields), Base):
         return len(self.all_instance_vars())
 
     def new_instance(self):
-        return Object(self, self.num_slots())
+        return Object.new_instance(self, self.num_slots())
+
+    def instance_var_index(self, name):
+        try:
+            return self.all_instance_vars().index(name)
+        except ValueError:
+            return -1
 
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:

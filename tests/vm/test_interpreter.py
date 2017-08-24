@@ -77,6 +77,15 @@ assert_eval("3 >= 2", o.true)
 assert_eval("3 >= 3", o.true)
 assert_eval("nil isNil", o.true)
 
+assert_eval("""
+a := 19.
+Object subclass: Foo [
+    | a |
+    bar [ a := 42 ]
+]
+Foo new bar.
+a
+""", 19)
 
 assert_eval("true  ifTrue: [ 10 ]", 10)
 assert_eval("false ifTrue: [ 10 ]", o.nil)

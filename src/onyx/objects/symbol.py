@@ -13,4 +13,5 @@ def get_symbol(name):
 
 
 class Symbol(str, Base):
-    pass
+    def lookup_instance_var(self, name):
+        pass

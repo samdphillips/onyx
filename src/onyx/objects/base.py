@@ -10,7 +10,7 @@ class Base:
         return vm.globals.lookup(name).value
 
     def lookup_instance_var(self, name):
-        pass
+        raise Exception('builtin needs to implement')
 
     def deref(self):
         return self
@@ -20,11 +20,13 @@ class Base:
 
 
 class SmallInt(int, Base):
-    pass
+    def lookup_instance_var(self, name):
+        pass
 
 
 class String(str, Base):
-    pass
+    def lookup_instance_var(self, name):
+        pass
 
 
 class Super(namedtuple('Super', 'receiver klass'), Base):
