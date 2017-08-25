@@ -51,7 +51,7 @@ class Stack:
 
     def trace(self):
         for frame in self.frames[0:self.top]:
-            print("{0.__class__.__name__} {0.ast.source_info}".format(frame))
+            print("{}".format(frame))
 
 
 class Frame:
@@ -67,6 +67,26 @@ class Frame:
 
     def mark_value(self, mark):
         return self.marks[mark]
+
+    @property
+    def extra_frame_info(self):
+        return ''
+
+    @property
+    def format_marks(self):
+        s = []
+        for k, v in self.marks.items():
+            s.append("{} -> {}".format(hex(id(k)), v))
+        if len(s) > 0:
+            s = "[\n" + '\n'.join([(" " * 4 + v) for v in s]) + "\n]"
+        else:
+            s = "[]"
+        return s
+
+    def __format__(self, fmt_args):
+        return ("{0.__class__.__name__}{0.extra_frame_info}\n" +
+                "{0.format_marks}\n" +
+                "{0.ast.source_info}").format(self)
 
 
 _common_frame_fields = 'env receiver retk marks ast'
@@ -92,6 +112,10 @@ KMessage = frame_type('KMessage',
 class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
     def has_tag(self, prompt_tag):
         return self.prompt_tag == prompt_tag
+
+    @property
+    def extra_frame_info(self):
+        return ' <<{0}>>'.format(hex(id(self.prompt_tag)))
 
 KReceiver = frame_type('KReceiver', 'message')
 KSeq = frame_type('KSeq', 'statements')
