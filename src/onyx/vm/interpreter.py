@@ -338,6 +338,9 @@ class Interpreter:
     def primitive_character_code_point_(self, _, i):
         self.done(o.Character(i))
 
+    def primitive_class_name(self, klass):
+        self.done(klass.name)
+
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())
 
@@ -408,6 +411,13 @@ class Interpreter:
 
     def primitive_string_size(self, s):
         self.done(o.SmallInt(len(s)))
+
+    def primitive_symbol_as_string(self, symbol):
+        self.done(o.String(symbol))
+
+    def primitive_system_is_broken_(self, obj, msg):
+        # XXX: make better
+        raise Exception(obj, msg)
 
     def primitive_trait_merge_(self, a, b):
         self.done(a.merge_trait(b))
