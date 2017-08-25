@@ -94,7 +94,7 @@ Object subclass: ExceptionHandler [
             anException resumer: k;
                 exitBlocks: (CurtailedMark marks: tag).
             self throw: anException
-        ] withCont: tag
+        ] withContinuation: tag
     ]
 
     throw: anException [
