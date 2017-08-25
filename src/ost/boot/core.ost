@@ -316,7 +316,9 @@ Object subclass: BlockClosure [
     withPrompt [
         | p |
         p := PromptTag new.
-        [ self value: p ] withPrompt: p
+        (self argumentCount = 1
+            ifTrue: [ [ self value: p ] ]
+            ifFalse: [ self ]) withPrompt: p
     ]
 
     withPrompt: promptTag [
