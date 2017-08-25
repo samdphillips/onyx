@@ -16,6 +16,9 @@ class Object(namedtuple('Object', 'klass slots'), Base):
     def new_instance(cls, klass, num_slots):
         return cls(klass, [Slot(nil) for _ in range(num_slots)])
 
+    def __hash__(self):
+        return id(self)
+
     def onyx_class(self, vm):
         return self.klass
 
