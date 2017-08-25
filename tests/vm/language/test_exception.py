@@ -67,3 +67,36 @@ Object subclass: TestMNU [
 
 TestMNU new start
 """, o.true)
+
+assert_eval(
+"""
+Object subclass: Foo [
+    | record |
+
+    record [
+        record asArray
+    ]
+
+    start [
+        record := OrderedCollection new.
+
+        [ self a ]
+            on: Exception
+            do: [ :e | record add: e isNested ].
+        self
+    ]
+
+    a [
+        [ self b ]
+            on: Exception
+            do: [ :e | record add: e isNested.
+                       e pass ]
+    ]
+
+    b [
+        Exception signal
+    ]
+]
+
+Foo new start record
+""", [o.true, o.false])
