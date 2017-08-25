@@ -50,3 +50,20 @@ Object subclass: TestResume [
 
 TestResume new start
 """, 42)
+
+assert_eval(
+"""
+Object subclass: TestMNU [
+    start [
+        [ self foo ]
+            on: MessageNotUnderstood
+            do: [:exc | true ]
+    ]
+
+    doesNotUnderstand: aMessage [
+        super doesNotUnderstand: aMessage
+    ]
+]
+
+TestMNU new start
+""", o.true)

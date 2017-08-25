@@ -131,6 +131,12 @@ class Interpreter:
         env.add_binding(o.get_symbol('super'), o.Super(receiver, klass))
         return env
 
+    def make_dnu_args(self, selector, args):
+        msg = self.globals.lookup(o.get_symbol('Message')).value.new_instance()
+        msg.lookup_instance_variable(o.get_symbol('selector')).assign(selector)
+        msg.lookup_instance_variable(o.get_symbol('arguments')).assign(args)
+        return [msg]
+
     def do_block(self, block_closure, args):
         self.env = self.make_block_env(block_closure, args)
         self.receiver = block_closure.receiver
@@ -149,7 +155,12 @@ class Interpreter:
         receiver_class = receiver.onyx_class(self)
         result = receiver_class.lookup_method(self, selector, receiver.is_class)
         if not result.is_success:
-            raise Exception('write dnu code')
+            dnu_selector = o.get_symbol('doesNotUnderstand:')
+            result = receiver_class.lookup_method(self, dnu_selector, receiver.is_class)
+            if not result.is_success:
+                raise Exception('dnu')
+
+            args = self.make_dnu_args(selector, o.Array([a.deref() for a in args]))
 
         receiver = receiver.deref()
         args = [a.deref() for a in args]
