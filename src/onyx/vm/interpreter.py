@@ -384,7 +384,6 @@ class Interpreter:
     def primitive_prompt_abort_(self, prompt_tag, value):
         # XXX: check for invalid frame index
         prompt_frame_i = self.stack.find_prompt(prompt_tag)
-        print(prompt_frame_i)
         abort_block = self.stack.frames[prompt_frame_i].abort_block
         self.stack.top = prompt_frame_i
         self.do_continue(None)
