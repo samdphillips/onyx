@@ -277,6 +277,8 @@ Object subclass: Message [
 ]
 
 Object subclass: BlockClosure [
+    argumentCount [ self _blockArgumentCount ]
+
     value [ self valueWithArguments: {} ]
 
     value: a [
