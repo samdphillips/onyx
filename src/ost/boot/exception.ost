@@ -39,7 +39,7 @@ Object subclass: Continuation [
 
 Object subclass: ContinuationMark [
     firstMark: promptTag [
-        self _continuationFirstMark: promptTag
+        self _continuationMarkFirstMark: promptTag
     ]
 
     marks: promptTag [

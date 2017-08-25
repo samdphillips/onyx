@@ -21,6 +21,7 @@ ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
 def pusher(cls):
     def _method(self, *args):
         self.pushk(cls, *args)
+        self.marks = {}
     return _method
 
 
@@ -303,6 +304,10 @@ class Interpreter:
         k = self.make_continuation(prompt_tag)
         self.do_block(block, [k])
 
+    def primitive_block_with_mark_value_(self, block, mark, value):
+        self.marks[mark] = value
+        self.do_block(block, [])
+
     def primitive_block_with_prompt_abort_(self, block, prompt_tag, abort_block):
         self.push_kprompt(block.block, prompt_tag, abort_block)
         self.do_block(block, [])
@@ -329,6 +334,21 @@ class Interpreter:
         for f in continuation.frames:
             self.stack.push(f)
         self.do_block(block, [])
+
+    def primitive_continuation_mark_first_mark_(self, mark, prompt_tag):
+        if mark in self.marks:
+            value = self.marks[mark]
+        else:
+            value = self.stack.find_first_mark(mark, prompt_tag)
+        self.done(value)
+
+    def primitive_continuation_marks_(self, mark, prompt_tag):
+        v = []
+        if mark in self.marks:
+            v.append(self.marks[mark])
+        v += self.stack.find_marks(mark, prompt_tag)
+        v = o.Array(v)
+        self.done(v)
 
     def primitive_object_class(self, obj):
         self.done(obj.onyx_class(self))

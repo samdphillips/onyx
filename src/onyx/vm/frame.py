@@ -33,6 +33,19 @@ class Stack:
             i -= 1
         return i
 
+    def find_marks(self, mark, prompt_tag):
+        i = self.top
+        while i >= 0:
+            if self.frames[i].has_mark(mark):
+                yield self.frames[i].mark_value(mark)
+
+            if self.frames[i].has_tag(prompt_tag):
+                break
+            i -= 1
+
+    def find_first_mark(self, mark, prompt_tag):
+        return next(self.find_marks(mark, prompt_tag))
+
     def get_frames_after(self, i):
         return self.frames[i+1:self.top+1]
 
@@ -48,6 +61,12 @@ class Frame:
 
     def has_tag(self, prompt_tag):
         return False
+
+    def has_mark(self, mark):
+        return mark in self.marks
+
+    def mark_value(self, mark):
+        return self.marks[mark]
 
 
 _common_frame_fields = 'env receiver retk marks ast'
