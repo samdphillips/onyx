@@ -311,6 +311,9 @@ class Interpreter:
     def primitive_array_size(self, array):
         self.done(o.SmallInt(len(array)))
 
+    def primitive_block_value_with_arguments_(self, block, array):
+        self.do_block(block, array)
+
     def primitive_block_with_continuation_(self, block, prompt_tag):
         k = self.make_continuation(prompt_tag)
         self.do_block(block, [k])
@@ -322,9 +325,6 @@ class Interpreter:
     def primitive_block_with_prompt_abort_(self, block, prompt_tag, abort_block):
         self.push_kprompt(block.block, prompt_tag, abort_block)
         self.do_block(block, [])
-
-    def primitive_block_with_values_(self, block, array):
-        self.do_block(block, array)
 
     def primitive_character_as_lowercase(self, c):
         self.done(o.Character(ord(chr(c).lower())))
