@@ -344,6 +344,9 @@ class Interpreter:
     def primitive_class_name(self, klass):
         self.done(klass.name)
 
+    def primitive_class_superclass(self, klass):
+        self.done(klass.super_class)
+
     def primitive_class_new(self, klass):
         self.done(klass.new_instance())
 

@@ -50,7 +50,7 @@ class Stack:
         return self.frames[i+1:self.top+1]
 
     def trace(self):
-        for frame in self.frames[0:self.top]:
+        for frame in self.frames[0:self.top+1]:
             print("{}".format(frame))
 
 
@@ -115,7 +115,7 @@ class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
 
     @property
     def extra_frame_info(self):
-        return ' <<{0}>>'.format(hex(id(self.prompt_tag)))
+        return ' <<{}>>\nabort -> {}'.format(hex(id(self.prompt_tag)), self.abort_block.block.source_info)
 
 KReceiver = frame_type('KReceiver', 'message')
 KSeq = frame_type('KSeq', 'statements')
