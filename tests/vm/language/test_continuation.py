@@ -42,3 +42,12 @@ p := PromptTag new.
     withPrompt: p
     abort: [:x | x value: 3 ]
 """, 5)
+
+assert_eval(
+"""
+a := PromptTag new.
+b := PromptTag new.
+[
+    [ a abort: #foo ] withPrompt: b abort: [:x | 41 ]
+] withPrompt: a abort: [:x | 42 ]
+""", 42)
