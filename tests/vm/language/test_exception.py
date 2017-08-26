@@ -1,5 +1,4 @@
 
-
 import pytest
 import onyx.objects as o
 
@@ -100,3 +99,42 @@ Object subclass: Foo [
 
 Foo new start record
 """, [o.true, o.false])
+
+assert_eval(
+"""
+CheckedValue := 41.
+
+Object subclass: TestCurtailed [
+    foo [
+        [ self bar ]
+            ifCurtailed: [ CheckedValue := 42 ]
+    ]
+
+    bar [
+        Exception signal
+    ]
+]
+
+[ TestCurtailed new foo ]
+    on: Exception
+    do: [:ex | nil ].
+CheckedValue
+""", 42)
+
+assert_eval(
+"""
+CheckedValue := 41.
+
+Object subclass: TestCurtailed [
+    foo [
+        [ self bar ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+
+    bar [
+        [ Exception signal ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+]
+
+[ TestCurtailed new foo ] on: Exception do: [:ex | nil ].
+CheckedValue
+""", 43)

@@ -79,19 +79,21 @@ Object subclass: ExceptionHandler [
     ]
 
     installAndDo: aBlock [
-        [ aBlock
-              withMark: ExceptionHandler mark
-              value: self ]
+        [ aBlock withMark: ExceptionHandler mark
+                 value: self ]
             withPrompt: tag
-            abort: [:exc || val |
-                       val := handlerBlock value: exc.
-                       exc exit.
-                       val ]
+            abort:
+                [:exc || val |
+                    val := handlerBlock value: exc.
+                    exc exit.
+                    val
+                ]
     ]
 
     signalWith: anException [
         [:k |
-            anException resumer: k;
+            anException
+                resumer: k;
                 exitBlocks: (CurtailedMark marks: tag).
             self throw: anException
         ] withContinuation: tag
@@ -145,6 +147,7 @@ Object subclass: Exception [
     signal [
         handler := ExceptionHandler findHandlerFor: self.
         handler ifNil: [ self defaultAction ].
+        "XXX: ifNotNil: "
         handler signalWith: self.
     ]
 
