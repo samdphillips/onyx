@@ -17,6 +17,10 @@ Object subclass: Character [
         self _characterCodePoint
     ]
 
+    display [
+        self asString display
+    ]
+
     asLowercase [
         self _characterAsLowercase
     ]
@@ -65,5 +69,14 @@ SequencedCollection subclass: String [
 
     printString [
         self
+    ]
+
+    display [
+        self _stringDisplay
+    ]
+
+    displayNl [
+        self display.
+        Character newline display.
     ]
 ]

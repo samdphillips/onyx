@@ -411,6 +411,11 @@ class Interpreter:
     def primitive_string_concat_(self, a, b):
         self.done(o.String(a + b))
 
+    def primitive_string_display(self, s):
+        import sys
+        sys.stdout.write(s)
+        self.done(o.nil)
+
     def primitive_string_size(self, s):
         self.done(o.SmallInt(len(s)))
 
