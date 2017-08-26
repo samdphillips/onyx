@@ -19,6 +19,9 @@ class Object(namedtuple('Object', 'klass slots'), Base):
     def __hash__(self):
         return id(self)
 
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
     def onyx_class(self, vm):
         return self.klass
 
