@@ -69,7 +69,7 @@ nil subclass: Object [
     ]
 
     print [
-        self printString _stringPrint
+        self printString display
     ]
 
     printNl [
