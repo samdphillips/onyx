@@ -117,6 +117,13 @@ def test_parse_primary_block():
                     t.Seq(None, [t.Return(None, t.Const(None, o.false))])))
 
 
+def test_parse_block_char():
+    import onyx.objects as o
+    import onyx.syntax.ast as t
+    assert (parse_string('[ $a ]', 'block') ==
+            t.Block(None, [], [],
+                    t.Seq(None, [t.Const(None, o.Character(97))])))
+
 def test_parse_system():
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser

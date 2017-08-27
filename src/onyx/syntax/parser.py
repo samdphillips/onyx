@@ -78,7 +78,8 @@ class Parser:
     def parse_statement(self):
         if self.current_is_oneof('caret'):
             return self.parse_return()
-        elif self.current_is_oneof('string', 'int', 'symbol', 'id', 'lpar', 'lcurl', 'lparray', 'lsq'):
+        elif self.current_is_oneof('character', 'string', 'int', 'symbol',
+                                   'id', 'lpar', 'lcurl', 'lparray', 'lsq'):
             return self.parse_expr()
         else:
             self.parse_error('expected expr')
@@ -87,8 +88,9 @@ class Parser:
         stmts = []
         source_info = self.current_token().source_info
         while True:
-            if self.current_is_oneof('caret', 'int', 'string', 'symbol', 'id',
-                                     'lpar', 'lcurl', 'lparray', 'lsq'):
+            if self.current_is_oneof('caret', 'character', 'int', 'string',
+                                     'symbol', 'id', 'lpar', 'lcurl',
+                                     'lparray', 'lsq'):
                 stmt = self.parse_statement()
                 stmts.append(stmt)
                 source_info += stmt.source_info
