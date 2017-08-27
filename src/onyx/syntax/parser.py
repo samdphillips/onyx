@@ -232,7 +232,7 @@ class Parser:
             arg = self.parse_primary()
             arg = self.parse_unary(arg)
             args.append(self.parse_binary(arg))
-        selector = ''.join(selector)
+        selector = o.get_symbol(''.join(selector))
         source_info += args[-1].source_info
         return self.make_message(source_info, selector, args)
 
