@@ -1,0 +1,51 @@
+Tester new
+    add: '(''abc'', ''123'') = ''abc123'''
+    test: [:x | ('abc', '123') = 'abc123' ];
+
+    add: '((''abc'' at: 0) codePoint) = 97'
+    test: [:x | (('abc' at: 0) codePoint) = 97 ];
+
+    add: '(foo := ''abc''. (foo at: 0) == (foo at: 0)) = true'
+    test: [:x || foo |
+               foo := 'abc'.
+               (foo at: 0) == (foo at: 0) ];
+
+    add: '($a ~= 97) = true'
+    test: [:x | ($a ~= 97) = true ];
+
+    add: '(#test ~= ''test'') = true'
+    test: [:x | (#test ~= 'test') = true ];
+
+    add: 'a := Character codePoint: 97. b := Character codePoint: 97. a == b => true'
+    test: [:x || a b |
+                a := Character codePoint: 97.
+                b := Character codePoint: 97.
+                a == b ];
+
+    add: '$a == (Character codePoint: 97) = true'
+    test: [:x | $a == (Character codePoint: 97) ];
+
+    add: '(''a'' at: 0) == (Character codePoint: 97) = true'
+    test: [:x | ('a' at: 0) == (Character codePoint: 97) ];
+
+    add: '(#($a) at: 0) == (Character codePoint: 97) = true'
+    test: [:x | (#($a) at: 0) == (Character codePoint: 97) ];
+
+    add: '($a == $b) = false'
+    test: [:x | ($a == $b) not ];
+
+    add: '($  codePoint) = 32'
+    test: [:x | ($  codePoint) = 32 ];
+
+    add: '($a asLowercase == $a) = true'
+    test: [:x | ($a asLowercase == $a) = true ];
+
+    add: '($A asLowercase == $a) = true'
+    test: [:x | ($A asLowercase == $a) = true ];
+
+    add: '($  asLowercase == $ ) = true'
+    test: [:x | ($  asLowercase == $ ) = true ];
+
+    add: '($A asString) = ''A'''
+    test: [:x | ($A asString) = 'A' ];
+    yourself

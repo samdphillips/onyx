@@ -1,0 +1,146 @@
+
+Tester new
+    add: '(1 + 2 + 3 + 4 + 5) = 15'
+    test: [:x | (1 + 2 + 3 + 4 + 5) = 15 ];
+
+    add: '(1 < 1) = false'
+    test: [:x | (1 < 1) = false ];
+
+    add: '(1 < 2) = true'
+    test: [:x | (1 < 2) = true ];
+
+    add: '(1 < 3) = true'
+    test: [:x | (1 < 3) = true ];
+
+    add: '(2 < 1) = false'
+    test: [:x | (2 < 1) = false ];
+
+    add: '(2 < 2) = false'
+    test: [:x | (2 < 2) = false ];
+
+    add: '(2 < 3) = true'
+    test: [:x | (2 < 3) = true ];
+
+    add: '(3 < 1) = false'
+    test: [:x | (3 < 1) = false ];
+
+    add: '(3 < 2) = false'
+    test: [:x | (3 < 2) = false ];
+
+    add: '(3 < 3) = false'
+    test: [:x | (3 < 3) = false ];
+
+    add: '(1 > 1) = false'
+    test: [:x | (1 > 1) = false ];
+
+    add: '(1 > 2) = false'
+    test: [:x | (1 > 2) = false ];
+
+    add: '(1 > 3) = false'
+    test: [:x | (1 > 3) = false ];
+
+    add: '(2 > 1) = true'
+    test: [:x | (2 > 1) = true ];
+
+    add: '(2 > 2) = false'
+    test: [:x | (2 > 2) = false ];
+
+    add: '(2 > 3) = false'
+    test: [:x | (2 > 3) = false ];
+
+    add: '(3 > 1) = true'
+    test: [:x | (3 > 1) = true ];
+
+    add: '(3 > 2) = true'
+    test: [:x | (3 > 2) = true ];
+
+    add: '(3 > 3) = false'
+    test: [:x | (3 > 3) = false ];
+
+    add: '(1 <= 1) = true'
+    test: [:x | (1 <= 1) = true ];
+
+    add: '(1 <= 2) = true'
+    test: [:x | (1 <= 2) = true ];
+
+    add: '(1 <= 3) = true'
+    test: [:x | (1 <= 3) = true ];
+
+    add: '(2 <= 1) = false'
+    test: [:x | (2 <= 1) = false ];
+
+    add: '(2 <= 2) = true'
+    test: [:x | (2 <= 2) = true ];
+
+    add: '(2 <= 3) = true'
+    test: [:x | (2 <= 3) = true ];
+
+    add: '(3 <= 1) = false'
+    test: [:x | (3 <= 1) = false ];
+
+    add: '(3 <= 2) = false'
+    test: [:x | (3 <= 2) = false ];
+
+    add: '(3 <= 3) = true'
+    test: [:x | (3 <= 3) = true ];
+
+    add: '(1 >= 1) = true'
+    test: [:x | (1 >= 1) = true ];
+
+    add: '(1 >= 2) = false'
+    test: [:x | (1 >= 2) = false ];
+
+    add: '(1 >= 3) = false'
+    test: [:x | (1 >= 3) = false ];
+
+    add: '(2 >= 1) = true'
+    test: [:x | (2 >= 1) = true ];
+
+    add: '(2 >= 2) = true'
+    test: [:x | (2 >= 2) = true ];
+
+    add: '(2 >= 3) = false'
+    test: [:x | (2 >= 3) = false ];
+
+    add: '(3 >= 1) = true'
+    test: [:x | (3 >= 1) = true ];
+
+    add: '(3 >= 2) = true'
+    test: [:x | (3 >= 2) = true ];
+
+    add: '(3 >= 3) = true'
+    test: [:x | (3 >= 3) = true ];
+
+    add: '(nil isNil) = true'
+    test: [:x | (nil isNil) = true ];
+
+    add: '(true  ifTrue: [ 10 ]) = 10'
+    test: [:x | (true  ifTrue: [ 10 ]) = 10 ];
+
+    add: '(false ifTrue: [ 10 ]) = nil'
+    test: [:x | (false ifTrue: [ 10 ]) = nil ];
+
+    add: '(true  ifTrue: [ 10 ] ifFalse: [ 11 ]) = 10'
+    test: [:x | (true  ifTrue: [ 10 ] ifFalse: [ 11 ]) = 10 ];
+
+    add: '(false ifTrue: [ 10 ] ifFalse: [ 11 ]) = 11'
+    test: [:x | (false ifTrue: [ 10 ] ifFalse: [ 11 ]) = 11 ];
+
+    add: 'n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ] => nil'
+    test: [:x || n | n := 0. ([ n < 10 ] whileTrue: [ n := n + 1 ]) = nil ];
+
+    add: 'n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n => 10'
+    test: [:x |
+              [| n |
+                n := 0.
+                [ n < 10 ] whileTrue: [ n := n + 1 ].
+                n ] value = 10 ];
+
+    add: 'n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n => 10'
+    test: [:x |
+              [| n |
+                n := 0.
+                [ n = 10 ] whileFalse: [ n := n + 1 ].
+                n ] value = 10 ];
+
+    yourself
