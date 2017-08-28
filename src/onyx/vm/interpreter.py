@@ -57,7 +57,6 @@ class Interpreter:
     def __init__(self):
         self.stack = k.Stack()
         self.env = Env()
-        self.receiver = None
         self.retp = None
         self.marks = {}
         self.globals = GlobalEnv()
