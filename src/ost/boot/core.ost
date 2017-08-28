@@ -301,6 +301,12 @@ Object subclass: BlockClosure [
         self _blockValueWithArguments: aCollection asArray
     ]
 
+    cull: a [
+        self argumentCount < 1
+            ifTrue: [ self value ]
+            ifFalse: [ self value: a ]
+    ]
+
     and: aBlock [
         self value and: aBlock
     ]
