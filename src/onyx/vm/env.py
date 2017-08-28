@@ -39,9 +39,34 @@ class Env:
                 (self.parent and self.parent.lookup(name)))
 
 
+class MethodEnv(Env):
+    def __init__(self, klass, receiver):
+        super(MethodEnv, self).__init__()
+        self.klass = klass
+        self.receiver = receiver
+        self.self_slot = self.add_binding(o.get_symbol('self'),
+                                          self.receiver,
+                                          ImmutableBinding)
+        self.super_slot = self.add_binding(o.get_symbol('super'),
+                                           o.Super(receiver, klass),
+                                           ImmutableBinding)
+
+    def lookup(self, name):
+        if name == 'self':
+            return self.self_slot
+        elif name == 'super':
+            return self.super_slot
+        elif name in self.bindings:
+            return self.bindings.get(name)
+        elif (not self.receiver.is_class and
+              name in self.klass.all_instance_variables()):
+            slot = self.klass.instance_variable_slot(name)
+            return self.receiver.get_slot(slot)
+
+
 class GlobalEnv(Env):
     def __init__(self):
-        super().__init__()
+        super(GlobalEnv, self).__init__()
         self.add_binding('nil', o.nil, ImmutableBinding)
 
     def lookup(self, name):

@@ -41,3 +41,18 @@ a
 assert_eval("""
 [| x | x ] value
 """, o.nil, 'init vars nil')
+
+assert_eval("""
+Object subclass: Foo [
+    bar [ a ]
+]
+
+Foo subclass: Baz [
+    | a |
+    initialize [ a := 41 ]
+]
+
+a := 42.
+f := Baz new initialize; yourself.
+f bar.
+""", 42, "super doesn't access child instance variables")

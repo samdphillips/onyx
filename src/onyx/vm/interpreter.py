@@ -11,7 +11,7 @@ import onyx.vm.frame as k
 from onyx.syntax import ast
 from onyx.syntax.lexer import Lexer
 from onyx.syntax.parser import Parser
-from onyx.vm.env import Env, GlobalEnv
+from onyx.vm.env import Env, GlobalEnv, MethodEnv
 
 
 ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -57,10 +57,9 @@ class Interpreter:
     def __init__(self):
         self.stack = k.Stack()
         self.env = Env()
+        self.globals = GlobalEnv()
         self.retp = None
         self.marks = {}
-        self.globals = GlobalEnv()
-        self.receiver = None
         self.halted = True
 
     def doing(self, node):
@@ -93,16 +92,12 @@ class Interpreter:
     def do_continue(self, value):
         frame = self.stack.pop()
         self.env = frame.env
-        self.receiver = frame.receiver
         self.retp = frame.retk
         self.marks = frame.marks
         frame.do_continue(self, value)
 
     def lookup_variable(self, name):
-        return (self.env.lookup(name) or
-                (self.receiver and
-                 self.receiver.lookup_instance_variable(name)) or
-                self.globals.lookup(name))
+        return self.env.lookup(name) or self.globals.lookup(name)
 
     def make_continuation(self, prompt_tag):
         # XXX: check for invalid frame index
@@ -123,22 +118,20 @@ class Interpreter:
         return env
 
     def make_method_env(self, method, args, receiver, klass):
-        env = Env()
+        env = MethodEnv(klass, receiver)
         env.add_args(method.args, args)
         env.add_temps(method.temps)
-        env.add_binding(o.get_symbol('self'), receiver)
-        env.add_binding(o.get_symbol('super'), o.Super(receiver, klass))
         return env
 
     def make_dnu_args(self, selector, args):
-        msg = self.globals.lookup(o.get_symbol('Message')).value.new_instance()
-        msg.lookup_instance_variable(o.get_symbol('selector')).assign(selector)
-        msg.lookup_instance_variable(o.get_symbol('arguments')).assign(args)
+        msg_cls = self.globals.lookup(o.get_symbol('Message')).value
+        msg = msg_cls.new_instance()
+        msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('selector'))).assign(selector)
+        msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('arguments'))).assign(args)
         return [msg]
 
     def do_block(self, block_closure, args):
         self.env = self.make_block_env(block_closure, args)
-        self.receiver = block_closure.receiver
         self.retp = block_closure.retp
         self.doing(block_closure.block.statements)
 
@@ -164,7 +157,6 @@ class Interpreter:
         receiver = receiver.deref()
         args = [a.deref() for a in args]
         self.env = self.make_method_env(result.method, args, receiver, result.klass)
-        self.receiver = receiver
         self.retp = self.stack.top
         self.doing(result.method.statements)
 
@@ -174,7 +166,7 @@ class Interpreter:
         primitive(receiver, *args)
 
     def pushk(self, kcls, ast, *args):
-        frame = kcls(self.env, self.receiver, self.retp, self.marks, ast, *args)
+        frame = kcls(self.env, self.retp, self.marks, ast, *args)
         self.stack.push(frame)
 
     push_kassign = pusher(k.KAssign)
@@ -190,7 +182,7 @@ class Interpreter:
         self.doing(assignment.expr)
 
     def visit_block(self, block):
-        closure = o.BlockClosure(self.env, self.receiver, self.retp, block)
+        closure = o.BlockClosure(self.env, self.retp, block)
         self.done(closure)
 
     def visit_cascade(self, cascade, value):
