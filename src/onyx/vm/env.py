@@ -32,7 +32,7 @@ class Env:
 
     def add_temps(self, names):
         for n in names:
-            self.add_binding(n, None)
+            self.add_binding(n, o.nil)
 
     def lookup(self, name):
         return (self.bindings.get(name) or

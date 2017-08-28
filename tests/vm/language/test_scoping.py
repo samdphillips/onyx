@@ -37,3 +37,7 @@ a := 42.
 [| a | a := 19 ] value.
 a
 """, 42, 'scope_3')
+
+assert_eval("""
+[| x | x ] value
+""", o.nil, 'init vars nil')
