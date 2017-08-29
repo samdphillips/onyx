@@ -17,8 +17,7 @@ class MutableBinding:
 
 
 class Env:
-    def __init__(self, parent=None):
-        self.parent = parent
+    def __init__(self):
         self.bindings = {}
 
     def add_binding(self, name, value, binding=MutableBinding):
@@ -35,7 +34,15 @@ class Env:
             self.add_binding(n, o.nil)
 
     def lookup(self, name):
-        return (self.bindings.get(name) or
+        return self.bindings.get(name)
+
+class BlockEnv(Env):
+    def __init__(self, parent):
+        super(BlockEnv, self).__init__()
+        self.parent = parent
+
+    def lookup(self, name):
+        return (super().lookup(name) or
                 (self.parent and self.parent.lookup(name)))
 
 
@@ -57,7 +64,7 @@ class MethodEnv(Env):
         elif name == 'super':
             return self.super_slot
         elif name in self.bindings:
-            return self.bindings.get(name)
+            return super().lookup(name)
         elif (not self.receiver.is_class and
               name in self.klass.all_instance_variables()):
             slot = self.klass.instance_variable_slot(name)

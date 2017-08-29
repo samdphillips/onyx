@@ -11,7 +11,7 @@ import onyx.vm.frame as k
 from onyx.syntax import ast
 from onyx.syntax.lexer import Lexer
 from onyx.syntax.parser import Parser
-from onyx.vm.env import Env, GlobalEnv, MethodEnv
+from onyx.vm.env import BlockEnv, Env, GlobalEnv, MethodEnv
 
 
 ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -112,7 +112,7 @@ class Interpreter:
         return method_dict
 
     def make_block_env(self, block_closure, args):
-        env = Env(block_closure.env)
+        env = BlockEnv(block_closure.env)
         env.add_args(block_closure.block.args, args)
         env.add_temps(block_closure.block.temps)
         return env
