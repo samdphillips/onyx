@@ -157,6 +157,7 @@ Object subclass: Trait [
     ]
 
     - aCollection [
+        | trait |
         trait := self copy.
         aCollection do: [:selector |
             trait remove: selector
