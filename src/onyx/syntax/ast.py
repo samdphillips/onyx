@@ -53,6 +53,8 @@ class Const(Node, namedtuple('Const', 'source_info value')):
 Meta = ast_node('Meta', 'instance_vars methods')
 Method = ast_node('Method', 'name args temps statements')
 Message = ast_node('Message', 'selector args')
+ModuleImport = ast_node('ModuleImport', 'name')
+ModuleName = ast_node('ModuleName', 'id')
 
 
 class PrimitiveMessage(Message):

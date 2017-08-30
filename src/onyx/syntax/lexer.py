@@ -154,6 +154,7 @@ class Lexer:
         Scanner(r'#(([a-zA-Z_][a-zA-Z0-9]*:)+)', 'symbol', make_symbol),
         Scanner(r"#'([^']+)'", 'symbol', make_symbol),
         Scanner(r"#\(", 'lparray'),
+        Scanner(r"#{", 'lpmod'),
         Scanner(r"'", 'string', None, scan_string),
         Scanner(r'\^', 'caret'),
         Scanner(r';', 'semi'),

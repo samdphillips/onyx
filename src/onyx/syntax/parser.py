@@ -442,6 +442,30 @@ class Parser:
             self.expect('dot')
         return expr
 
+    def parse_module_name(self):
+        start = self.current_token().source_info
+        self.expect('lpmod')
+        name = []
+        while True:
+            if not self.current_is_oneof('id'):
+                self.parse_error('expected id')
+
+            name.append(self.current_token().value)
+            self.step()
+
+            if self.current_token() == Token('rcurl', '}', None):
+                si = start + self.current_token().source_info
+                self.step()
+                return ast.ModuleName(si, '.'.join(name))
+
+            self.expect('dot')
+
+    def parse_import(self):
+        start = self.current_token().source_info
+        self.expect('kw', 'import:')
+        name = self.parse_module_name()
+        return ast.ModuleImport(start + name.source_info, name)
+
     def parse_module_element(self):
         if self.current_token() == Token('kw', 'import:', None):
             return self.parse_import()

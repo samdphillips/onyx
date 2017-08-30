@@ -124,6 +124,18 @@ def test_parse_block_char():
             t.Block(None, [], [],
                     t.Seq(None, [t.Const(None, o.Character(97))])))
 
+
+def test_parse_module_name():
+    import onyx.syntax.ast as t
+    assert (parse_string('#{collections.stuff}', 'module_name') ==
+            t.ModuleName(None, 'collections.stuff'))
+
+
+def test_parse_import():
+    import onyx.syntax.ast as t
+    assert (parse_string('import: #{collections.stuff}', 'import') ==
+            t.ModuleImport(None, t.ModuleName(None, 'collections.stuff')))
+
 def test_parse_system():
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
