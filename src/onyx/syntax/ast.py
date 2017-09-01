@@ -50,6 +50,7 @@ class Const(Node, namedtuple('Const', 'source_info value')):
         return cls(source_info, cls.named_values[name])
 
 
+GlobalRef = ast_node('GlobalRef', 'name')
 Meta = ast_node('Meta', 'instance_vars methods')
 Method = ast_node('Method', 'name args temps statements')
 Message = ast_node('Message', 'selector args')

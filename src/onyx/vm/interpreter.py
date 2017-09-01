@@ -12,6 +12,7 @@ from onyx.syntax import ast
 from onyx.syntax.lexer import Lexer
 from onyx.syntax.parser import Parser
 from onyx.vm.env import BlockEnv, Env, GlobalEnv, MethodEnv
+from onyx.vm.module import ModuleLoader
 
 
 ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -58,6 +59,7 @@ class Interpreter:
         self.stack = k.Stack()
         self.env = Env()
         self.globals = GlobalEnv()
+        self.module_loader = ModuleLoader(self)
         self.retp = None
         self.marks = {}
         self.halted = True
@@ -87,7 +89,10 @@ class Interpreter:
     def eval_string(self, s):
         inp = io.StringIO(s)
         p = Parser(Lexer(s, inp))
-        return self.eval(p.parse_module())
+        syntax = p.parse_module()
+        name = object()
+        self.module_loader.visit(name, syntax)
+        return self.module_loader.instantiate(name)
 
     def do_continue(self, value):
         frame = self.stack.pop()
@@ -97,7 +102,11 @@ class Interpreter:
         frame.do_continue(self, value)
 
     def lookup_variable(self, name):
-        return self.env.lookup(name) or self.globals.lookup(name)
+        return self.env.lookup(name)
+
+    def core_lookup(self, name):
+        name = ('core', name)
+        return self.globals.lookup(name).value
 
     def make_continuation(self, prompt_tag):
         # XXX: check for invalid frame index
@@ -190,25 +199,28 @@ class Interpreter:
             self.push_kcascade(cascade, value, cascade.messages[1:])
         cascade.messages[0].visit(self, value)
 
-    def visit_class(self, klass):
-        self.push_kassign(klass, klass.name)
-        super_class = self.lookup_variable(klass.superclass_name).value
-        method_dict  = self.make_method_dict(klass.methods)
-        if klass.meta:
-            class_method_dict = self.make_method_dict(klass.meta.methods)
+    def visit_class(self, cls):
+        self.push_kassign(cls, cls.name)
+        super_cls = self.globals.lookup(cls.superclass_name).value
+        method_dict = self.make_method_dict(cls.methods)
+        if cls.meta:
+            class_method_dict = self.make_method_dict(cls.meta.methods)
         else:
             class_method_dict = {}
-        cls = o.Class(klass.name, super_class, klass.instance_vars,
-                      klass.meta.instance_vars, None, method_dict,
-                      class_method_dict)
-        if klass.trait_expr is None:
-            self.done(cls)
+        cls_o = o.Class(cls.name, super_cls, cls.instance_vars,
+                        cls.meta.instance_vars, None, method_dict,
+                        class_method_dict)
+        if cls.trait_expr is None:
+            self.done(cls_o)
         else:
-            self.push_ktrait(klass.trait_expr, cls)
-            self.doing(klass.trait_expr)
+            self.push_ktrait(cls.trait_expr, cls_o)
+            self.doing(cls.trait_expr)
 
     def visit_const(self, const):
         self.done(const.value)
+
+    def visit_global_ref(self, ref):
+        self.done(self.globals.lookup(ref.name).value)
 
     def visit_message(self, message, value):
         self.do_message_dispatch(self.do_message_send, message, value)
@@ -254,7 +266,10 @@ class Interpreter:
             self.doing(trait.trait_expr)
 
     def continue_kassign(self, k, value):
-        var = self.lookup_variable(k.name)
+        if type(k.name) == tuple:
+            var = self.globals.lookup(k.name)
+        else:
+            var = self.lookup_variable(k.name)
         var.assign(value)
 
     def continue_kcascade(self, k, value):

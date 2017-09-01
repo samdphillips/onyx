@@ -60,7 +60,7 @@ class Class(namedtuple('Class', _class_fields), Base):
         elif self.super_class:
             return self.super_class.lookup_class_method(vm, selector)
         else:
-            return vm.globals.lookup('Class').value.lookup_instance_method(selector)
+            return vm.core_lookup('Class').lookup_instance_method(selector)
 
     def lookup_method(self, vm, selector, is_class):
         if is_class:

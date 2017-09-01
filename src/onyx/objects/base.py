@@ -7,7 +7,7 @@ class Base:
 
     def onyx_class(self, vm):
         name = self.__class__.__name__.lstrip('_')
-        return vm.globals.lookup(name).value
+        return vm.core_lookup(name)
 
     def deref(self):
         return self
