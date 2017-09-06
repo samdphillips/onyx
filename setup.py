@@ -10,6 +10,7 @@ setup(name='Onyx',
       author_email='samdphillips@gmail.com',
       packages=find_packages('src'),
       package_dir={'': 'src'},
-      data_files=[('onyx/ost/boot', glob('src/ost/boot/*.ost'))],
+      data_files=[('onyx/ost/boot', glob('src/ost/boot/*.ost')),
+                  ('onyx/ost/tests', glob('src/ost/tests/*.ost'))],
       zip_safe=False
 )

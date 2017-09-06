@@ -74,11 +74,14 @@ class Interpreter:
         self.doing(node)
         return self.run()
 
-    def eval_string(self, s, name=None):
+    def eval_string(self, s, name=None, require=None):
         inp = io.StringIO(s)
         p = Parser(Lexer(s, inp))
         syntax = p.parse_module()
         name = name or object()
+        require = require or []
+        for r in require:
+            syntax = self.module_loader.add_import(syntax, r)
         self.module_loader.visit(name, syntax)
         return self.module_loader.instantiate(name)
 

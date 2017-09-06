@@ -7,8 +7,10 @@ import onyx.objects as o
 
 from onyx.syntax.parser import Parser
 
-ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                  '..', 'ost', 'boot'))
+
+ONYX_LIB_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                 '..', 'ost'))
+ONYX_BOOT_SOURCES = os.path.join(ONYX_LIB_SOURCES, 'boot')
 
 
 class AnalyzeModule:
@@ -63,10 +65,10 @@ class AnalyzeModule:
         fail = False
         if assign_import != []:
             fail = True
-            print('assign import', assign_import)
+            print('assigned import', assign_import)
         if undeclared != []:
             fail = True
-            print('undeclared variable', undeclared)
+            print('undeclared variables', undeclared)
 
         if fail:
             raise 'fail'
@@ -260,19 +262,22 @@ class ModuleLoader:
         self.modules = {}
         self.status = {}
 
-    def graft_core_import(self, syntax):
-        name = ast.ModuleName(None, o.get_symbol('core'))
-        i = ast.ModuleImport(None, name)
-        return ast.Seq(None, [i, syntax])
-
     def is_module_visited(self, name):
-        return self.status.get(name) == "visited"
+        return self.status.get(name) in ["visited", "instantiated"]
 
     def is_module_visiting(self, name):
         return self.status.get(name) == "visiting"
 
     def is_module_instantiated(self, name):
         return self.status.get(name) == "instantiated"
+
+    def add_import(self, syntax, name):
+        mod_name = ast.ModuleName(None, name)
+        i = ast.ModuleImport(None, mod_name)
+        return ast.Seq(None, [i, syntax])
+
+    def add_core_import(self, syntax):
+        return self.add_import(syntax, o.get_symbol('core'))
 
     def load_core_syntax(self):
         boot_sources = 'core exception number collection string stream'.split()
@@ -281,6 +286,11 @@ class ModuleLoader:
             src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
             mods.append(Parser.parse_file(src))
         return ast.Seq(None, mods)
+
+    def find_module_file(self, name):
+        p = name.split('.')
+        p[-1] = p[-1] + '.ost'
+        return os.path.join(ONYX_LIB_SOURCES, *p)
 
     def load_syntax(self, name):
         if name == 'core':
@@ -291,7 +301,7 @@ class ModuleLoader:
     def visit(self, name, syntax):
         self.status[name] = "loading"
         if name != 'core':
-            syntax = self.graft_core_import(syntax)
+            syntax = self.add_core_import(syntax)
 
         an_mod = AnalyzeModule(name, self)
         an_mod.check(syntax)
