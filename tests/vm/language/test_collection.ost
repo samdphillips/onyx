@@ -1,0 +1,29 @@
+Tester new
+    add: 'collections: #detect: method should return the first element that matches the block'
+    test: [| c |
+            c := OrderedCollection new.
+            1 to: 20 do: [:i | c add: i ].
+            (c detect: [:x | x > 5 ]) = 6 ];
+
+    add: 'collections: #detect: method should return nil if no match is found'
+    test: [| c |
+            c := OrderedCollection new.
+            1 to: 20 do: [:i | c add: i ].
+            (c detect: [:x | x > 20 ]) isNil ];
+
+    add: 'collections: #detect:ifNone: method should return value of block if no match is found'
+    test: [| c |
+            c := OrderedCollection new.
+            1 to: 20 do: [:i | c add: i ].
+            (c detect: [:x | x > 20 ] ifNone: [ 242 ]) = 242 ];
+
+    add: 'collections: #inject: 0 into: [:a :b | a + b ] method should sum the elements of the collection'
+    test: [| c |
+            c := OrderedCollection new.
+            1 to: 5 do: [:i | c add: i ].
+            (c inject: 0 into: [:a :b | a + b ]) = 15 ];
+
+    add: 'collections: copyFrom: 0 to: 3 method should return a copy of array'
+    test: [ (#(1 2 3 4) copyFrom: 0 to: 3) = #(1 2 3 4) ];
+
+    yourself
