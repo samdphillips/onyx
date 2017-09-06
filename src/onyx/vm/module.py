@@ -18,6 +18,7 @@ class AnalyzeModule:
         self.imports = set()
         self.qnames = {}
         self.references = {}
+        self.class_slots = {}
 
     def add_flag(self, name, flag):
         f = self.references.get(name, set())
@@ -38,6 +39,9 @@ class AnalyzeModule:
 
     def is_top_assign(self, ref):
         return self.has_flag(ref, 'top-assign')
+
+    def is_class(self, ref):
+        return self.has_flag(ref, 'class')
 
     def get_exports(self):
         return [r for r in self.references
@@ -84,10 +88,20 @@ class AnalyzeModule:
             self.qnames[name] = (m.name, name)
             self.add_flag(name, 'import')
 
+        self.class_slots.update(m.class_slots)
+
     def visit_class(self, cls, env, top):
         self.add_flag(cls.name, 'top-assign')
+        self.add_flag(cls.name, 'class')
+        instance_vars = cls.instance_vars
         if cls.superclass_name != o.get_symbol('nil'):
             self.add_flag(cls.superclass_name, 'reference')
+            if cls.superclass_name in self.qnames:
+                super_name = self.qnames[cls.superclass_name]
+            else:
+                super_name = cls.superclass_name
+            instance_vars += self.class_slots[super_name]
+        self.class_slots[cls.name] = set(instance_vars)
 
         if cls.trait_expr:
             cls.trait_expr.visit(self, env, top)
@@ -96,7 +110,7 @@ class AnalyzeModule:
             m.visit(self, env, False)
 
         for m in cls.methods:
-            m.visit(self, cls.instance_vars, False)
+            m.visit(self, instance_vars, False)
 
     def visit_trait(self, trait, env, top):
         self.add_flag(trait.name, 'top-assign')
@@ -237,7 +251,7 @@ class RewriteRefs:
         return ret._replace(expression=ret.expression.visit(self, env))
 
 
-Module = namedtuple('Module', 'name exports imports code')
+Module = namedtuple('Module', 'name exports imports class_slots code')
 
 
 class ModuleLoader:
@@ -283,8 +297,10 @@ class ModuleLoader:
         an_mod.check(syntax)
         exports = an_mod.get_exports()
         imports = an_mod.imports
+        class_slots = {(name, k): an_mod.class_slots[k]
+                       for k in exports if an_mod.is_class(k)}
         code = RewriteRefs(an_mod).rewrite(syntax)
-        m = Module(name, exports, imports, code)
+        m = Module(name, exports, imports, class_slots, code)
         self.modules[name] = m
         self.status[name] = 'loaded'
         return m

@@ -86,11 +86,11 @@ class Interpreter:
         self.doing(node)
         return self.run()
 
-    def eval_string(self, s):
+    def eval_string(self, s, name=None):
         inp = io.StringIO(s)
         p = Parser(Lexer(s, inp))
         syntax = p.parse_module()
-        name = object()
+        name = name or object()
         self.module_loader.visit(name, syntax)
         return self.module_loader.instantiate(name)
 
@@ -133,7 +133,7 @@ class Interpreter:
         return env
 
     def make_dnu_args(self, selector, args):
-        msg_cls = self.globals.lookup(o.get_symbol('Message')).value
+        msg_cls = self.core_lookup(o.get_symbol('Message'))
         msg = msg_cls.new_instance()
         msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('selector'))).assign(selector)
         msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('arguments'))).assign(args)
