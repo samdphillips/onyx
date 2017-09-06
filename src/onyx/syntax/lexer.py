@@ -188,9 +188,10 @@ class Lexer:
     def buffer_at_end(self):
         return self.buf == ''
 
-    def fill_buffer(self):
-        size = 1024 - len(self.buf)
-        self.buf += self.inp.read(size)
+    def fill_buffer(self, fill_size=1024):
+        size = fill_size - len(self.buf)
+        if size > 0:
+            self.buf += self.inp.read(size)
 
     def advance_buffer(self, size):
         self.position += size
@@ -214,11 +215,16 @@ class Lexer:
         return matches[0]
 
     def scan_token(self):
-        matches = self.scan_matches()
-        if len(matches) == 0:
-            self.invalid_input()
-        m = self.best_scan_match(matches)
-        return m.scan(self)
+        size = 1024
+        while size < 10000:
+            matches = self.scan_matches()
+            if len(matches) == 0:
+                size *= 2
+                self.fill_buffer(size)
+            else:
+                m = self.best_scan_match(matches)
+                return m.scan(self)
+        self.invalid_input()
 
     def raw_lex_token(self):
         self.fill_buffer()
