@@ -43,18 +43,6 @@ class Done(namedtuple('Done', 'value')):
 
 
 class Interpreter:
-    boot_sources = 'core exception number collection string stream'.split()
-
-    @classmethod
-    def boot(cls):
-        mods = []
-        for root_name in cls.boot_sources:
-            src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
-            mods.append(Parser.parse_file(src))
-        vm = cls()
-        vm.eval(ast.Seq(None, mods))
-        return vm
-
     def __init__(self):
         self.stack = k.Stack()
         self.env = Env()
