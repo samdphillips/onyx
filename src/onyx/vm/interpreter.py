@@ -392,6 +392,16 @@ class Interpreter:
     def primitive_small_int_add_(self, a, b):
         self.done(o.SmallInt(a + b))
 
+    def primitive_small_int_bit_and_(self, a, b):
+        self.done(o.SmallInt(a & b))
+
+    def primitive_small_int_bit_shift_(self, a, b):
+        if b > 0:
+            v = a << b
+        else:
+            v = a >> b
+        self.done(o.SmallInt(v))
+
     def primitive_small_int_lt_(self, a, b):
         self.done(o.onyx_bool(a < b))
 

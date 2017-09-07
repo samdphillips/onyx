@@ -23,6 +23,10 @@ Object subclass: Number [
     asString [
         self _numberAsString
     ]
+
+    negated [
+        0 - self
+    ]
 ]
 
 Number subclass: SmallInt [
@@ -80,6 +84,18 @@ Number subclass: SmallInt [
         aNumber <= self
     ]
 
+    bitAnd: anInteger [
+        self _smallIntBitAnd: anInteger
+    ]
+
+    bitAt: anIndex [
+        (self bitShift: anIndex negated) bitAnd: 1
+    ]
+
+    bitShift: amount [
+        self _smallIntBitShift: amount
+    ]
+
     to: stop [
         Interval from: self to: stop
     ]
@@ -97,10 +113,11 @@ Number subclass: SmallInt [
     ]
 
     isOdd [
-        self _smallIntIsOdd
+        (self bitAt: 0) = 1
     ]
 
     isEven [
         self isOdd not
     ]
+
 ]
