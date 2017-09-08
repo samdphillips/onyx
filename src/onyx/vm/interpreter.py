@@ -339,7 +339,7 @@ class Interpreter:
         self.done(o.Character(i))
 
     def primitive_class_name(self, klass):
-        self.done(klass.name)
+        self.done(o.String(klass.name))
 
     def primitive_class_superclass(self, klass):
         self.done(klass.super_class)
