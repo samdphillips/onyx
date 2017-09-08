@@ -148,6 +148,6 @@ def test_parse_system():
 
 def test_parse_test_system():
     from onyx.syntax.parser import Parser
-    for source in 'tester ordered_collection stream toplevel_return'.split():
+    for source in 'tester stream toplevel_return'.split():
         t = Parser.parse_file('src/ost/tests/{}.ost'.format(source))
         assert all(CheckSourceInfo(t))

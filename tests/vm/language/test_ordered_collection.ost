@@ -30,7 +30,7 @@ Tester new
     test: [:oc | oc size = 0];
 
     add: 'OrderedCollection>>addAll:'
-    test: [:oc || i result |
+    test: [:oc || i int result |
         result := true.
         int := 1 to: 10.
         oc addAll: int.
@@ -88,7 +88,7 @@ Tester new
     ];
 
     add: 'OrderedCollection>>,'
-    test: [:oc || other success |
+    test: [:oc || other result success |
         other := OrderedCollection new.
         oc addAll: (0 to: 5).
         other addAll: (6 to: 9).
@@ -119,7 +119,7 @@ Tester new
     ];
 
     add: 'OrderedCollection>>with:do: wrong sizes'
-    test: [:oc |
+    test: [:oc || i |
         [
             oc addAll: (0 to: 10).
             i := 0 to: 9.
@@ -179,5 +179,4 @@ Tester new
         result
     ];
 
-    run;
-    report
+    yourself
