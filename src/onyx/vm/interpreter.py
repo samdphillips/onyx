@@ -70,6 +70,14 @@ class Interpreter:
             self.step()
         return self.state.value
 
+    def run_script(self, filename):
+        with open(filename, 'r') as src:
+            p = Parser(Lexer(filename, src))
+            syntax = p.parse_module()
+        name = object()
+        self.module_loader.visit(name, syntax)
+        return self.module_loader.instantiate(name)
+
     def eval(self, node):
         self.doing(node)
         return self.run()
