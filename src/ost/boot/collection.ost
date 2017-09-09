@@ -124,7 +124,7 @@ Trait named: TExtensibleCollection [
     ]
 ]
 
-Trait named: TSequenceReadableCollection [
+Trait named: TSequencedReadableCollection [
     "
     Requires:
      - basicAt:
@@ -266,18 +266,26 @@ Trait named: TSequenceReadableCollection [
                 value: (otherCollection at: index)
         ]
     ]
+
+    species [
+        Array
+    ]
 ]
 
 Trait named: TSequencedCollection [
-    TSequencedCollection uses: TSequenceReadableCollection.
+    TSequencedCollection uses: TSequencedReadableCollection.
 
     "
-    at:put:
     atAll:put:
     atAllPut:
     replaceFrom:to:with:startingAt:
     replaceFrom:to:withObject:
     "
+
+    at: index put: anObject [
+        self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
+        self basicAt: index put: anObject
+    ]
 
     replaceFrom: start to: end with: replace [
         "replace debug.
@@ -296,17 +304,9 @@ Trait named: TSequencedCollection [
     ]
 ]
 
-Collection subclass: SequencedCollection [
-    SequencedCollection uses: TSequencedCollection.
+Collection subclass: Array [
+    Array uses: TSequencedCollection.
 
-    at: index put: anObject [
-        self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
-        self basicAt: index put: anObject
-    ]
-
-]
-
-SequencedCollection subclass: Array [
     Array class [
         new: size [
             self _arrayNew: size
@@ -316,12 +316,14 @@ SequencedCollection subclass: Array [
             self new: 0
         ]
 
+        "XXX: this would be useful on other collections (ByteArray)"
         with: anObject [
             (self new: 1)
                 at: 0 put: anObject;
                 yourself
         ]
 
+        "XXX: this would be useful on other collections (ByteArray)"
         withAll: aCollection [
             | anArray i |
             anArray := self new: aCollection size.
@@ -352,7 +354,9 @@ SequencedCollection subclass: Array [
     asArray [ self ]
 ]
 
-SequencedCollection subclass: ByteArray [
+Collection subclass: ByteArray [
+    ByteArray uses: TSequencedCollection.
+
     ByteArray class [
         new: size [
             self _byteArrayNew: size
@@ -376,9 +380,11 @@ SequencedCollection subclass: ByteArray [
     ]
 ]
 
-"XXX: TSequencedReadableCollection"
-SequencedCollection subclass: Interval [
+
+Collection subclass: Interval [
     | start stop step |
+
+    Interval uses: TSequencedReadableCollection.
 
     Interval class [
         from: start to: stop [
@@ -414,17 +420,15 @@ SequencedCollection subclass: Interval [
         (step * i) + start
     ]
 
-    species [
-        Array
-    ]
 ]
 
-SequencedCollection subclass: OrderedCollection [
+Collection subclass: OrderedCollection [
     | elements firstIndex lastIndex |
 
-    OrderedCollection uses:
-        { TExtensibleCollection.
-          TSequencedCollection }.
+    OrderedCollection uses: {
+        TExtensibleCollection.
+        TSequencedCollection.
+    }.
 
     OrderedCollection class [
         new [
@@ -532,7 +536,7 @@ SequencedCollection subclass: OrderedCollection [
 
 Collection subclass: ConcatenatedSequence [
     | collections |
-    ConcatenatedSequence uses: TSequenceReadableCollection.
+    ConcatenatedSequence uses: TSequencedReadableCollection.
 
     ConcatenatedSequence class [
         with: aSequence with: bSequence [
@@ -563,7 +567,7 @@ Collection subclass: ConcatenatedSequence [
 
 Collection subclass: ReversedSequence [
     | collection |
-    ReversedSequence uses: TSequenceReadableCollection.
+    ReversedSequence uses: TSequencedReadableCollection.
 
     ReversedSequence class [
         withAll: aCollection [

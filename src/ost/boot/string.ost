@@ -30,8 +30,9 @@ Object subclass: Character [
     ]
 ]
 
-"XXX: TSequencedReadableCollection"
-SequencedCollection subclass: Symbol [
+Collection subclass: Symbol [
+    Symbol uses: TSequencedReadableCollection.
+
     Symbol class [
         internString: aString [
             aString _stringAsSymbol
@@ -47,8 +48,9 @@ SequencedCollection subclass: Symbol [
     isSymbol [ true ]
 ]
 
-"XXX: TSequencedReadableCollection"
-SequencedCollection subclass: String [
+Collection subclass: String [
+    String uses: TSequencedReadableCollection.
+    
     isString [ true ]
 
     basicAt: i [
