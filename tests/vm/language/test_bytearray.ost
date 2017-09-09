@@ -1,0 +1,15 @@
+
+Tester new
+    setup: [ #[97 98 99] ];
+
+    add: 'ByteArray>>at:'
+    test: [:b | (b at: 0) = 97 ];
+
+    add: 'ByteArray>>at:put:'
+    test: [:b || c |
+        c := b copy.
+        c at: 2 put: 97.
+        (c at: 2) = 97 and: [ (b at: 2) = 99 ]
+    ];
+
+    yourself

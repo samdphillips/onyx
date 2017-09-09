@@ -79,7 +79,8 @@ class Parser:
         if self.current_is_oneof('caret'):
             return self.parse_return()
         elif self.current_is_oneof('character', 'string', 'int', 'symbol',
-                                   'id', 'lpar', 'lcurl', 'lparray', 'lsq'):
+                                   'id', 'lpar', 'lcurl', 'lbarray', 'lparray',
+                                   'lsq'):
             return self.parse_expr()
         else:
             self.parse_error('expected expr')
@@ -90,7 +91,7 @@ class Parser:
         while True:
             if self.current_is_oneof('caret', 'character', 'int', 'string',
                                      'symbol', 'id', 'lpar', 'lcurl',
-                                     'lparray', 'lsq'):
+                                     'lbarray', 'lparray', 'lsq'):
                 stmt = self.parse_statement()
                 stmts.append(stmt)
                 source_info += stmt.source_info
@@ -132,6 +133,17 @@ class Parser:
         source_info += self.current_token().source_info
         self.expect('rsq')
         return ast.Block(source_info, **block)
+
+    def parse_byte_array(self):
+        source_info = self.current_token().source_info
+        self.expect('lbarray')
+        elements = []
+        while self.current_is_oneof('int'):
+            elements.append(self.current_token().value)
+            self.step()
+        source_info += self.current_token().source_info
+        self.expect('rsq')
+        return ast.Const(source_info, o.ByteArray(elements))
 
     def parse_expr_array(self):
         source_info = self.current_token().source_info
@@ -184,6 +196,8 @@ class Parser:
             return ast.Ref(si, name)
         elif self.current_is_oneof('lpar'):
             return self.parse_nested_expr()
+        elif self.current_is_oneof('lbarray'):
+            return self.parse_byte_array()
         elif self.current_is_oneof('lparray'):
             return self.parse_literal_array()
         elif self.current_is_oneof('lsq'):
@@ -288,8 +302,8 @@ class Parser:
         return self.parse_message()
 
     def parse_expr(self):
-        if self.current_is_oneof('lcurl', 'lpar', 'lparray', 'lsq', 'int',
-                                 'symbol', 'character', 'string'):
+        if self.current_is_oneof('lcurl', 'lpar', 'lbarray', 'lparray', 'lsq',
+                                 'int', 'symbol', 'character', 'string'):
             return self.parse_message()
         elif self.current_is_oneof('id'):
             return self.parse_maybe_assignment()

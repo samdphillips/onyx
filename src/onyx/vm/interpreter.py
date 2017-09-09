@@ -334,6 +334,19 @@ class Interpreter:
         self.push_kprompt(block.block, prompt_tag, abort_block)
         self.do_block(block, [])
 
+    def primitive_byte_array_at_(self, barray, index):
+        self.done(o.SmallInt(barray[index]))
+
+    def primitive_byte_array_at_put_(self, barray, index, value):
+        barray[index] = value
+        self.done(value)
+
+    def primitive_byte_array_new_(self, _cls, size):
+        self.done(o.ByteArray(size))
+
+    def primitive_byte_array_size(self, barray):
+        self.done(o.SmallInt(len(barray)))
+
     def primitive_character_as_lowercase(self, c):
         self.done(o.Character(ord(chr(c).lower())))
 

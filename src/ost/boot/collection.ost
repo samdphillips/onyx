@@ -346,7 +346,30 @@ SequencedCollection subclass: Array [
     ]
 
     asArray [ self ]
+]
 
+SequencedCollection subclass: ByteArray [
+    ByteArray class [
+        new: size [
+            self _byteArrayNew: size
+        ]
+
+        new [
+            self new: 0
+        ]
+    ]
+
+    size [
+        self _byteArraySize
+    ]
+
+    basicAt: i put: aByte [
+        self _byteArrayAt: i put: aByte
+    ]
+
+    basicAt: i [
+        self _byteArrayAt: i
+    ]
 ]
 
 "XXX: TSequencedReadableCollection"

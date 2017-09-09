@@ -12,6 +12,7 @@ BlockClosure = type(
     'BlockClosure',
     (namedtuple('BlockClosure', 'env retp block'), Base),
     {})
+ByteArray = type('ByteArray', (bytearray, Base), {})
 SmallInt = type('SmallInt', (int, Base), {})
 String = type('String', (str, Base), {})
 Character = type('Character', (int, Base), {})
