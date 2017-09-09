@@ -181,6 +181,10 @@ Trait named: TSequenceReadableCollection [
             ifFalse: exceptionBlock
     ]
 
+    copy [
+        self copyFrom: 0 to: self lastIndex
+    ]
+
     copyFrom: start to: end [
         | size new |
         size := end - start + 1.
