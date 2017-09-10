@@ -1,4 +1,10 @@
 Tester new
+    add: 'TSequencedReadableCollection>>#before:'
+    test: [| c |
+        c := 1 to: 20.
+        (c before: 10) = 9
+    ];
+
     add: 'collections: #detect: method should return the first element that matches the block'
     test: [| c |
             c := OrderedCollection new.

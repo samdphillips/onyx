@@ -130,7 +130,6 @@ Trait named: TSequencedReadableCollection [
      - basicAt:
      - size
 
-    before:
     copyReplaceAll:with:
     copyReplaceFrom:to:with:
     copyReplaceFrom:to:withObject:
@@ -176,6 +175,14 @@ Trait named: TSequencedReadableCollection [
         self basicAt: index
     ]
 
+    before: anElement [
+        | i |
+        i := self findFirst: [:e | anElement = e ].
+        i isNil ifTrue: [ self error: 'no element in collection' ].
+        i isZero ifTrue: [ self error: 'no element before' ].
+        self at: i - 1
+    ]
+
     checkBounds: index ifOutOfBounds: exceptionBlock [
         (index between: 0 and: self lastIndex)
             ifFalse: exceptionBlock
@@ -187,6 +194,9 @@ Trait named: TSequencedReadableCollection [
 
     copyFrom: start to: end [
         | size new |
+        self checkBounds: start ifOutOfBounds: [ self error: 'start out of bounds' ].
+        self checkBounds: end ifOutOfBounds: [ self error: 'end out of bounds' ].
+
         size := end - start + 1.
         new := self species new: size.
         0 to: size - 1 do: [:i |
