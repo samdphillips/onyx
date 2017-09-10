@@ -68,7 +68,7 @@ Collection subclass: String [
     ]
 
     , aString [
-        self _stringConcat: aString
+        self _stringConcatenate: aString
     ]
 
     asSymbol [

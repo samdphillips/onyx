@@ -439,7 +439,7 @@ class Interpreter:
         c = ord(s[i])
         self.done(o.Character(c))
 
-    def primitive_string_concat_(self, a, b):
+    def primitive_string_concatenate_(self, a, b):
         self.done(o.String(a + b))
 
     def primitive_string_display(self, s):
