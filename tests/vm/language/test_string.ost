@@ -2,8 +2,24 @@ Tester new
     add: '(''abc'', ''123'') = ''abc123'''
     test: [ ('abc', '123') = 'abc123' ];
 
-    add: 'String>>copy'
+    add: 'String>>#copy'
     test: [| s | s := 'abc'. s = s copy ];
+
+    add: 'String>>#copyReplaceFrom:to:with: middle'
+    test: [ 'abcdefghijklmnopqrstuvwxyz' copyReplaceFrom: 3 to: 22 with: 'abc' ]
+    result: 'abcabcxyz';
+
+    add: 'String>>#copyReplaceFrom:to:with: start'
+    test: [ 'abcdefghijklmnopqrstuvwxyz' copyReplaceFrom: 0 to: 22 with: 'abc' ]
+    result: 'abcxyz';
+
+    add: 'String>>#copyReplaceFrom:to:with: end'
+    test: [ 'abcdefghijklmnopqrstuvwxyz' copyReplaceFrom: 3 to: 25 with: 'abc' ]
+    result: 'abcabc';
+
+    add: 'String>>#copyReplaceFrom:to:with: all'
+    test: [ 'abcdefghijklmnopqrstuvwxyz' copyReplaceFrom: 0 to: 25 with: 'abc' ]
+    result: 'abc';
 
     add: '((''abc'' at: 0) codePoint) = 97'
     test: [ (('abc' at: 0) codePoint) = 97 ];

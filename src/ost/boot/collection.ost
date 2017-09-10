@@ -205,6 +205,28 @@ Trait named: TSequencedReadableCollection [
         new
     ]
 
+    copyReplaceFrom: start to: end with: replacementElements [
+        self checkBounds: start ifOutOfBounds: [ self error: 'start out of bounds' ].
+        self checkBounds: end ifOutOfBounds: [ self error: 'end out of bounds' ].
+
+        (start = 0 and: [ end = self lastIndex ])
+            ifTrue: [ ^ replacementElements ].
+
+        start = 0
+            ifTrue: [
+                ^ replacementElements, (self copyFrom: end + 1 to: self lastIndex)
+            ].
+
+        end = self lastIndex
+            ifTrue: [
+                ^ (self copyFrom: 0 to: start - 1), replacementElements
+            ].
+
+        (self copyFrom: 0 to: start - 1),
+            replacementElements,
+            (self copyFrom: end + 1 to: self lastIndex)
+    ]
+
     do: aBlock [
         | i size |
         i    := 0.
