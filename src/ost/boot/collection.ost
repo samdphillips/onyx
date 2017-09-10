@@ -378,6 +378,10 @@ Collection subclass: ByteArray [
     basicAt: i [
         self _byteArrayAt: i
     ]
+
+    species [
+        ByteArray
+    ]
 ]
 
 
