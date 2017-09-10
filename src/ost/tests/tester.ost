@@ -1,13 +1,22 @@
 
 Object subclass: Test [
-    | name setupBlock testBlock |
+    | name setupBlock testBlock expected actual |
 
     Test class [
         name: aString setup: setupBlock test: testBlock [
+            self
+                name: aString
+                setup: setupBlock
+                test: testBlock
+                expected: true
+        ]
+
+        name: aString setup: setupBlock test: testBlock expected: aValue [
             self new
                 name: aString;
                 setup: setupBlock;
                 test: testBlock;
+                expected: aValue;
                 yourself
         ]
     ]
@@ -26,10 +35,18 @@ Object subclass: Test [
         name := aString
     ]
 
+    expected [ expected ]
+    actual [ actual ]
+
+    expected: aValue [
+        expected := aValue
+    ]
+
     run: reporter [
         [ | obj |
             obj := setupBlock ifNotNil: [ setupBlock value ].
-            (testBlock cull: obj)
+            actual := testBlock cull: obj.
+            actual = expected
                 ifTrue:  [ reporter reportSuccess: self ]
                 ifFalse: [ reporter reportFailure: self ]
         ] on: Exception
@@ -109,7 +126,11 @@ Object subclass: TestFailure [
     isError   [ false ]
 
     report [
-        (test name, ' failed') printNl
+        (test name, ' failed',
+            Character newline asString,
+            '    expected: ', test expected asString,
+            Character newline asString,
+            '    actual:   ', test actual asString) printNl
     ]
 ]
 
@@ -218,6 +239,11 @@ Object subclass: Tester [
 
     add: aString test: aBlock [
         tests add: (Test name: aString setup: setup test: aBlock)
+    ]
+
+    add: aString test: aBlock result: aValue [
+        tests add:
+            (Test name: aString setup: setup test: aBlock expected: aValue)
     ]
 
     name: aString test: aBlock [
