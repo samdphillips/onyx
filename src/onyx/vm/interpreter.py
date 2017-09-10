@@ -450,6 +450,9 @@ class Interpreter:
     def primitive_string_size(self, s):
         self.done(o.SmallInt(len(s)))
 
+    def primitive_string_slice_from_to_(self, s, start, end):
+        self.done(o.String(s[start:end + 1]))
+
     def primitive_symbol_as_string(self, symbol):
         self.done(o.String(symbol))
 

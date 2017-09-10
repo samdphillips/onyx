@@ -50,8 +50,14 @@ Collection subclass: Symbol [
 
 Collection subclass: String [
     String uses: TSequencedReadableCollection.
-    
+
     isString [ true ]
+
+    copyFrom: startIndex to: endIndex [
+        self checkBounds: startIndex ifOutOfBounds: [ self error: 'out of bounds' ].
+        self checkBounds: endIndex ifOutOfBounds: [ self error: 'out of bounds' ].
+        self _stringSliceFrom: startIndex to: endIndex
+    ]
 
     basicAt: i [
         self _stringAt: i

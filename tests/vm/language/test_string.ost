@@ -1,26 +1,29 @@
 Tester new
     add: '(''abc'', ''123'') = ''abc123'''
-    test: [:x | ('abc', '123') = 'abc123' ];
+    test: [ ('abc', '123') = 'abc123' ];
+
+    add: 'String>>copy'
+    test: [| s | s := 'abc'. s = s copy ];
 
     add: '((''abc'' at: 0) codePoint) = 97'
-    test: [:x | (('abc' at: 0) codePoint) = 97 ];
+    test: [ (('abc' at: 0) codePoint) = 97 ];
 
     add: '(foo := ''abc''. (foo at: 0) == (foo at: 0)) = true'
-    test: [:x || foo |
-               foo := 'abc'.
-               (foo at: 0) == (foo at: 0) ];
+    test: [| foo |
+        foo := 'abc'.
+        (foo at: 0) == (foo at: 0) ];
 
     add: '($a ~= 97) = true'
-    test: [:x | ($a ~= 97) = true ];
+    test: [ ($a ~= 97) = true ];
 
     add: '(#test ~= ''test'') = true'
-    test: [:x | (#test ~= 'test') = true ];
+    test: [ (#test ~= 'test') = true ];
 
     add: 'a := Character codePoint: 97. b := Character codePoint: 97. a == b => true'
-    test: [:x || a b |
-                a := Character codePoint: 97.
-                b := Character codePoint: 97.
-                a == b ];
+    test: [| a b |
+        a := Character codePoint: 97.
+        b := Character codePoint: 97.
+        a == b ];
 
     add: '$a == (Character codePoint: 97) = true'
     test: [:x | $a == (Character codePoint: 97) ];
