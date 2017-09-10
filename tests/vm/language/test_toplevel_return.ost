@@ -38,5 +38,4 @@ Tester new
         oc asArray = #('a' 'b' 'd' 'f').
     ];
 
-    run;
-    report.
+    yourself

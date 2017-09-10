@@ -319,6 +319,10 @@ class Interpreter:
     def primitive_block_argument_count(self, block):
         self.done(o.SmallInt(len(block.block.args)))
 
+    def primitive_block_return_to(self, block):
+        block = block._replace(retp=self.stack.top)
+        self.do_block(block, [])
+
     def primitive_block_value_with_arguments_(self, block, array):
         self.do_block(block, array)
 
