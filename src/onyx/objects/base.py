@@ -1,6 +1,4 @@
 
-from collections import namedtuple
-
 
 DEBUG_FMT = "<{0.__class__.__name__}> {0}"
 

@@ -7,14 +7,31 @@ from .base import Base
 from .klass import Class
 from .trait import Trait
 
-Array = type('Array', (list, Base), {})
+onyx_class_map = {
+    int: 'SmallInt',
+    str: 'String',
+    bytearray: 'ByteArray',
+    list: 'Array'
+}
+
+def SmallInt(v):
+    return int(v)
+
+def String(v):
+    return str(v)
+
+def ByteArray(v):
+    return bytearray(v)
+
+def Array(v):
+    return list(v)
+
+Symbol = type('Symbol', (str, Base), {})
+
 BlockClosure = type(
     'BlockClosure',
     (namedtuple('BlockClosure', 'env retp block'), Base),
     {})
-ByteArray = type('ByteArray', (bytearray, Base), {})
-SmallInt = type('SmallInt', (int, Base), {})
-String = type('String', (str, Base), {})
 Character = type('Character', (int, Base), {})
 Continuation = type(
     'Continuation',
@@ -24,13 +41,12 @@ Method = type(
     'Method',
     (namedtuple('Method', 'name args temps statements source_info'), Base),
     {})
-Symbol = type('Symbol', (str, Base), {})
 
 
 class Super(namedtuple('Super', 'receiver klass'), Base):
     @property
     def is_class(self):
-        return self.receiver.is_class
+        return getattr(self.receiver, 'is_class', False)
 
     def onyx_class(self, vm):
         return self.klass.super_class

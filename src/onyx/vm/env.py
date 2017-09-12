@@ -65,7 +65,7 @@ class MethodEnv(Env):
             return self.super_slot
         elif name in self.bindings:
             return super().lookup(name)
-        elif (not self.receiver.is_class and
+        elif (not getattr(self.receiver, 'is_class', True) and
               name in self.klass.all_instance_variables()):
             slot = self.klass.instance_variable_slot(name)
             return self.receiver.get_slot(slot)

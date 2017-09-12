@@ -151,19 +151,31 @@ class Interpreter:
         else:
             execute(message.selector, value, [])
 
+    def deref_value(self, v):
+        if hasattr(v, 'deref'):
+            return v.deref()
+        return v
+
+    def get_onyx_class(self, v):
+        if hasattr(v, 'onyx_class'):
+            return v.onyx_class(self)
+        cls_name = o.onyx_class_map.get(type(v))
+        return self.core_lookup(cls_name)
+
     def do_message_send(self, selector, receiver, args):
-        receiver_class = receiver.onyx_class(self)
-        result = receiver_class.lookup_method(self, selector, receiver.is_class)
+        receiver_class = self.get_onyx_class(receiver)
+        is_class = getattr(receiver, 'is_class', False)
+        result = receiver_class.lookup_method(self, selector, is_class)
         if not result.is_success:
             dnu_selector = o.get_symbol('doesNotUnderstand:')
-            result = receiver_class.lookup_method(self, dnu_selector, receiver.is_class)
+            result = receiver_class.lookup_method(self, dnu_selector, is_class)
             if not result.is_success:
                 raise Exception('dnu')
 
-            args = self.make_dnu_args(selector, o.Array([a.deref() for a in args]))
+            args = self.make_dnu_args(selector, o.Array([self.deref_value(a) for a in args]))
 
-        receiver = receiver.deref()
-        args = [a.deref() for a in args]
+        receiver = self.deref_value(receiver)
+        args = [self.deref_value(a) for a in args]
         self.env = self.make_method_env(result.method, args, receiver, result.cls)
         self.retp = self.stack.top
         self.doing(result.method.statements)
@@ -396,7 +408,7 @@ class Interpreter:
         self.done(o.String(n))
 
     def primitive_object_class(self, obj):
-        self.done(obj.onyx_class(self))
+        self.done(self.get_onyx_class(obj))
 
     def primitive_object_debug(self, obj):
         obj.debug()
