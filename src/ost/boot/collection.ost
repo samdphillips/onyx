@@ -167,7 +167,7 @@ Trait named: TSequencedReadableCollection [
 
     at: index [
         self at: index
-             ifAbsent: [ self error: 'out of bounds' ]
+             ifAbsent: [ self error: 'out of bounds: ', index printString ]
     ]
 
     at: index ifAbsent: exceptionBlock [
@@ -194,8 +194,12 @@ Trait named: TSequencedReadableCollection [
 
     copyFrom: start to: end [
         | size new |
-        self checkBounds: start ifOutOfBounds: [ self error: 'start out of bounds' ].
-        self checkBounds: end ifOutOfBounds: [ self error: 'end out of bounds' ].
+        self checkBounds: start
+            ifOutOfBounds:
+                [ self error: 'start out of bounds: ', start printString ].
+        self checkBounds: end
+            ifOutOfBounds:
+                [ self error: 'end out of bounds: ', end printString ].
 
         size := end - start + 1.
         new := self species new: size.
@@ -206,8 +210,12 @@ Trait named: TSequencedReadableCollection [
     ]
 
     copyReplaceFrom: start to: end with: replacementElements [
-        self checkBounds: start ifOutOfBounds: [ self error: 'start out of bounds' ].
-        self checkBounds: end ifOutOfBounds: [ self error: 'end out of bounds' ].
+        self checkBounds: start
+            ifOutOfBounds:
+                [ self error: 'start out of bounds: ', start printString ].
+        self checkBounds: end
+            ifOutOfBounds:
+                [ self error: 'end out of bounds: ', end printString ].
 
         (start = 0 and: [ end = self lastIndex ])
             ifTrue: [ ^ replacementElements ].
@@ -315,7 +323,9 @@ Trait named: TSequencedCollection [
     "
 
     at: index put: anObject [
-        self checkBounds: index ifOutOfBounds: [ self error: 'out of bounds' ].
+        self checkBounds: index
+            ifOutOfBounds:
+                [ self error: 'out of bounds: ', index printString ].
         self basicAt: index put: anObject
     ]
 
