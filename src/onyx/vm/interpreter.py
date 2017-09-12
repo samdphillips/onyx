@@ -455,6 +455,7 @@ class Interpreter:
     def primitive_string_display(self, s):
         import sys
         sys.stdout.write(s)
+        sys.stdout.flush()
         self.done(o.nil)
 
     def primitive_string_size(self, s):
