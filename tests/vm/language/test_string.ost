@@ -1,6 +1,7 @@
 Tester new
     add: '(''abc'', ''123'') = ''abc123'''
-    test: [ ('abc', '123') = 'abc123' ];
+    test: [ 'abc', '123' ]
+    result: 'abc123';
 
     add: 'String>>#copy'
     test: [| s | s := 'abc'. s = s copy ];
@@ -24,10 +25,10 @@ Tester new
     add: '((''abc'' at: 0) codePoint) = 97'
     test: [ (('abc' at: 0) codePoint) = 97 ];
 
-    add: '(foo := ''abc''. (foo at: 0) == (foo at: 0)) = true'
+    add: '(foo := ''abc''. (foo at: 0) = (foo at: 0)) = true'
     test: [| foo |
         foo := 'abc'.
-        (foo at: 0) == (foo at: 0) ];
+        (foo at: 0) = (foo at: 0) ];
 
     add: '($a ~= 97) = true'
     test: [ ($a ~= 97) = true ];
@@ -35,36 +36,36 @@ Tester new
     add: '(#test ~= ''test'') = true'
     test: [ (#test ~= 'test') = true ];
 
-    add: 'a := Character codePoint: 97. b := Character codePoint: 97. a == b => true'
+    add: 'a := Character codePoint: 97. b := Character codePoint: 97. a = b => true'
     test: [| a b |
         a := Character codePoint: 97.
         b := Character codePoint: 97.
-        a == b ];
+        a = b ];
 
-    add: '$a == (Character codePoint: 97) = true'
-    test: [:x | $a == (Character codePoint: 97) ];
+    add: '$a = (Character codePoint: 97) = true'
+    test: [ $a = (Character codePoint: 97) ];
 
-    add: '(''a'' at: 0) == (Character codePoint: 97) = true'
-    test: [:x | ('a' at: 0) == (Character codePoint: 97) ];
+    add: '(''a'' at: 0) = (Character codePoint: 97) = true'
+    test: [ ('a' at: 0) = (Character codePoint: 97) ];
 
-    add: '(#($a) at: 0) == (Character codePoint: 97) = true'
-    test: [:x | (#($a) at: 0) == (Character codePoint: 97) ];
+    add: '(#($a) at: 0) = (Character codePoint: 97) = true'
+    test: [ (#($a) at: 0) = (Character codePoint: 97) ];
 
-    add: '($a == $b) = false'
-    test: [:x | ($a == $b) not ];
+    add: '($a = $b) = false'
+    test: [ ($a = $b) not ];
 
     add: '($  codePoint) = 32'
-    test: [:x | ($  codePoint) = 32 ];
+    test: [ ($  codePoint) = 32 ];
 
-    add: '($a asLowercase == $a) = true'
-    test: [:x | ($a asLowercase == $a) = true ];
+    add: '($a asLowercase = $a) = true'
+    test: [ ($a asLowercase = $a) = true ];
 
-    add: '($A asLowercase == $a) = true'
-    test: [:x | ($A asLowercase == $a) = true ];
+    add: '($A asLowercase = $a) = true'
+    test: [ ($A asLowercase = $a) = true ];
 
-    add: '($  asLowercase == $ ) = true'
-    test: [:x | ($  asLowercase == $ ) = true ];
+    add: '($  asLowercase = $ ) = true'
+    test: [ ($  asLowercase = $ ) = true ];
 
     add: '($A asString) = ''A'''
-    test: [:x | ($A asString) = 'A' ];
+    test: [ ($A asString) = 'A' ];
     yourself

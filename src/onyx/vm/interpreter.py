@@ -392,6 +392,9 @@ class Interpreter:
         v = o.Array(v)
         self.done(v)
 
+    def primitive_number_print_string(self, n):
+        self.done(o.String(n))
+
     def primitive_object_class(self, obj):
         self.done(obj.onyx_class(self))
 
@@ -400,7 +403,7 @@ class Interpreter:
         self.done(obj)
 
     def primitive_object_equal_(self, a, b):
-        self.done(o.onyx_bool(a == b and a.__class__ == b.__class__))
+        self.done(o.onyx_bool(a is b))
 
     def primitive_object_halt(self, o):
         self.halted = True
@@ -426,6 +429,9 @@ class Interpreter:
         else:
             v = a >> b
         self.done(o.SmallInt(v))
+
+    def primitive_small_int_equal_(self, a, b):
+        self.done(o.onyx_bool(a == b))
 
     def primitive_small_int_lt_(self, a, b):
         self.done(o.onyx_bool(a < b))

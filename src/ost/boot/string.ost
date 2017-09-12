@@ -17,6 +17,11 @@ Object subclass: Character [
         self _characterCodePoint
     ]
 
+    = anObject [
+        self class = anObject class
+            and: [ self codePoint = anObject codePoint ]
+    ]
+
     display [
         self asString display
     ]

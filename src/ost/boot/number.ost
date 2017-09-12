@@ -20,8 +20,8 @@ Object subclass: Number [
 
     isNumber [ true ]
 
-    asString [
-        self _numberAsString
+    printString [
+        self _numberPrintString
     ]
 
     negated [
@@ -31,6 +31,10 @@ Object subclass: Number [
 
 Number subclass: SmallInt [
     isSmallInt [ true ]
+
+    equalToSmallInt: aNumber [
+        self _smallIntEqual: aNumber
+    ]
 
     addToSmallInt: aNumber [
         aNumber _smallIntAdd: self
@@ -50,6 +54,10 @@ Number subclass: SmallInt [
 
     ltToSmallInt: aNumber [
         aNumber _smallIntLt: self
+    ]
+
+    = aNumber [
+        aNumber equalToSmallInt: self
     ]
 
     + aNumber [
