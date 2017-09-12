@@ -35,7 +35,8 @@ Tester new
     test: [:g || oc |
         oc := OrderedCollection new.
         g baz: oc.
-        oc asArray = #('a' 'b' 'd' 'f').
-    ];
+        oc asArray
+    ]
+    result: #('a' 'b' 'd' 'f');
 
     yourself
