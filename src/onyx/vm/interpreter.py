@@ -164,7 +164,7 @@ class Interpreter:
 
         receiver = receiver.deref()
         args = [a.deref() for a in args]
-        self.env = self.make_method_env(result.method, args, receiver, result.klass)
+        self.env = self.make_method_env(result.method, args, receiver, result.cls)
         self.retp = self.stack.top
         self.doing(result.method.statements)
 

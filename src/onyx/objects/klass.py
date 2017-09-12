@@ -1,31 +1,43 @@
 
-from collections import namedtuple
+import attr
 
 from .base import Base
 from .object import Object
 
-lookup_result = namedtuple('lookup_result', 'is_success klass method')
 
-def success(klass, method):
-    return lookup_result(True, klass, method)
+@attr.s(slots=True, frozen=True)
+class LookupResult:
+    is_success = attr.ib()
+    cls = attr.ib()
+    method = attr.ib()
 
-def failure():
-    return lookup_result(False, None, None)
+    @classmethod
+    def success(cls, onyx_cls, method):
+        return cls(True, onyx_cls, method)
+
+    @classmethod
+    def failure(cls):
+        return cls(False, None, None)
 
 
-_class_fields = """
-name super_class
-instance_variables class_variables
-trait method_dict class_method_dict
-"""
-class Class(namedtuple('Class', _class_fields), Base):
+@attr.s(slots=True)
+class Class(Base):
     is_class = True
+
+    name = attr.ib()
+    super_class = attr.ib()
+    instance_variables = attr.ib()
+    class_variables = attr.ib()
+    trait = attr.ib()
+    method_dict = attr.ib()
+    class_method_dict = attr.ib()
 
     def onyx_class(self, vm):
         return self
 
     def merge_trait(self, trait):
-        return self._replace(trait=trait)
+        self.trait = trait
+        return self
 
     def all_instance_variables(self):
         if self.super_class:
@@ -44,19 +56,19 @@ class Class(namedtuple('Class', _class_fields), Base):
 
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:
-            return success(self, self.method_dict[selector])
+            return LookupResult.success(self, self.method_dict[selector])
         elif self.trait and selector in self.trait.method_dict:
-            return success(self, self.trait.method_dict[selector])
+            return LookupResult.success(self, self.trait.method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_instance_method(selector)
         else:
-            return failure()
+            return LookupResult.failure()
 
     def lookup_class_method(self, vm, selector):
         if selector in self.class_method_dict:
-            return success(self, self.class_method_dict[selector])
+            return LookupResult.success(self, self.class_method_dict[selector])
         elif self.trait and selector in self.trait.class_method_dict:
-            return success(self, self.trait.class_method_dict[selector])
+            return LookupResult.success(self, self.trait.class_method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_class_method(vm, selector)
         else:
