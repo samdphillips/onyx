@@ -2,6 +2,8 @@
 from collections import namedtuple
 
 
+DEBUG_FMT = "<{0.__class__.__name__}> {0}"
+
 class Base:
     is_class = False
 
@@ -13,4 +15,4 @@ class Base:
         return self
 
     def debug(self):
-        print(self.__class__.__name__)
+        print(DEBUG_FMT.format(self))
