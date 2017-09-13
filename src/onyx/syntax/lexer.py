@@ -1,4 +1,5 @@
 
+import attr
 import re
 
 from collections import namedtuple
@@ -12,11 +13,10 @@ EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 # XXX: InvalidInput
 # XXX: AmbiguousToken
 
-
+@attr.s
 class FileSource:
-    def __init__(self, file_name):
-        self.file_name = file_name
-        self.file = None
+    file_name = attr.ib()
+    file = attr.ib(default=None)
 
     def name(self):
         return self.file_name
@@ -32,7 +32,17 @@ class FileSource:
         return data
 
 
-class SourceInfo(namedtuple('SourceInfo', 'source start end')):
+@attr.s
+class SourceInfo:
+    source = attr.ib()
+    start = attr.ib(validator=attr.validators.instance_of(int))
+    end = attr.ib(validator=attr.validators.instance_of(int))
+
+    @end.validator
+    def check(self, attribute, value):
+        if value < self.start:
+            raise ValueError('end is less than start')
+
     def __add__(self, other):
         assert self.source == other.source
         return SourceInfo(self.source, self.start, other.end)
@@ -50,8 +60,13 @@ class SourceInfo(namedtuple('SourceInfo', 'source start end')):
         return '{}\n    {}'.format(self.source_name(), self.source_text())
 
 
-class Token(namedtuple('Token', 'type value source_info')):
-    def __eq__(self, other):
+@attr.s
+class Token:
+    type = attr.ib(validator=attr.validators.instance_of(str))
+    value = attr.ib()
+    source_info = attr.ib(default=None)
+
+    def matches(self, other):
         return self.type == other.type and self.value == other.value
 
 
@@ -95,12 +110,11 @@ def scan_string(scanner, lexer):
             return scanner.make_token(o.String(''.join(s)), source_info)
 
 
+@attr.s
 class Match:
+    scanner = attr.ib()
+    re_match = attr.ib()
     is_success = True
-
-    def __init__(self, scanner, re_match):
-        self.scanner = scanner
-        self.re_match = re_match
 
     def scan(self, lexer):
         return self.scanner.scan(lexer, self.re_match)
@@ -109,15 +123,15 @@ class Match:
         return len(self.re_match.group())
 
 
+@attr.s
 class Scanner:
-    def __init__(self, pattern, token_type, convert=None, scan_func=None):
-        self.re = re.compile(pattern)
-        self.token_type = token_type
-        self.convert = convert or extract_group(0)
-        self.scan_func = scan_func
+    pattern = attr.ib(convert=re.compile)
+    token_type = attr.ib(validator=attr.validators.instance_of(str))
+    convert = attr.ib(default=extract_group(0))
+    scan_func = attr.ib(default=None)
 
     def match(self, s):
-        m = self.re.match(s)
+        m = self.pattern.match(s)
         if m:
             return Match(self, m)
         return EmptyMatch

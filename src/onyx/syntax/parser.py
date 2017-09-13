@@ -119,9 +119,9 @@ class Parser:
             while self.current_is_oneof('blockarg'):
                 args.append(self.current_token().value)
                 self.step()
-            if self.current_token() == Token('binsel', '|', None):
+            if self.current_token().matches(Token('binsel', '|')):
                 self.step()
-            elif self.current_token() == Token('binsel', '||', None):
+            elif self.current_token().matches(Token('binsel', '||')):
                 source_info = self.current_token().source_info
                 self.step()
                 self.push_token(Token('binsel', '|', source_info))
@@ -156,11 +156,11 @@ class Parser:
         rcvr = ast.Send(source_info,
                         ast.Ref(source_info, o.get_symbol('Array')),
                         ast.Message(source_info, o.get_symbol('new:'),
-                                    [ast.Const(source_info, o.SmallInt(size))]))
+                                    [ast.Const(source_info, size)]))
         if size == 0:
             return rcvr
         messages = [ast.Message(source_info, o.get_symbol('at:put:'),
-                                [ast.Const(source_info, o.SmallInt(i)), e])
+                                [ast.Const(source_info, i), e])
                     for i, e in enumerate(statements)]
         messages.append(ast.Message(source_info, o.get_symbol('yourself'), []))
         return ast.Send(source_info, rcvr, ast.Cascade(source_info, messages))
@@ -312,13 +312,13 @@ class Parser:
 
     def parse_vars(self):
         vars = []
-        if self.current_token() == Token('binsel', '|', None):
+        if self.current_token().matches(Token('binsel', '|')):
             self.step()
             while self.current_is_oneof('id'):
                 vars.append(self.current_token().value)
                 self.step()
             self.expect('binsel', '|')
-        elif self.current_token() == Token('binsel', '||', None):
+        elif self.current_token().matches(Token('binsel', '||')):
             self.step()
         return vars
 
@@ -392,12 +392,12 @@ class Parser:
             if self.current_is_oneof('lsq'):
                 self.push_token(token)
                 self.parse_method(body)
-            elif self.current_token() == Token('kw', 'uses:', None):
+            elif self.current_token().matches(Token('kw', 'uses:')):
                 if token.value != body.get('name'):
                     self.parse_error('Trait clause name does not match')
                 self.step()
                 body['trait_expr'] = self.parse_trait_clause()
-            elif self.current_token() == Token('id', 'class', None):
+            elif self.current_token().matches(Token('id', 'class')):
                 if token.value != body.get('name'):
                     parse_error("Meta name doesn't match")
                 self.step()
@@ -467,7 +467,7 @@ class Parser:
             name.append(self.current_token().value)
             self.step()
 
-            if self.current_token() == Token('rcurl', '}', None):
+            if self.current_token().matches(Token('rcurl', '}')):
                 si = start + self.current_token().source_info
                 self.step()
                 return ast.ModuleName(si, '.'.join(name))
@@ -481,14 +481,14 @@ class Parser:
         return ast.ModuleImport(start + name.source_info, name)
 
     def parse_module_element(self):
-        if self.current_token() == Token('kw', 'import:', None):
+        if self.current_token().matches(Token('kw', 'import:')):
             return self.parse_import()
-        elif self.current_token() == Token('id', 'Trait', None):
+        elif self.current_token().matches(Token('id', 'Trait')):
             return self.parse_trait()
         elif self.current_is_oneof('id'):
             id = self.current_token()
             self.step()
-            if self.current_token() == Token('kw', 'subclass:', None):
+            if self.current_token().matches(Token('kw', 'subclass:')):
                 self.push_token(id)
                 return self.parse_class()
             self.push_token(id)
