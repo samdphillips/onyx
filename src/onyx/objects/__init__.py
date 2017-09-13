@@ -1,4 +1,5 @@
 
+import attr
 from collections import namedtuple
 from weakref import WeakValueDictionary
 
@@ -30,7 +31,7 @@ BlockClosure = type(
     (namedtuple('BlockClosure', 'env retp block'), Base),
     {})
 
-Character = type('Character', (int, Base), {})
+
 Continuation = type(
     'Continuation',
     (namedtuple('Continuation', 'frames'), Base),
@@ -39,6 +40,11 @@ Method = type(
     'Method',
     (namedtuple('Method', 'name args temps statements source_info'), Base),
     {})
+
+
+@attr.s(frozen=True)
+class Character(Base):
+    codepoint = attr.ib(validator=attr.validators.instance_of(int))
 
 
 class Super(namedtuple('Super', 'receiver klass'), Base):
@@ -86,3 +92,11 @@ def get_symbol(name):
         s = Symbol(name)
         _symbols[name] = s
     return s
+
+_chars = WeakValueDictionary()
+def get_character(codepoint):
+    c = _chars.get(codepoint)
+    if not c:
+        c = Character(codepoint)
+        _chars[codepoint] = c
+    return c

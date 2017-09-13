@@ -77,7 +77,7 @@ def extract_group(n):
 
 
 def make_character(match):
-    return o.Character(ord(match.group(1)))
+    return o.get_character(ord(match.group(1)))
 
 
 def make_symbol(match):

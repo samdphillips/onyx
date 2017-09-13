@@ -1,6 +1,7 @@
 
 from operator import methodcaller
 
+import onyx.objects as o
 
 def lex_string(s, lex_func):
     import io
@@ -33,7 +34,7 @@ test_lex_binsel = _test_raw_lex1('+', 'binsel', '+')
 test_lex_int = _test_raw_lex1('1234', 'int', 1234)
 test_lex_negative = _test_raw_lex1('-1', 'int', -1)
 test_lex_binsel_sub = _test_raw_lex1('-', 'binsel', '-')
-test_lex_character = _test_raw_lex1('$a', 'character', ord('a'))
+test_lex_character = _test_raw_lex1('$a', 'character', o.get_character(ord('a')))
 test_lex_caret = _test_raw_lex1('^', 'caret')
 test_lex_comment = _test_raw_lex1('"comment"', 'comment', 'comment')
 test_lex_comment_long = _test_raw_lex1('"' + 'Aa' * 2500 + '"', 'comment')

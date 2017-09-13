@@ -364,13 +364,13 @@ class Interpreter:
         self.done(len(barray))
 
     def primitive_character_as_lowercase(self, c):
-        self.done(o.Character(ord(chr(c).lower())))
+        self.done(o.get_character(ord(chr(c.codepoint).lower())))
 
     def primitive_character_as_string(self, c):
-        self.done(o.String(chr(c)))
+        self.done(o.String(chr(c.codepoint)))
 
     def primitive_character_code_point(self, c):
-        self.done(int(c))
+        self.done(c.codepoint)
 
     def primitive_character_code_point_(self, _, i):
         self.done(o.Character(i))

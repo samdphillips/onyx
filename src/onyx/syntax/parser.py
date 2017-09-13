@@ -171,9 +171,7 @@ class Parser:
         elements = []
         while self.current_is_oneof('id', 'string', 'int', 'symbol', 'character'):
             v = self.current_token().value
-            if self.current_is_oneof('character'):
-                v = o.Character(v)
-            elif self.current_is_oneof('symbol', 'id'):
+            if self.current_is_oneof('symbol', 'id'):
                 v = o.Symbol(v)
             elements.append(v)
             self.step()
