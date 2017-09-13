@@ -14,9 +14,6 @@ onyx_class_map = {
     list: 'Array'
 }
 
-def SmallInt(v):
-    return int(v)
-
 def String(v):
     return str(v)
 
@@ -32,6 +29,7 @@ BlockClosure = type(
     'BlockClosure',
     (namedtuple('BlockClosure', 'env retp block'), Base),
     {})
+
 Character = type('Character', (int, Base), {})
 Continuation = type(
     'Continuation',

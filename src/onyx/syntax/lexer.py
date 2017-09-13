@@ -85,7 +85,7 @@ def make_symbol(match):
 
 
 def convert_int(match):
-    return o.SmallInt(match.group())
+    return int(match.group())
 
 
 def scan_string(scanner, lexer):

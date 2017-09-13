@@ -326,10 +326,10 @@ class Interpreter:
         self.done(o.Array([o.nil] * size))
 
     def primitive_array_size(self, array):
-        self.done(o.SmallInt(len(array)))
+        self.done(len(array))
 
     def primitive_block_argument_count(self, block):
-        self.done(o.SmallInt(len(block.block.args)))
+        self.done(len(block.block.args))
 
     def primitive_block_return_to(self, block):
         block = block._replace(retp=self.stack.top)
@@ -351,7 +351,7 @@ class Interpreter:
         self.do_block(block, [])
 
     def primitive_byte_array_at_(self, barray, index):
-        self.done(o.SmallInt(barray[index]))
+        self.done(barray[index])
 
     def primitive_byte_array_at_put_(self, barray, index, value):
         barray[index] = value
@@ -361,7 +361,7 @@ class Interpreter:
         self.done(o.ByteArray(size))
 
     def primitive_byte_array_size(self, barray):
-        self.done(o.SmallInt(len(barray)))
+        self.done(len(barray))
 
     def primitive_character_as_lowercase(self, c):
         self.done(o.Character(ord(chr(c).lower())))
@@ -370,7 +370,7 @@ class Interpreter:
         self.done(o.String(chr(c)))
 
     def primitive_character_code_point(self, c):
-        self.done(o.SmallInt(c))
+        self.done(int(c))
 
     def primitive_character_code_point_(self, _, i):
         self.done(o.Character(i))
@@ -430,17 +430,17 @@ class Interpreter:
         self.do_block(abort_block, [value])
 
     def primitive_small_int_add_(self, a, b):
-        self.done(o.SmallInt(a + b))
+        self.done(a + b)
 
     def primitive_small_int_bit_and_(self, a, b):
-        self.done(o.SmallInt(a & b))
+        self.done(a & b)
 
     def primitive_small_int_bit_shift_(self, a, b):
         if b > 0:
             v = a << b
         else:
             v = a >> b
-        self.done(o.SmallInt(v))
+        self.done(v)
 
     def primitive_small_int_equal_(self, a, b):
         self.done(o.onyx_bool(a == b))
@@ -449,13 +449,13 @@ class Interpreter:
         self.done(o.onyx_bool(a < b))
 
     def primitive_small_int_mul_(self, a, b):
-        self.done(o.SmallInt(a * b))
+        self.done(a * b)
 
     def primitive_small_int_quo_(self, a, b):
-        self.done(o.SmallInt(a // b))
+        self.done(a // b)
 
     def primitive_small_int_sub_(self, a, b):
-        self.done(o.SmallInt(a - b))
+        self.done(a - b)
 
     def primitive_string_at_(self, s, i):
         c = ord(s[i])
@@ -471,7 +471,7 @@ class Interpreter:
         self.done(o.nil)
 
     def primitive_string_size(self, s):
-        self.done(o.SmallInt(len(s)))
+        self.done(len(s))
 
     def primitive_string_slice_from_to_(self, s, start, end):
         self.done(o.String(s[start:end + 1]))
