@@ -143,7 +143,7 @@ class Parser:
             self.step()
         source_info += self.current_token().source_info
         self.expect('rsq')
-        return ast.Const(source_info, o.ByteArray(elements))
+        return ast.Const(source_info, bytearray(elements))
 
     def parse_expr_array(self):
         source_info = self.current_token().source_info
@@ -174,7 +174,7 @@ class Parser:
             self.step()
         source_info += self.current_token().source_info
         self.expect('rpar')
-        return ast.Const(source_info, o.Array(elements))
+        return ast.Const(source_info, elements)
 
     def parse_primary(self):
         if self.current_is_oneof('string', 'int', 'symbol', 'character'):

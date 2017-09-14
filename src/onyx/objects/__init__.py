@@ -15,14 +15,6 @@ onyx_class_map = {
     list: 'Array'
 }
 
-def String(v):
-    return str(v)
-
-def ByteArray(v):
-    return bytearray(v)
-
-def Array(v):
-    return list(v)
 
 Symbol = type('Symbol', (str, Base), {})
 

@@ -172,7 +172,7 @@ class Interpreter:
             if not result.is_success:
                 raise Exception('dnu')
 
-            args = self.make_dnu_args(selector, o.Array([self.deref_value(a) for a in args]))
+            args = self.make_dnu_args(selector, [self.deref_value(a) for a in args])
 
         receiver = self.deref_value(receiver)
         args = [self.deref_value(a) for a in args]
@@ -323,7 +323,7 @@ class Interpreter:
         self.done(value)
 
     def primitive_array_new_(self, klass, size):
-        self.done(o.Array([o.nil] * size))
+        self.done([o.nil] * size)
 
     def primitive_array_size(self, array):
         self.done(len(array))
@@ -358,7 +358,7 @@ class Interpreter:
         self.done(value)
 
     def primitive_byte_array_new_(self, _cls, size):
-        self.done(o.ByteArray(size))
+        self.done(bytearray(size))
 
     def primitive_byte_array_size(self, barray):
         self.done(len(barray))
@@ -367,7 +367,7 @@ class Interpreter:
         self.done(o.get_character(ord(chr(c.codepoint).lower())))
 
     def primitive_character_as_string(self, c):
-        self.done(o.String(chr(c.codepoint)))
+        self.done(chr(c.codepoint))
 
     def primitive_character_code_point(self, c):
         self.done(c.codepoint)
@@ -401,7 +401,6 @@ class Interpreter:
         if mark in self.marks:
             v.append(self.marks[mark])
         v += self.stack.find_marks(mark, prompt_tag)
-        v = o.Array(v)
         self.done(v)
 
     def primitive_number_print_string(self, n):
@@ -462,7 +461,7 @@ class Interpreter:
         self.done(o.Character(c))
 
     def primitive_string_concatenate_(self, a, b):
-        self.done(o.String(a + b))
+        self.done(a + b)
 
     def primitive_string_display(self, s):
         import sys
@@ -474,7 +473,7 @@ class Interpreter:
         self.done(len(s))
 
     def primitive_string_slice_from_to_(self, s, start, end):
-        self.done(o.String(s[start:end + 1]))
+        self.done(s[start:end + 1])
 
     def primitive_symbol_as_string(self, symbol):
         self.done(o.String(symbol))

@@ -107,7 +107,7 @@ def scan_string(scanner, lexer):
             lexer.advance_buffer(1)
             end = lexer.position
             source_info = SourceInfo(lexer.source, start, end)
-            return scanner.make_token(o.String(''.join(s)), source_info)
+            return scanner.make_token(''.join(s), source_info)
 
 
 @attr.s
