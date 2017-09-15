@@ -18,10 +18,14 @@ onyx_class_map = {
 
 Symbol = type('Symbol', (str, Base), {})
 
-BlockClosure = type(
-    'BlockClosure',
-    (namedtuple('BlockClosure', 'env retp block'), Base),
-    {})
+
+@attr.s(frozen=True)
+class BlockClosure(Base):
+    env = attr.ib()
+    retp = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(int))
+    )
+    block = attr.ib()
 
 
 Continuation = type(

@@ -1,4 +1,5 @@
 
+import attr
 import io
 import os.path
 
@@ -332,7 +333,7 @@ class Interpreter:
         self.done(len(block.block.args))
 
     def primitive_block_return_to(self, block):
-        block = block._replace(retp=self.stack.top)
+        block = attr.evolve(block, retp=self.stack.top)
         self.do_block(block, [])
 
     def primitive_block_value_with_arguments_(self, block, array):
