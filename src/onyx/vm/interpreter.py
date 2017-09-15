@@ -376,7 +376,7 @@ class Interpreter:
         self.done(o.Character(i))
 
     def primitive_class_name(self, klass):
-        self.done(o.String(klass.name))
+        self.done(str(klass.name))
 
     def primitive_class_superclass(self, klass):
         self.done(klass.super_class)
@@ -404,7 +404,7 @@ class Interpreter:
         self.done(v)
 
     def primitive_number_print_string(self, n):
-        self.done(o.String(n))
+        self.done(str(n))
 
     def primitive_object_class(self, obj):
         self.done(self.get_onyx_class(obj))
@@ -476,7 +476,7 @@ class Interpreter:
         self.done(s[start:end + 1])
 
     def primitive_symbol_as_string(self, symbol):
-        self.done(o.String(symbol))
+        self.done(str(symbol))
 
     def primitive_system_is_broken_(self, obj, msg):
         # XXX: make better
