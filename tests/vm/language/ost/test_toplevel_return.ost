@@ -22,6 +22,25 @@ Object subclass: Gar [
     ]
 ]
 
+Object subclass: Bar [
+    | trace |
+
+    initialize [
+        trace := OrderedCollection new.
+    ]
+
+    trace [ trace asArray ]
+
+    run [
+        | a b |
+        trace add: 'a'.
+        a := [ ^ trace add: 'b' ].
+        b := [ a returnTo. trace add: 'c' ].
+        b value.
+        a value.
+        trace add: 'd'
+    ]
+]
 Tester new
     setup: [ Gar new ];
 
@@ -38,5 +57,21 @@ Tester new
         oc asArray
     ]
     result: #('a' 'b' 'd' 'f');
+
+    add: 'named block'
+    test: [| oc a b |
+        oc := OrderedCollection new.
+        a := [ ^ oc add: 'a' ].
+        b := [ a returnTo. oc add: 'b' ].
+        b value.
+        a returnTo.
+        oc add: 'c'.
+        oc asArray
+    ]
+    result: #('a' 'b' 'a' 'c');
+
+    add: 'named block value'
+    test: [ Bar new initialize; run; trace ]
+    result: #('a' 'b' 'c' 'b');
 
     yourself
