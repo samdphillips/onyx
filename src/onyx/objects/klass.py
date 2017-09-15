@@ -20,7 +20,7 @@ class LookupResult:
         return cls(False, None, None)
 
 
-@attr.s(slots=True)
+@attr.s(slots=True, frozen=True)
 class Class(Base):
     is_class = True
 
@@ -28,7 +28,6 @@ class Class(Base):
     super_class = attr.ib()
     instance_variables = attr.ib()
     class_variables = attr.ib()
-    trait = attr.ib()
     method_dict = attr.ib()
     class_method_dict = attr.ib()
 
@@ -36,7 +35,13 @@ class Class(Base):
         return self
 
     def merge_trait(self, trait):
-        self.trait = trait
+        for k,v in trait.method_dict.items():
+            if k not in self.method_dict:
+                self.method_dict[k] = v
+
+        for k,v in trait.class_method_dict.items():
+            if k not in self.class_method_dict:
+                self.class_method_dict[k] = v
         return self
 
     def all_instance_variables(self):
@@ -57,8 +62,6 @@ class Class(Base):
     def lookup_instance_method(self, selector):
         if selector in self.method_dict:
             return LookupResult.success(self, self.method_dict[selector])
-        elif self.trait and selector in self.trait.method_dict:
-            return LookupResult.success(self, self.trait.method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_instance_method(selector)
         else:
@@ -67,8 +70,6 @@ class Class(Base):
     def lookup_class_method(self, vm, selector):
         if selector in self.class_method_dict:
             return LookupResult.success(self, self.class_method_dict[selector])
-        elif self.trait and selector in self.trait.class_method_dict:
-            return LookupResult.success(self, self.trait.class_method_dict[selector])
         elif self.super_class:
             return self.super_class.lookup_class_method(vm, selector)
         else:
