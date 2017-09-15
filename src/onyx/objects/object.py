@@ -1,29 +1,28 @@
 
-from collections import namedtuple
+import attr
 
 from .base import Base
 from .intrinsic import nil
 
+@attr.s
 class Slot:
-    def __init__(self, value):
-        self.value = value
+    value = attr.ib()
 
     def assign(self, value):
         self.value = value
 
-class Object(namedtuple('Object', 'klass slots'), Base):
+
+@attr.s(frozen=True, slots=True, cmp=False, hash=False)
+class Object(Base):
+    cls = attr.ib()
+    slots = attr.ib()
+
     @classmethod
-    def new_instance(cls, klass, num_slots):
-        return cls(klass, [Slot(nil) for _ in range(num_slots)])
-
-    def __hash__(self):
-        return id(self)
-
-    def __eq__(self, other):
-        return hash(self) == hash(other)
+    def new_instance(cls, onyx_class, num_slots):
+        return cls(onyx_class, [Slot(nil) for _ in range(num_slots)])
 
     def onyx_class(self, vm):
-        return self.klass
+        return self.cls
 
     def get_slot(self, i):
         return self.slots[i]

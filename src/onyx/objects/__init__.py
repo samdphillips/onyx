@@ -6,6 +6,7 @@ from weakref import WeakValueDictionary
 
 from .base import Base
 from .klass import Class
+from .object import Object
 from .trait import Trait
 
 onyx_class_map = {
@@ -19,7 +20,7 @@ onyx_class_map = {
 Symbol = type('Symbol', (str, Base), {})
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, slots=True)
 class BlockClosure(Base):
     env = attr.ib()
     retp = attr.ib(
@@ -28,28 +29,27 @@ class BlockClosure(Base):
     block = attr.ib()
 
 
-Continuation = type(
-    'Continuation',
-    (namedtuple('Continuation', 'frames'), Base),
-    {})
-Method = type(
-    'Method',
-    (namedtuple('Method', 'name args temps statements source_info'), Base),
-    {})
+@attr.s(frozen=True, slots=True)
+class Continuation(Base):
+    frames = attr.ib()
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, slots=True)
 class Character(Base):
     codepoint = attr.ib(validator=attr.validators.instance_of(int))
 
 
-class Super(namedtuple('Super', 'receiver klass'), Base):
+@attr.s(frozen=True, slots=True)
+class Super(Base):
+    receiver = attr.ib()
+    cls = attr.ib()
+
     @property
     def is_class(self):
         return getattr(self.receiver, 'is_class', False)
 
     def onyx_class(self, vm):
-        return self.klass.super_class
+        return self.cls.super_class
 
     def deref(self):
         return self.receiver
@@ -88,6 +88,7 @@ def get_symbol(name):
         s = Symbol(name)
         _symbols[name] = s
     return s
+
 
 _chars = WeakValueDictionary()
 def get_character(codepoint):

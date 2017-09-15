@@ -10,10 +10,10 @@ def test_lookup_self_from_block():
 
 def test_lookup_super_from_block():
     from onyx.vm.env import BlockEnv, MethodEnv
-    klass = object()
+    cls = object()
     obj = object()
-    m_env = MethodEnv(klass, obj)
+    m_env = MethodEnv(cls, obj)
     env = BlockEnv(m_env)
     v = env.lookup('super').value
     assert v.receiver == obj
-    assert v.klass == klass
+    assert v.cls == cls

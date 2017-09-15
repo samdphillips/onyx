@@ -115,10 +115,7 @@ class Interpreter:
         return o.Continuation(frames)
 
     def make_method_dict(self, methods):
-        method_dict = {}
-        for m in methods:
-            method_dict[m.name] = o.Method(**m._asdict())
-        return method_dict
+        return {m.name: m for m in methods}
 
     def make_block_env(self, block_closure, args):
         env = BlockEnv(block_closure.env)
