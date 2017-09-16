@@ -217,8 +217,7 @@ class Interpreter:
         else:
             class_method_dict = {}
         cls_o = o.Class(cls.name, super_cls, cls.instance_vars,
-                        cls.meta.instance_vars, method_dict,
-                        class_method_dict)
+                        method_dict, class_method_dict)
         if cls.trait_expr is None:
             self.done(cls_o)
         else:

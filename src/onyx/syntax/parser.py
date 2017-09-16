@@ -363,8 +363,7 @@ class Parser:
 
     def parse_meta(self, body):
         self.expect('lsq')
-        vars = self.parse_vars()
-        meta = {'instance_vars': vars}
+        meta = {}
         while not self.current_is_oneof('rsq'):
             self.parse_meta_element(meta)
         self.expect('rsq')
@@ -428,7 +427,7 @@ class Parser:
         }
         self.parse_decl_body(body)
         if not body['meta']:
-            body['meta'] = ast.Meta(None, methods=[], instance_vars=[])
+            body['meta'] = ast.Meta(None, methods=[])
         return ast.Class(None, **body)
 
     def parse_trait(self):

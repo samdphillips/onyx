@@ -51,7 +51,7 @@ class Const(Node, namedtuple('Const', 'source_info value')):
 
 
 GlobalRef = ast_node('GlobalRef', 'name')
-Meta = ast_node('Meta', 'instance_vars methods')
+Meta = ast_node('Meta', 'methods')
 Method = ast_node('Method', 'name args temps statements')
 Message = ast_node('Message', 'selector args')
 ModuleImport = ast_node('ModuleImport', 'name')
