@@ -166,11 +166,17 @@ Object subclass: Trait [
     ]
 
     @ aCollection [
-        | trait |
+        | trait oldSelectors newSelectors |
         trait := self copy.
+        oldSelectors := OrderedCollection new: aCollection size.
+        newSelectors := OrderedCollection new: aCollection size.
+
         aCollection do: [:assoc |
-            trait rename: assoc key to: assoc value
+            oldSelectors add: assoc key.
+            newSelectors add: assoc value
         ].
+        self rename: oldSelectors to: newSelectors.
+
         trait
     ]
 
@@ -178,8 +184,8 @@ Object subclass: Trait [
         self _traitMerge: aTrait asTrait
     ]
 
-    rename: srcSelector to: destSelector [
-        self _traitRename: srcSelector to: destSelector
+    rename: srcSelectors to: destSelectors [
+        self _traitRename: srcSelectors asArray to: destSelectors asArray
     ]
 
     remove: aSelector [
