@@ -58,6 +58,9 @@ class UndefinedObject(Base):
     def __bool__(self):
         return False
 
+    def __repr__(self):
+        return 'nil'
+
 
 class _True(Base):
     def __bool__(self):
