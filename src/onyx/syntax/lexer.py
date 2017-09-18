@@ -85,7 +85,7 @@ def make_symbol(match):
 
 
 def convert_int(match):
-    return int(match.group())
+    return int(match.group().replace('_', ''))
 
 
 def convert_nrm_int(match):
@@ -96,7 +96,7 @@ def convert_nrm_int(match):
         sign = -1
 
     base = int(match.group(2))
-    number = match.group(3)
+    number = match.group(3).replace('_', '')
     return int(number, base=base) * sign
 
 
@@ -172,8 +172,8 @@ class Lexer:
         Scanner(r'([a-zA-Z_][a-zA-Z0-9]*)', 'id', make_symbol),
         Scanner(r':([a-zA-Z_][a-zA-Z0-9]*)', 'blockarg', extract_group(1)),
         Scanner(r'([a-zA-Z_][a-zA-Z0-9]*:)', 'kw', make_symbol),
-        Scanner(r'[+-]?\d+', 'int', convert_int),
-        Scanner(r'([+-]?)([2-9]|[12][0-9]|3[0-6])r(\w+)', 'int', convert_nrm_int),
+        Scanner(r'[+-]?[0-9_]+', 'int', convert_int),
+        Scanner(r'([+-]?)([2-9]|[12][0-9]|3[0-6])r([0-9a-zA-Z_]+)', 'int', convert_nrm_int),
         Scanner(r'([`~!@%&*+=|\\?/<>,-]+)', 'binsel', make_symbol),
         Scanner(r'\$(.)', 'character', make_character),
         Scanner(r'#([a-zA-Z_][a-zA-Z0-9]*)', 'symbol', make_symbol),
