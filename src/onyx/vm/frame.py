@@ -104,10 +104,10 @@ KAssign = frame_type('KAssign', 'name')
 KCascade = frame_type('KCascade', 'receiver_value messages')
 KMessage = frame_type('KMessage',
                       'execute',
-                      'selector',
+                      'message',
                       'receiver_value',
                       'arg_values',
-                      'arg_expressions')
+                      'next_arg')
 
 class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
     def has_tag(self, prompt_tag):

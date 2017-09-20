@@ -108,8 +108,9 @@ class ModuleName(Node):
     id = attr.ib()
 
 
+@attr.s(cmp=False)
 class PrimitiveMessage(Message):
-    pass
+    primitive = None
 
 
 @attr.s(cmp=False)

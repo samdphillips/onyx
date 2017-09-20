@@ -143,11 +143,10 @@ class Interpreter:
 
     def do_message_dispatch(self, execute, message, value):
         if len(message.args) > 0:
-            self.push_kmessage(message.args[0], execute, message.selector,
-                               value, [], message.args[1:])
+            self.push_kmessage(message.args[0], execute, message, value, [], 1)
             self.doing(message.args[0])
         else:
-            execute(message.selector, value, [])
+            execute(message, value, [])
 
     def deref_value(self, v):
         if hasattr(v, 'deref'):
@@ -160,17 +159,18 @@ class Interpreter:
         cls_name = o.onyx_class_map.get(type(v))
         return self.core_lookup(cls_name)
 
-    def do_message_send(self, selector, receiver, args):
+    def do_message_send(self, message, receiver, args):
         receiver_class = self.get_onyx_class(receiver)
         is_class = getattr(receiver, 'is_class', False)
-        result = receiver_class.lookup_method(self, selector, is_class)
+        result = receiver_class.lookup_method(self, message.selector, is_class)
         if not result.is_success:
             dnu_selector = o.get_symbol('doesNotUnderstand:')
             result = receiver_class.lookup_method(self, dnu_selector, is_class)
             if not result.is_success:
                 raise Exception('dnu')
 
-            args = self.make_dnu_args(selector, [self.deref_value(a) for a in args])
+            args = self.make_dnu_args(message.selector,
+                                      [self.deref_value(a) for a in args])
 
         receiver = self.deref_value(receiver)
         args = [self.deref_value(a) for a in args]
@@ -178,9 +178,13 @@ class Interpreter:
         self.retp = self.stack.top
         self.doing(result.method.statements)
 
-    def do_primitive(self, selector, receiver, args):
-        name = 'primitive_' + u.camel_to_snake(selector[1:])
-        primitive = getattr(self, name)
+    def do_primitive(self, message, receiver, args):
+        if message.primitive:
+            primitive = message.primitive
+        else:
+            name = 'primitive_' + u.camel_to_snake(message.selector[1:])
+            primitive = getattr(self, name)
+            message.primitive = primitive
         primitive(receiver, *args)
 
     def pushk(self, kcls, ast, *args):
@@ -287,14 +291,14 @@ class Interpreter:
 
     def continue_kmessage(self, k, value):
         arg_values = k.arg_values + [value]
-        if len(k.arg_expressions) > 0:
-            expression = k.arg_expressions[0]
-            arg_expressions = k.arg_expressions[1:]
-            self.pushk(k.__class__, expression, k.execute, k.selector,
-                       k.receiver_value, arg_values, arg_expressions)
+        if k.next_arg < len(k.message.args):
+            expression = k.message.args[k.next_arg]
+            next_arg = k.next_arg + 1
+            self.pushk(k.__class__, expression, k.execute, k.message,
+                       k.receiver_value, arg_values, next_arg)
             self.doing(expression)
         else:
-            k.execute(k.selector, k.receiver_value, arg_values)
+            k.execute(k.message, k.receiver_value, arg_values)
 
     def continue_kprompt(self, k, value):
         pass
