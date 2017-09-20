@@ -56,8 +56,7 @@ class Stack:
 
 class Frame:
     def do_continue(self, vm, value):
-        name = "continue_" + self.__class__.__name__.lower()
-        getattr(vm, name)(self, value)
+        getattr(vm, self.continue_name)(self, value)
 
     def has_tag(self, prompt_tag):
         return False
@@ -95,7 +94,7 @@ def frame_type(name, *fields):
     all_fields = _common_frame_fields + " " + ' '.join(fields)
     nt = namedtuple(name, all_fields)
     class _frame(nt, Frame):
-        pass
+        continue_name = "continue_" + name.lower()
     _frame.__name__ = name
     return _frame
 

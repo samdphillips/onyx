@@ -9,6 +9,7 @@ import onyx.utils as u
 @attr.s(cmp=False)
 class Node:
     source_info = attr.ib()
+    visit_name = None
 
     @property
     def fields(self):
@@ -19,8 +20,7 @@ class Node:
         return attr.evolve(self, *args, **kwargs)
 
     def visit(self, visitor, *args):
-        method_name = 'visit_' + u.camel_to_snake(self.__class__.__name__)
-        return getattr(visitor, method_name)(self, *args)
+        return getattr(visitor, self.visit_name)(self, *args)
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
@@ -28,12 +28,19 @@ class Node:
                      for x in self.fields)))
 
 
+def visitee(cls):
+    cls.visit_name = 'visit_' + u.camel_to_snake(cls.__name__)
+    return cls
+
+
+@visitee
 @attr.s(cmp=False)
 class Assign(Node):
     var = attr.ib()
     expr = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Block(Node):
     args = attr.ib()
@@ -41,11 +48,13 @@ class Block(Node):
     statements = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Cascade(Node):
     messages = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Class(Node):
     name = attr.ib()
@@ -57,6 +66,7 @@ class Class(Node):
 
 
 # XXX: mark value immutable
+@visitee
 @attr.s(cmp=False)
 class Const(Node):
     value = attr.ib()
@@ -74,16 +84,19 @@ class Const(Node):
         return cls(source_info, cls.named_values[name])
 
 
+@visitee
 @attr.s(cmp=False)
 class GlobalRef(Node):
     name = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Meta(Node):
     methods = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Method(Node):
     name = attr.ib()
@@ -92,48 +105,57 @@ class Method(Node):
     statements = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Message(Node):
     selector = attr.ib()
     args = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class ModuleImport(Node):
     name = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class ModuleName(Node):
     id = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class PrimitiveMessage(Message):
     primitive = None
 
 
+@visitee
 @attr.s(cmp=False)
 class Ref(Node):
     name = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Return(Node):
     expression = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Send(Node):
     receiver = attr.ib()
     message = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Seq(Node):
     statements = attr.ib()
 
 
+@visitee
 @attr.s(cmp=False)
 class Trait(Node):
     name = attr.ib()
