@@ -9,6 +9,8 @@ nil subclass: Object [
     ~= anObject  [ (self = anObject) not ]
     ~~ anObject [ (self == anObject) not ]
 
+    equalToSmallInt: aSmallInt [ false ]
+
     class [
         self _objectClass
     ]

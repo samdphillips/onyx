@@ -407,7 +407,8 @@ class Interpreter:
         self.done(self.get_onyx_class(obj))
 
     def primitive_object_debug(self, obj):
-        obj.debug()
+        m = getattr(obj, 'debug', print)
+        m(obj)
         self.done(obj)
 
     def primitive_object_equal_(self, a, b):
@@ -432,10 +433,10 @@ class Interpreter:
         self.done(a & b)
 
     def primitive_small_int_bit_shift_(self, a, b):
-        if b > 0:
-            v = a << b
+        if b >= 0:
+            v = (a << b) & 0xFFFFFFFFFFFFFFFF
         else:
-            v = a >> b
+            v = (a >> -b) & 0xFFFFFFFFFFFFFFFF
         self.done(v)
 
     def primitive_small_int_equal_(self, a, b):
@@ -443,6 +444,9 @@ class Interpreter:
 
     def primitive_small_int_lt_(self, a, b):
         self.done(o.onyx_bool(a < b))
+
+    def primitive_small_int_modulo_(self, a, b):
+        self.done(a % b)
 
     def primitive_small_int_mul_(self, a, b):
         self.done(a * b)

@@ -18,6 +18,10 @@ Object subclass: Number [
         self = 0
     ]
 
+    isNotZero [
+        self isZero not
+    ]
+
     isNumber [ true ]
 
     printString [
@@ -52,6 +56,10 @@ Number subclass: SmallInt [
         aNumber _smallIntMul: self
     ]
 
+    moduloToSmallInt: aNumber [
+        aNumber _smallIntModulo: self
+    ]
+
     ltToSmallInt: aNumber [
         aNumber _smallIntLt: self
     ]
@@ -74,6 +82,10 @@ Number subclass: SmallInt [
 
     * aNumber [
         aNumber mulToSmallInt: self
+    ]
+
+    modulo: anInteger [
+        anInteger moduloToSmallInt: self
     ]
 
     < aNumber [
