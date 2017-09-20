@@ -35,8 +35,31 @@ Object subclass: Character [
     ]
 ]
 
+Trait named: TStringy [
+    TStringy uses: {
+        TSequencedReadableCollection.
+        THashable.
+    }.
+
+    basicAt: i [
+        self _stringAt: i
+    ]
+
+    size [
+        self _stringSize
+    ]
+
+    hashBytesOn: aHasher [
+        self isSymbol hashBytesOn: aHasher.
+
+        self do: [:ch |
+            ch codePoint hashBytesOn: aHasher
+        ]
+    ]
+]
+
 Collection subclass: Symbol [
-    Symbol uses: TSequencedReadableCollection.
+    Symbol uses: TStringy.
 
     Symbol class [
         internString: aString [
@@ -54,7 +77,7 @@ Collection subclass: Symbol [
 ]
 
 Collection subclass: String [
-    String uses: TSequencedReadableCollection.
+    String uses: TStringy.
 
     isString [ true ]
 
@@ -62,14 +85,6 @@ Collection subclass: String [
         self checkBounds: startIndex ifOutOfBounds: [ self error: 'out of bounds' ].
         self checkBounds: endIndex ifOutOfBounds: [ self error: 'out of bounds' ].
         self _stringSliceFrom: startIndex to: endIndex
-    ]
-
-    basicAt: i [
-        self _stringAt: i
-    ]
-
-    size [
-        self _stringSize
     ]
 
     , aString [

@@ -34,6 +34,8 @@ Object subclass: Number [
 ]
 
 Number subclass: SmallInt [
+    SmallInt uses: THashable.
+
     isSmallInt [ true ]
 
     equalToSmallInt: aNumber [
@@ -140,4 +142,13 @@ Number subclass: SmallInt [
         self isOdd not
     ]
 
+    hashBytesOn: aHasher [
+        | v |
+        v := self.
+
+        1 to: 8 do: [:i |
+            aHasher nextPut: (v bitAnd: 255).
+            v := v bitShift: -8
+        ]
+    ]
 ]

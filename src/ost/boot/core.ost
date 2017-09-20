@@ -199,6 +199,17 @@ Object subclass: Trait [
     ]
 ]
 
+Trait named: THashable [
+    isHashable [ true ]
+
+    hash [
+        | aHasher |
+        aHasher := Hasher new.
+        self hashBytesOn: aHasher.
+        aHasher hashValue
+    ]
+]
+
 Object subclass: UndefinedObject [
     isNil    [ true  ]
     isNotNil [ false ]
@@ -218,12 +229,20 @@ Object subclass: UndefinedObject [
 ]
 
 Object subclass: Boolean [
+    Boolean uses: THashable.
+
     isBoolean [ true ]
 
     ifFalse: falseBlock ifTrue: trueBlock [
         self ifTrue: trueBlock ifFalse: falseBlock
     ]
 
+    hashBytesOn: aHasher [
+        aHasher nextPut:
+            (self
+                ifTrue: [ 1 ]
+                ifFalse: [ -1 ])
+    ]
 ]
 
 Boolean subclass: True [
@@ -380,4 +399,31 @@ Object subclass: BlockClosure [
         [ self withPrompt ] withMark: CurtailedMark value: aBlock
     ]
 
+]
+
+Object subclass: Hasher [
+    "
+    Implementation of DJB hashing function
+    http://www.partow.net/programming/hashfunctions/#DJBHashFunction
+    "
+    | state |
+
+    Hasher class [
+        new [ super new initialize; yourself ]
+    ]
+
+    initialize [
+        state := 5381
+    ]
+
+    hashValue [
+        state
+    ]
+
+    nextPut: aByte [
+        state :=
+            ((((state bitShift: 5) + state)
+                bitAnd: 16rFFFF_FFFF_FFFF_FFFF) + aByte)
+                    bitAnd: 16rFFFF_FFFF_FFFF_FFFF
+    ]
 ]

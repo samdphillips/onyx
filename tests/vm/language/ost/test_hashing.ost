@@ -1,0 +1,18 @@
+
+Tester new
+    add: 'SmallInt[0]>>#hash'
+    test: [ 0 hash ]
+    result: 7567884774754821;
+
+    add: 'SmallInt[1000]>>#hash'
+    test: [ 1000 hash ]
+    result: 7577776127929392;
+
+    add: 'String[abc]>>#hash'
+    test: [ 'abc' hash ]
+    result: 12721979263764054026;
+
+    add: 'Symbol[abc]>>#hash'
+    test: [ #abc hash = 'abc' hash]
+    result: false;
+    yourself
