@@ -1,11 +1,23 @@
 
+import attr
 from collections import namedtuple
 
 import onyx.objects as o
 import onyx.utils as u
 
 
+@attr.s(cmp=False)
 class Node:
+    source_info = attr.ib()
+
+    @property
+    def fields(self):
+        return [f.name for f in attr.fields(self.__class__)
+                    if f.name != 'source_info']
+
+    def _replace(self, *args, **kwargs):
+        return attr.evolve(self, *args, **kwargs)
+
     def visit(self, visitor, *args):
         method_name = 'visit_' + u.camel_to_snake(self.__class__.__name__)
         return getattr(visitor, method_name)(self, *args)
@@ -16,26 +28,38 @@ class Node:
                      for x in self.fields)))
 
 
+@attr.s(cmp=False)
+class Assign(Node):
+    var = attr.ib()
+    expr = attr.ib()
 
 
-_common_ast_node_fields = 'source_info'
-def ast_node(name, _fields):
-    all_fields = _common_ast_node_fields + " " + _fields
-    nt = namedtuple(name, all_fields)
-    class _node(Node, nt):
-        fields = _fields.split()
-    _node.__name__ = name
-    return _node
+@attr.s(cmp=False)
+class Block(Node):
+    args = attr.ib()
+    temps = attr.ib()
+    statements = attr.ib()
 
 
-Assign = ast_node('Assign', 'var expr')
-Block = ast_node('Block', 'args temps statements')
-Cascade = ast_node('Cascade', 'messages')
-Class = ast_node('Class', 'name superclass_name instance_vars meta methods trait_expr')
+@attr.s(cmp=False)
+class Cascade(Node):
+    messages = attr.ib()
+
+
+@attr.s(cmp=False)
+class Class(Node):
+    name = attr.ib()
+    superclass_name = attr.ib()
+    instance_vars = attr.ib()
+    meta = attr.ib()
+    methods = attr.ib()
+    trait_expr = attr.ib()
 
 
 # XXX: mark value immutable
-class Const(Node, namedtuple('Const', 'source_info value')):
+@attr.s(cmp=False)
+class Const(Node):
+    value = attr.ib()
     is_const = True
     fields = ['value']
 
@@ -50,20 +74,68 @@ class Const(Node, namedtuple('Const', 'source_info value')):
         return cls(source_info, cls.named_values[name])
 
 
-GlobalRef = ast_node('GlobalRef', 'name')
-Meta = ast_node('Meta', 'methods')
-Method = ast_node('Method', 'name args temps statements')
-Message = ast_node('Message', 'selector args')
-ModuleImport = ast_node('ModuleImport', 'name')
-ModuleName = ast_node('ModuleName', 'id')
+@attr.s(cmp=False)
+class GlobalRef(Node):
+    name = attr.ib()
+
+
+@attr.s(cmp=False)
+class Meta(Node):
+    methods = attr.ib()
+
+
+@attr.s(cmp=False)
+class Method(Node):
+    name = attr.ib()
+    args = attr.ib()
+    temps = attr.ib()
+    statements = attr.ib()
+
+
+@attr.s(cmp=False)
+class Message(Node):
+    selector = attr.ib()
+    args = attr.ib()
+
+
+@attr.s(cmp=False)
+class ModuleImport(Node):
+    name = attr.ib()
+
+
+@attr.s(cmp=False)
+class ModuleName(Node):
+    id = attr.ib()
 
 
 class PrimitiveMessage(Message):
     pass
 
 
-Ref = ast_node('Ref', 'name')
-Return = ast_node('Return', 'expression')
-Send = ast_node('Send', 'receiver message')
-Seq = ast_node('Seq', 'statements')
-Trait = ast_node('Trait', 'name meta methods trait_expr')
+@attr.s(cmp=False)
+class Ref(Node):
+    name = attr.ib()
+
+
+@attr.s(cmp=False)
+class Return(Node):
+    expression = attr.ib()
+
+
+@attr.s(cmp=False)
+class Send(Node):
+    receiver = attr.ib()
+    message = attr.ib()
+
+
+@attr.s(cmp=False)
+class Seq(Node):
+    statements = attr.ib()
+
+
+@attr.s(cmp=False)
+class Trait(Node):
+    name = attr.ib()
+    meta = attr.ib()
+    methods = attr.ib()
+    trait_expr = attr.ib()
