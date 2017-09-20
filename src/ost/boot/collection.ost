@@ -633,3 +633,142 @@ Collection subclass: ReversedSequence [
         collection size
     ]
 ]
+
+Object subclass: RHHashTable [
+    | count size hashStore slotStore |
+
+    RHHashTable class [
+        new [
+            self new: 8
+        ]
+
+        new: size [
+            super new initialize: size; yourself
+        ]
+    ]
+
+    initialize: numSlots [
+        hashStore := Array new: numSlots.
+        slotStore := Array new: numSlots.
+        size := numSlots.
+        count := 0.
+    ]
+
+    size [ size ]
+    count [ count ]
+
+    grow [
+        | origValues |
+        origValues := slotStore.
+        self initialize: size * 2.
+        origValues do: [:v |
+            v isNotNil ifTrue: [ self insert: v ] ]
+    ]
+
+    isEmptySlot: slot [
+        (hashStore at: slot) isNil
+    ]
+
+    probeCount: slot [
+        | hash initPos probes |
+        hash := hashStore at: slot.
+
+        hash isNotNil ifTrue: [
+            initPos := hash modulo: size.
+            probes := slot - initPos.
+            probes < 0 ifTrue: [
+                size + probes
+            ] ifFalse: [
+                probes
+            ]
+        ]
+    ]
+
+    swap: slot with: value in: anArray [
+        | origValue |
+        origValue := anArray at: slot.
+        anArray at: slot put: value.
+        origValue
+    ]
+
+    insert: aValue [
+        | value hash slot probeCount |
+        count = size ifTrue: [ self grow ].
+
+        value := aValue.
+        hash := value hash.
+        slot := hash modulo: size.
+        probeCount := 0.
+
+        [| slotProbeCount |
+            "new value"
+            (self isEmptySlot: slot) ifTrue: [
+                count := count + 1.
+                hashStore at: slot put: hash.
+                slotStore at: slot put: value.
+                ^ aValue
+            ].
+
+            slotProbeCount := self probeCount: slot.
+            "duplicate"
+            (probeCount = slotProbeCount
+                and: [ (slotStore at: slot) = value ]) ifTrue: [ ^value ].
+
+            "replace existing"
+            probeCount > slotProbeCount ifTrue: [
+                probeCount := slotProbeCount.
+                hash := self swap: slot with: hash in: hashStore.
+                value := self swap: slot with: value in: slotStore.
+            ].
+
+            probeCount := probeCount + 1.
+            slot := (slot + 1) modulo: size.
+        ] repeat
+    ]
+
+    findIndexOf: aValue ifAbsent: absentBlock [
+        | hash slot probes exitBlock |
+        hash := aValue hash.
+        slot := hash modulo: size.
+        probes := 0.
+        exitBlock := [ ^absentBlock value ].
+
+        [| slotProbeCount |
+            (self isEmptySlot: slot) ifTrue: exitBlock.
+
+            slotProbeCount := self probeCount: slot.
+            probes > slotProbeCount ifTrue: exitBlock.
+
+            ((hashStore at: slot) = hash
+                and: [ (slotStore at: slot) = aValue ]) ifTrue: [
+                ^slot
+            ].
+
+            probes := probes + 1.
+            slot := (slot + 1) modulo: size
+        ] repeat
+    ]
+
+    find: aValue ifAbsent: absentBlock [
+        slotStore at:
+            (self findIndexOf: aValue ifAbsent: [ ^absentBlock value ])
+    ]
+
+    remove: aValue ifAbsent: absentBlock [
+        | slot nextSlot |
+        slot := self findIndexOf: aValue ifAbsent: [ ^absentBlock value ].
+        nextSlot := (slot + 1) modulo: size.
+
+        "move values left until we hit an empty slot OR a slot with zero shifts"
+        [ (self isEmptySlot: nextSlot) not
+            and: [ (self probeCount: nextSlot) > 0 ] ] whileTrue: [
+            hashStore at: slot put: (hashStore at: nextSlot).
+            slotStore at: slot put: (slotStore at: nextSlot).
+            slot := (slot + 1) modulo: size.
+            nextSlot := (nextSlot + 1) modulo: size.
+        ].
+
+        slotStore at: slot put: nil.
+        hashStore at: slot put: nil.
+    ]
+]

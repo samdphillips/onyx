@@ -1,0 +1,58 @@
+
+Tester new
+    setup: [ RHHashTable new ];
+
+    add: 'RHHashTable insert'
+    test: [:table |
+        1 to:  4 do: [:i | table insert: i ].
+        9 to: 12 do: [:i | table insert: i ].
+        table count
+    ]
+    result: 8;
+
+    add: 'RHHashTable insert duplicates'
+    test: [:table |
+        1 to: 4 do: [:i | table insert: i ].
+        9 to: 11 do: [:i | table insert: i ].
+        1 to: 4 do: [:i | table insert: i ].
+        table count
+    ]
+    result: 7;
+
+    add: 'RHHashTable grow'
+    test: [:table |
+        1 to: 20 do: [:i | table insert: i ].
+        table count
+    ]
+    result: 20;
+
+    add: 'RHHashTable find'
+    test: [:table |
+        1 to: 14 do: [:i | table insert: i ].
+        table find: 10 ifAbsent: [ false ]
+    ]
+    result: 10;
+
+    add: 'RHHashTable find missing'
+    test: [:table |
+        1 to: 14 do: [:i | table insert: i ].
+        table find: 0 ifAbsent: [ false ]
+    ]
+    result: false;
+
+    add: 'RHHashTable remove'
+    test: [:table |
+        1 to: 20 do: [:i | table insert: i ].
+        table remove: 10 ifAbsent: [ table error: 'wha?!?' ].
+        table find: 10 ifAbsent: [ true ]
+    ]
+    result: true;
+
+    add: 'RHHashTable remove shift'
+    test: [:table |
+        1 to: 4 do: [:i | table insert: i ].
+        9 to: 11 do: [:i | table insert: i ].
+        table remove: 10 ifAbsent: [ table error: 'wha!?!' ].
+        table find: 10 ifAbsent: [ true ]
+    ];
+    yourself
