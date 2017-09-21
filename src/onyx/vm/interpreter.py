@@ -162,7 +162,12 @@ class Interpreter:
     def do_message_send(self, message, receiver, args):
         receiver_class = self.get_onyx_class(receiver)
         is_class = getattr(receiver, 'is_class', False)
-        result = receiver_class.lookup_method(self, message.selector, is_class)
+        if message.method_cache.get((receiver_class.name, is_class)):
+            result = message.method_cache[(receiver_class.name, is_class)]
+        else:
+            result = receiver_class.lookup_method(self, message.selector, is_class)
+            message.method_cache[(receiver_class.name, is_class)] = result
+
         if not result.is_success:
             dnu_selector = o.get_symbol('doesNotUnderstand:')
             result = receiver_class.lookup_method(self, dnu_selector, is_class)

@@ -110,6 +110,7 @@ class Method(Node):
 class Message(Node):
     selector = attr.ib()
     args = attr.ib()
+    method_cache = attr.ib(init=False, default=attr.Factory(dict))
 
 
 @visitee
