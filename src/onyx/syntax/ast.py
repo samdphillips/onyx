@@ -163,3 +163,11 @@ class Trait(Node):
     meta = attr.ib()
     methods = attr.ib()
     trait_expr = attr.ib()
+
+
+@visitee
+@attr.s(cmp=False)
+class WhileTrue(Node):
+    temps = attr.ib()
+    test = attr.ib()
+    body = attr.ib()
