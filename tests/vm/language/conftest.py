@@ -47,4 +47,4 @@ class OnyxTest(pytest.Item):
         result = self.vm.eval_string(
             'testCase runTest: %d' % self.test_number, require=[self.ns]
         )
-        assert result == o.true
+        assert result == True

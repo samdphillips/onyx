@@ -65,7 +65,7 @@ Object subclass: TestMNU [
 ]
 
 TestMNU new start
-""", o.true)
+""", True)
 
 assert_eval(
 """
@@ -98,7 +98,7 @@ Object subclass: Foo [
 ]
 
 Foo new start record
-""", [o.true, o.false])
+""", [True, False])
 
 assert_eval(
 """

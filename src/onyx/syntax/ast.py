@@ -74,9 +74,9 @@ class Const(Node):
     fields = ['value']
 
     named_values = {
-        'true':  o.true,
-        'false': o.false,
-        'nil':   o.nil
+        'true':  True,
+        'false': False,
+        'nil':   None
     }
 
     @classmethod

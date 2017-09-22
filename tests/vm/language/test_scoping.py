@@ -40,7 +40,7 @@ a
 
 assert_eval("""
 [| x | x ] value
-""", o.nil, 'init vars nil')
+""", None, 'init vars nil')
 
 assert_eval("""
 Object subclass: Foo [

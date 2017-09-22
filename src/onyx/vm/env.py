@@ -31,7 +31,7 @@ class Env:
 
     def add_temps(self, names):
         for n in names:
-            self.add_binding(n, o.nil)
+            self.add_binding(n, None)
 
     def lookup(self, name):
         return self.bindings.get(name)
@@ -74,10 +74,10 @@ class MethodEnv(Env):
 class GlobalEnv(Env):
     def __init__(self):
         super(GlobalEnv, self).__init__()
-        self.add_binding('nil', o.nil, ImmutableBinding)
+        self.add_binding('nil', None, ImmutableBinding)
 
     def lookup(self, name):
         binding = super().lookup(name)
         if binding is None:
-            binding = self.add_binding(name, o.nil)
+            binding = self.add_binding(name, None)
         return binding

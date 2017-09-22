@@ -156,7 +156,14 @@ class Interpreter:
     def get_onyx_class(self, v):
         if hasattr(v, 'onyx_class'):
             return v.onyx_class(self)
-        cls_name = o.onyx_class_map.get(type(v))
+        elif v is None:
+            cls_name = 'UndefinedObject'
+        elif v is True:
+            cls_name = 'True'
+        elif v is False:
+            cls_name = 'False'
+        else:
+            cls_name = o.onyx_class_map.get(type(v))
         return self.core_lookup(cls_name)
 
     def do_message_send(self, message, receiver, args):
@@ -329,7 +336,7 @@ class Interpreter:
         self.done(value)
 
     def primitive_array_new_(self, klass, size):
-        self.done([o.nil] * size)
+        self.done([None] * size)
 
     def primitive_array_size(self, array):
         self.done(len(array))
@@ -421,7 +428,7 @@ class Interpreter:
         self.done(obj)
 
     def primitive_object_equal_(self, a, b):
-        self.done(o.onyx_bool(a is b))
+        self.done(a is b)
 
     def primitive_object_halt(self, o):
         self.halted = True
@@ -449,10 +456,10 @@ class Interpreter:
         self.done(v)
 
     def primitive_small_int_equal_(self, a, b):
-        self.done(o.onyx_bool(a == b))
+        self.done(a == b)
 
     def primitive_small_int_lt_(self, a, b):
-        self.done(o.onyx_bool(a < b))
+        self.done(a < b)
 
     def primitive_small_int_modulo_(self, a, b):
         self.done(a % b)
@@ -477,7 +484,7 @@ class Interpreter:
         import sys
         sys.stdout.write(s)
         sys.stdout.flush()
-        self.done(o.nil)
+        self.done(None)
 
     def primitive_string_size(self, s):
         self.done(len(s))

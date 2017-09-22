@@ -54,35 +54,6 @@ class Super(Base):
         return self.receiver
 
 
-class UndefinedObject(Base):
-    def __bool__(self):
-        return False
-
-    def __repr__(self):
-        return 'nil'
-
-
-class _True(Base):
-    def __bool__(self):
-        return True
-
-
-class _False(Base):
-    def __bool__(self):
-        return False
-
-
-true = _True()
-false = _False()
-nil = UndefinedObject()
-
-
-def onyx_bool(value):
-    if value:
-        return true
-    return false
-
-
 _symbols = WeakValueDictionary()
 def get_symbol(name):
     s = _symbols.get(name)
@@ -116,7 +87,7 @@ class Object(Base):
 
     @classmethod
     def new_instance(cls, onyx_class, num_slots):
-        return cls(onyx_class, [Slot(nil) for _ in range(num_slots)])
+        return cls(onyx_class, [Slot(None) for _ in range(num_slots)])
 
     def onyx_class(self, vm):
         return self.cls
