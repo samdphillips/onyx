@@ -205,6 +205,7 @@ class Interpreter:
 
     push_kassign = pusher(k.KAssign)
     push_kcascade = pusher(k.KCascade)
+    push_kcond = pusher(k.KCond)
     push_kmessage = pusher(k.KMessage)
     push_kprompt = pusher(k.KPrompt)
     push_kreceiver = pusher(k.KReceiver)
@@ -289,6 +290,11 @@ class Interpreter:
             self.push_ktrait(trait.trait_expr, trait_value)
             self.doing(trait.trait_expr)
 
+    def visit_while_true(self, wt):
+        assert wt.temps == []
+        self.push_kcond(wt, ast.Seq(None, [wt.body, wt]), ast.Seq(None, []))
+        self.doing(wt.test)
+
     def continue_kassign(self, k, value):
         if type(k.name) == tuple:
             var = self.globals.lookup(k.name)
@@ -300,6 +306,13 @@ class Interpreter:
         if len(k.messages) > 1:
             self.push_kcascade(k.ast, k.receiver_value, k.messages[1:])
         k.messages[0].visit(self, k.receiver_value)
+
+    def continue_kcond(self, k, value):
+        assert value is True or value is False
+        if value is True:
+            self.doing(k.success)
+        elif value is False:
+            self.doing(k.failure)
 
     def continue_kmessage(self, k, value):
         arg_values = k.arg_values + [value]

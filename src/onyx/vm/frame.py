@@ -101,6 +101,7 @@ def frame_type(name, *fields):
 
 KAssign = frame_type('KAssign', 'name')
 KCascade = frame_type('KCascade', 'receiver_value messages')
+KCond = frame_type('KCond', 'success failure')
 KMessage = frame_type('KMessage',
                       'execute',
                       'message',

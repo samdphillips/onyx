@@ -26,7 +26,7 @@ class AnyPattern:
 
 
 @attr.s
-class SendPattern:
+class SendMessagePattern:
     receiver_pattern = attr.ib(default=attr.Factory(AnyPattern))
     message = attr.ib(default=attr.Factory(AnyPattern))
     argument_patterns = attr.ib(default=attr.Factory(list))
@@ -42,6 +42,7 @@ class SendPattern:
 
     def conditions(self, node):
         yield isinstance(node, t.Send)
+        yield isinstance(node.message, t.Message)
         yield self.message.match(node.message.selector)
         self.receiver_pattern.match(node.receiver)
         for a, n in zip(self.argument_patterns, node.message.args):
@@ -49,6 +50,31 @@ class SendPattern:
 
     def match(self, node):
         return all(self.conditions(node))
+
+
+class Expander:
+    macros = []
+
+    @classmethod
+    def add_macro(cls, m):
+        cls.macros.append(m)
+
+    def expand_node(self, node):
+        expand_again = True
+        while expand_again:
+            expand_again = False
+            for m in self.macros:
+                new = m.expand(node)
+                if new:
+                    node = new
+                    expand_again = True
+        return node
+
+    def expand(self, node):
+        return node.visit_static(self.visit_node)
+
+    def visit_node(self, node):
+        return self.expand_node(node).visit_children_static(self.visit_node)
 
 
 @attr.s
@@ -63,14 +89,16 @@ class Macro:
 
 
 def pattern(builder):
-    p = SendPattern()
+    p = SendMessagePattern()
     builder(p)
     return p
 
 
 def macro(pattern):
     def _inner(expander):
-        return Macro(pattern, expander)
+        m = Macro(pattern, expander)
+        Expander.add_macro(m)
+        return m
     return _inner
 
 

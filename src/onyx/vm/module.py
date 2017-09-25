@@ -5,6 +5,7 @@ from collections import namedtuple
 import onyx.syntax.ast as ast
 import onyx.objects as o
 
+from onyx.syntax.macros import Expander
 from onyx.syntax.parser import Parser
 
 
@@ -164,6 +165,11 @@ class AnalyzeModule:
     def visit_return(self, ret, env, top):
         ret.expression.visit(self, env, top)
 
+    def visit_while_true(self, wt, env, top):
+        assert wt.temps == []
+        wt.test.visit(self, env, top)
+        wt.body.visit(self, env, top)
+
 
 class RewriteRefs:
     def __init__(self, module_info):
@@ -252,6 +258,10 @@ class RewriteRefs:
     def visit_return(self, ret, env):
         return ret._replace(expression=ret.expression.visit(self, env))
 
+    def visit_while_true(self, wt, env):
+        return wt._replace(test=wt.test.visit(self, env),
+                           body=wt.body.visit(self, env))
+
 
 Module = namedtuple('Module', 'name exports imports class_slots code')
 
@@ -303,6 +313,7 @@ class ModuleLoader:
         if name != 'core':
             syntax = self.add_core_import(syntax)
 
+        syntax = Expander().expand(syntax)
         an_mod = AnalyzeModule(name, self)
         an_mod.check(syntax)
         exports = an_mod.get_exports()

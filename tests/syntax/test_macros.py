@@ -27,7 +27,7 @@ def wt_pat():
     import onyx.objects as o
     import onyx.syntax.ast as t
     import onyx.syntax.macros as m
-    p = m.SendPattern()
+    p = m.SendMessagePattern()
     p.receiver_instanceof(t.Block)
     p.message_name(o.get_symbol('whileTrue:'))
     p.arg_instanceof(t.Block)
@@ -47,7 +47,6 @@ def test_expand_wt(wt_node):
     import onyx.syntax.ast as t
     import onyx.syntax.macros as m
     new_node = m.while_true.expand(wt_node)
-    print(new_node)
     assert (new_node ==
         t.WhileTrue(None, [],
                     t.Seq(None,
