@@ -15,12 +15,21 @@ Object subclass: Association [
         value := aValue
     ]
 
-    key   [ key ]
+    key        [ key ]
+    value      [ value ]
+    isHashable [ key isHashable ]
+    hash       [ key hash ]
 
-    value [ value ]
+    = aValue [
+        super = aValue or: [ self key = aValue ]
+    ]
 
     value: anObject [
         value := anObject
+    ]
+
+    printString [
+        key printString, ' -> ', value printString
     ]
 ]
 
@@ -106,11 +115,17 @@ Trait named: TExtensibleCollection [
     "
     Requires:
      - add:
-     - remove:
+     - remove: or remove:ifAbsent:
+        defaults here are implement in terms of each other if neither are
+        implemented it will cause infinite recursion.
     "
 
     addAll: aCollection [
         aCollection do: [:e | self add: e ]
+    ]
+
+    remove: anElement [
+        self remove: anElement ifAbsent: [ nil ]
     ]
 
     remove: anElement ifAbsent: exceptionBlock [
@@ -316,6 +331,9 @@ Trait named: TSequencedCollection [
     TSequencedCollection uses: TSequencedReadableCollection.
 
     "
+    requires:
+    - basicAt:put:
+
     atAll:put:
     atAllPut:
     replaceFrom:to:with:startingAt:

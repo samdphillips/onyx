@@ -226,6 +226,7 @@ Object subclass: UndefinedObject [
         nilBlock value
     ]
 
+    printString [ 'nil' ]
 ]
 
 Object subclass: Boolean [
