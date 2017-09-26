@@ -341,7 +341,7 @@ Object subclass: BlockClosure [
     ]
 
     withContinuation [
-        self control: Continuation defaultTag
+        self withContinuation: Continuation defaultTag
     ]
 
     withContinuation: promptTag [
