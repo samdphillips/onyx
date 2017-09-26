@@ -7,24 +7,33 @@ import onyx.syntax.ast as t
 
 class Expander:
     macros = []
+    message_macros = {}
 
     @classmethod
-    def add_macro(cls, pattern):
-        def _inner(expand):
+    def add_macro(cls, pattern, key=None):
+        def _make_macro(expand):
             m = Macro(pattern, expand)
-            cls.macros.append(m)
+            if key:
+                symbol = o.get_symbol(key)
+                cls.message_macros[symbol] = m
+            else:
+                cls.macros.append(m)
             return m
-        return _inner
+        return _make_macro
+
+    def is_send_message(self, node):
+        return isinstance(node, t.Send) and isinstance(node.message, t.Message)
 
     def expand_node(self, node):
         expand_again = True
         while expand_again:
             expand_again = False
+            if self.is_send_message(node):
+                m = self.message_macros.get(node.message.selector,
+                                            lambda n: (n, False))
+                node, expand_again = m(node)
             for m in self.macros:
-                new = m.expand(node)
-                if new:
-                    node = new
-                    expand_again = True
+                node, expand_again = m(node)
         return node
 
     def expand(self, node):
@@ -54,17 +63,18 @@ class Macro:
             return self.expander(node)
         return None
 
+    def __call__(self, node):
+        new = self.expand(node)
+        return new or node, new is not None
+
 
 @pattern
 def while_true_pat(node):
-    yield isinstance(node, t.Send)
-    yield isinstance(node.message, t.Message)
-    yield node.message.selector == o.get_symbol('whileTrue:')
     yield isinstance(node.receiver, t.Block)
     yield isinstance(node.message.args[0], t.Block)
 
 
-@Expander.add_macro(while_true_pat)
+@Expander.add_macro(while_true_pat, key='whileTrue:')
 def while_true(node):
     temps = node.receiver.temps + node.message.args[0].temps
     return t.WhileTrue(node.source_info,
