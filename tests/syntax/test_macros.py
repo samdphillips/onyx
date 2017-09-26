@@ -27,11 +27,14 @@ def wt_pat():
     import onyx.objects as o
     import onyx.syntax.ast as t
     import onyx.syntax.macros as m
-    p = m.SendMessagePattern()
-    p.receiver_instanceof(t.Block)
-    p.message_name(o.get_symbol('whileTrue:'))
-    p.arg_instanceof(t.Block)
-    return p
+    @m.pattern
+    def _pattern(n):
+        yield isinstance(n, t.Send)
+        yield isinstance(n.message, t.Message)
+        yield isinstance(n.receiver, t.Block)
+        yield n.message.selector == o.get_symbol('whileTrue:')
+        yield isinstance(n.message.args[0], t.Block)
+    return _pattern
 
 
 def test_match_wt_pat(wt_node, wt_pat):
