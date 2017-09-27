@@ -364,6 +364,10 @@ Object subclass: BlockClosure [
         self _blockWithPrompt: promptTag abort: aBlock
     ]
 
+    withEscape [
+        [:p | self value: [:v | p abort: v ] ] withPrompt
+    ]
+
     withMark: tag value: anObject [
         self _blockWithMark: tag value: anObject
     ]
