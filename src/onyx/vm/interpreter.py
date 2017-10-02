@@ -241,6 +241,10 @@ class Interpreter:
             self.push_ktrait(cls.trait_expr, cls_o)
             self.doing(cls.trait_expr)
 
+    def visit_cond(self, cond):
+        self.push_kcond(cond.test, cond.ift, cond.iff)
+        self.doing(cond.test)
+
     def visit_const(self, const):
         self.done(const.value)
 
@@ -256,11 +260,20 @@ class Interpreter:
     def visit_ref(self, ref):
         self.done(self.lookup_variable(ref.name).value)
 
+    def visit_repeat(self, repeat):
+        self.push_kseq(repeat, [repeat])
+        self.doing(repeat.body)
+
     def visit_return(self, ret):
         if self.retp is None:
             raise TopReturnError()
         self.stack.top = self.retp
         self.doing(ret.expression)
+
+    def visit_scope(self, scope):
+        self.env = BlockEnv(self.env)
+        self.env.add_temps(scope.temps)
+        self.doing(scope.body)
 
     def visit_send(self, send):
         self.push_kreceiver(send, send.message)
@@ -289,11 +302,6 @@ class Interpreter:
         else:
             self.push_ktrait(trait.trait_expr, trait_value)
             self.doing(trait.trait_expr)
-
-    def visit_while_true(self, wt):
-        assert wt.temps == []
-        self.push_kcond(wt, ast.Seq(None, [wt.body, wt]), ast.Seq(None, []))
-        self.doing(wt.test)
 
     def continue_kassign(self, k, value):
         if type(k.name) == tuple:

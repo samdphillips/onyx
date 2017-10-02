@@ -102,6 +102,17 @@ class Class(Node):
     trait_expr = child_attr(optional=True)
 
 
+@visitee
+@attr.s(cmp=False)
+class Cond(Node):
+    test = child_attr()
+    ift = child_attr()
+    iff = child_attr()
+
+    def code_text(self):
+        return '<COND>\n    [ {} ]\n    [ {} ]\n    [ {} ]'.format(self.test, self.ift, self.iff)
+
+
 # XXX: mark value immutable
 @visitee
 @attr.s(cmp=False)
@@ -179,10 +190,27 @@ class Ref(Node):
     def code_text(self):
         return self.name
 
+
+@visitee
+@attr.s(cmp=False)
+class Repeat(Node):
+    body = child_attr()
+
+    def code_text(self):
+        return '[ {} ] repeat'.format(self.body.code_text())
+
+
 @visitee
 @attr.s(cmp=False)
 class Return(Node):
     expression = child_attr()
+
+
+@visitee
+@attr.s(cmp=False)
+class Scope(Node):
+    temps = attr.ib(validator=attr.validators.instance_of(list))
+    body = child_attr()
 
 
 @visitee
@@ -210,11 +238,3 @@ class Trait(Node):
     meta = child_attr(optional=True)
     methods = child_attr(list)
     trait_expr = child_attr(optional=True)
-
-
-@visitee
-@attr.s(cmp=False)
-class WhileTrue(Node):
-    temps = attr.ib()
-    test = child_attr()
-    body = child_attr()

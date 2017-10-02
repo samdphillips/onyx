@@ -5,17 +5,27 @@ import onyx.objects as o
 import onyx.syntax.ast as t
 
 
+_sym = o.get_symbol
+
+counter = 0
+def gensym(name):
+    global counter
+    counter += 1
+    return _sym('%s%05d' % (name, counter))
+
 class Expander:
     macros = []
     message_macros = {}
 
     @classmethod
-    def add_macro(cls, pattern, key=None):
-        def _make_macro(expand):
-            m = Macro(pattern, expand)
+    def add_macro(cls, key=None):
+        def _make_macro(macro_cls):
+            m = macro_cls()
             if key:
-                symbol = o.get_symbol(key)
-                cls.message_macros[symbol] = m
+                symbol = _sym(key)
+                ms = cls.message_macros.get(symbol, [])
+                ms.append(m)
+                cls.message_macros[symbol] = ms
             else:
                 cls.macros.append(m)
             return m
@@ -29,9 +39,10 @@ class Expander:
         while expand_again:
             expand_again = False
             if self.is_send_message(node):
-                m = self.message_macros.get(node.message.selector,
-                                            lambda n: (n, False))
-                node, expand_again = m(node)
+                for m in self.message_macros.get(node.message.selector, []):
+                    node, expand_again = m(node)
+                if expand_again:
+                    continue
             for m in self.macros:
                 node, expand_again = m(node)
         return node
@@ -44,23 +55,13 @@ class Expander:
 
 
 @attr.s
-class Pattern:
-    match_func = attr.ib()
-
-    def match(self, node):
-        return all(self.match_func(node))
-
-pattern = Pattern
-
-
-@attr.s
 class Macro:
-    pattern = attr.ib()
-    expander = attr.ib()
+    def match(self, node):
+        return all(self.match_conditions(node))
 
     def expand(self, node):
-        if self.pattern.match(node):
-            return self.expander(node)
+        if self.match(node):
+            return self.expand_node(node)
         return None
 
     def __call__(self, node):
@@ -68,16 +69,76 @@ class Macro:
         return new or node, new is not None
 
 
-@pattern
-def while_true_pat(node):
-    yield isinstance(node.receiver, t.Block)
-    yield isinstance(node.message.args[0], t.Block)
+@Expander.add_macro(key='whileTrue:')
+class WhileTrue(Macro):
+    def match_conditions(self, node):
+        yield isinstance(node.receiver, t.Block)
+
+    def expand_node(self, node):
+        si = node.source_info
+        a = node.receiver
+        b = node.message.args[0]
+        exit = gensym('exit')
+        a = t.Send(a.source_info, a,
+                   t.Message(a.source_info, _sym('value'), []))
+        c = t.Send(si, t.Ref(si, exit),
+                   t.Message(si, _sym('value:'), [t.Const(si, None)]))
+        c = t.Block(si, [], [], c)
+        bl = t.Send(si, a, t.Message(si, _sym('ifTrue:ifFalse:'), [b, c]))
+        bl = t.Block(si, [], [], bl)
+        bl = t.Send(si, bl, t.Message(si, _sym('repeat'), []))
+        bl = t.Block(si, [exit], [], bl)
+        bl = t.Send(si, bl, t.Message(si, _sym('withEscape'), []))
+        return bl
 
 
-@Expander.add_macro(while_true_pat, key='whileTrue:')
-def while_true(node):
-    temps = node.receiver.temps + node.message.args[0].temps
-    return t.WhileTrue(node.source_info,
-                       temps,
-                       node.receiver.statements,
-                       node.message.args[0].statements)
+@Expander.add_macro(key='ifTrue:ifFalse:')
+class IfTrueIfFalseCond(Macro):
+    def match_conditions(self, node):
+        yield True
+
+    def send_value(self, node):
+        m = t.Message(node.source_info, _sym('value'), [])
+        return t.Send(node.source_info, node, m)
+
+    def expand_node(self, node):
+        test = node.receiver
+        ift = self.send_value(node.message.args[0])
+        iff = self.send_value(node.message.args[1])
+        return t.Cond(node.source_info, test, ift, iff)
+
+
+@Expander.add_macro(key='repeat')
+class Repeat(Macro):
+    def match_conditions(self, node):
+        yield isinstance(node.receiver, t.Block)
+
+    def expand_node(self, node):
+        si = node.source_info
+        block = node.receiver
+        body = t.Send(block.source_info, block,
+                      t.Message(si, _sym('value'), []))
+        return t.Repeat(si, body)
+
+
+@Expander.add_macro(key='value')
+class Value(Macro):
+    def match_conditions(self, node):
+        yield isinstance(node.receiver, t.Block)
+
+    def expand_node(self, node):
+        si = node.source_info
+        body = node.receiver.statements
+        if len(node.receiver.temps) > 0:
+            body = t.Scope(si, node.receiver.temps, body)
+        return body
+
+
+@Expander.add_macro()
+class Seq1(Macro):
+    def match_conditions(self, node):
+        yield isinstance(node, t.Seq)
+        yield len(node.statements) == 1
+
+    def expand_node(self, node):
+        return node.statements[0]

@@ -158,6 +158,12 @@ class AnalyzeModule:
             self.add_flag(assign.var, flag)
         assign.expr.visit(self, env, top)
 
+    def visit_repeat(self, repeat, env, top):
+        repeat.body.visit(self, env, top)
+
+    def visit_scope(self, scope, env, top):
+        scope.body.visit(self, env + scope.temps, top)
+
     def visit_block(self, block, env, top):
         benv = env + block.args + block.temps
         block.statements.visit(self, benv, False)
@@ -165,10 +171,10 @@ class AnalyzeModule:
     def visit_return(self, ret, env, top):
         ret.expression.visit(self, env, top)
 
-    def visit_while_true(self, wt, env, top):
-        assert wt.temps == []
-        wt.test.visit(self, env, top)
-        wt.body.visit(self, env, top)
+    def visit_cond(self, cond, env, top):
+        cond.test.visit(self, env, top)
+        cond.ift.visit(self, env, top)
+        cond.iff.visit(self, env, top)
 
 
 class RewriteRefs:
@@ -251,6 +257,12 @@ class RewriteRefs:
             var = self.rewrite_ref_name(var)
         return assign._replace(var=var, expr=assign.expr.visit(self, env))
 
+    def visit_repeat(self, repeat, env):
+        return repeat._replace(body=repeat.body.visit(self, env))
+
+    def visit_scope(self, scope, env):
+        return scope._replace(body=scope.body.visit(self, env + scope.temps))
+
     def visit_block(self, block, env):
         benv = env + block.args + block.temps
         return block._replace(statements=block.statements.visit(self, benv))
@@ -258,9 +270,10 @@ class RewriteRefs:
     def visit_return(self, ret, env):
         return ret._replace(expression=ret.expression.visit(self, env))
 
-    def visit_while_true(self, wt, env):
-        return wt._replace(test=wt.test.visit(self, env),
-                           body=wt.body.visit(self, env))
+    def visit_cond(self, cond, env):
+        return cond._replace(test=cond.test.visit(self, env),
+                             ift=cond.ift.visit(self, env),
+                             iff=cond.iff.visit(self, env))
 
 
 Module = namedtuple('Module', 'name exports imports class_slots code')
