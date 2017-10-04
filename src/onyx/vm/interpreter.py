@@ -27,6 +27,14 @@ def pusher(cls):
     return _method
 
 
+def task_attr(name):
+    def _getter(self):
+        return getattr(self.running_task, name)
+    def _setter(self, value):
+        setattr(self.running_task, name, value)
+    return property(_getter, _setter)
+
+
 class Doing(namedtuple('Doing', 'node')):
     is_done = False
     is_doing = True
@@ -43,15 +51,27 @@ class Done(namedtuple('Done', 'value')):
         vm.do_continue(self.value)
 
 
+@attr.s
+class Task:
+    state = attr.ib(default=None)
+    stack = attr.ib(init=False, default=attr.Factory(k.Stack))
+    env = attr.ib(init=False, default=attr.Factory(Env))
+    retp = attr.ib(init=False, default=None)
+    marks = attr.ib(init=False, default=attr.Factory(dict))
+
+
 class Interpreter:
     def __init__(self):
-        self.stack = k.Stack()
-        self.env = Env()
+        self.running_task = Task()
         self.globals = GlobalEnv()
         self.module_loader = ModuleLoader(self)
-        self.retp = None
-        self.marks = {}
         self.halted = True
+
+    state = task_attr('state')
+    stack = task_attr('stack')
+    env = task_attr('env')
+    retp = task_attr('retp')
+    marks = task_attr('marks')
 
     def doing(self, node):
         self.state = Doing(node)
