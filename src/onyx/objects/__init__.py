@@ -118,8 +118,8 @@ class Class(Base):
     name = attr.ib()
     super_class = attr.ib()
     instance_variables = attr.ib()
-    method_dict = attr.ib()
-    class_method_dict = attr.ib()
+    method_dict = attr.ib(repr=False)
+    class_method_dict = attr.ib(repr=False)
 
     def onyx_class(self, vm):
         return self
