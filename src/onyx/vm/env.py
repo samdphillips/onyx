@@ -65,10 +65,12 @@ class MethodEnv(Env):
             return self.super_slot
         elif name in self.bindings:
             return super().lookup(name)
-        elif (not getattr(self.receiver, 'is_class', True) and
+        elif (isinstance(self.receiver, o.Object) and
               name in self.klass.all_instance_variables()):
             slot = self.klass.instance_variable_slot(name)
             return self.receiver.get_slot(slot)
+        else:
+            raise Exception('error finding variable: {}'.format(name))
 
 
 class GlobalEnv(Env):
