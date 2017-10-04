@@ -3,8 +3,6 @@ import attr
 import io
 import os.path
 
-from collections import namedtuple
-
 import onyx.objects as o
 import onyx.utils as u
 import onyx.vm.frame as k
@@ -35,7 +33,9 @@ def task_attr(name):
     return property(_getter, _setter)
 
 
-class Doing(namedtuple('Doing', 'node')):
+@attr.s(frozen=True)
+class Doing:
+    node = attr.ib()
     is_done = False
     is_doing = True
 
@@ -43,7 +43,9 @@ class Doing(namedtuple('Doing', 'node')):
         self.node.visit(vm)
 
 
-class Done(namedtuple('Done', 'value')):
+@attr.s(frozen=True)
+class Done:
+    value = attr.ib()
     is_done = True
     is_doing = False
 
