@@ -1,5 +1,6 @@
 
 import attr
+import heapq
 import io
 import os.path
 
@@ -53,12 +54,27 @@ class Done:
         vm.do_continue(self.value)
 
 
-@attr.s
+@attr.s(hash=False, cmp=False)
 class Task:
     state = attr.ib(default=None)
+    priority = attr.ib(default=50)
     stack = attr.ib(init=False, default=attr.Factory(k.Stack))
     env = attr.ib(init=False, default=attr.Factory(EmptyEnv))
     marks = attr.ib(init=False, default=attr.Factory(dict))
+
+
+@attr.s
+class ReadyQueue:
+    queue = attr.ib(init=False, default=attr.Factory(list))
+    counter = attr.ib(init=False, default=0)
+
+    def __contains__(self, task):
+        return task in (x[2] for x in self.queue)
+
+    def add(self, task):
+        item = (task.priority, self.counter, task)
+        self.counter += 1
+        heapq.heappush(self.queue, item)
 
 
 class Interpreter:
@@ -68,6 +84,8 @@ class Interpreter:
         self.module_loader = ModuleLoader(self)
         self.halted = True
         self.msg_tally = Tally()
+        self.ready_tasks = ReadyQueue()
+        self.waiting_tasks = set()
 
     state = task_attr('state')
     stack = task_attr('stack')
@@ -179,7 +197,7 @@ class Interpreter:
         elif v is False:
             cls_name = 'False'
         else:
-            cls_name = o.onyx_class_map.get(type(v))
+            cls_name = o.onyx_class_map.get(type(v)) or v.__class__.__name__
         return self.core_lookup(cls_name)
 
     def do_message_send(self, message, receiver, args):
@@ -523,6 +541,20 @@ class Interpreter:
     def primitive_system_is_broken_(self, obj, msg):
         # XXX: make better
         raise Exception(obj, msg)
+
+    def primitive_task_new_(self, cls, block):
+        task = Task(Done(block))
+        message = ast.Message(None, o.get_symbol('value'), [])
+        frame = k.KReceiver(Env(), None, {}, None, message)
+        task.stack.push(frame)
+        self.waiting_tasks.add(task)
+        self.done(task)
+
+    def primitive_task_resume(self, task):
+        self.waiting_tasks.discard(task)
+        if task not in self.ready_tasks:
+            self.ready_tasks.add(task)
+        self.done(None)
 
     def primitive_trait_merge_(self, a, b):
         self.done(a.merge_trait(b))

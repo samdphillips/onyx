@@ -196,8 +196,8 @@ class ModuleLoader:
         return self.add_import(syntax, o.get_symbol('core'))
 
     def load_core_syntax(self):
-        boot_sources = 'core exception number collection string stream'.split()
-        syntaxes = []
+        boot_sources = 'core exception number collection task string stream'.split()
+        mods = []
         for root_name in boot_sources:
             src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
             syntaxes.append(Parser.parse_file(src).body)

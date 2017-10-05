@@ -415,6 +415,11 @@ Object subclass: BlockClosure [
         [ self withPrompt ] withMark: CurtailedMark value: aBlock
     ]
 
+    fork [
+        (Task on: self)
+            resume;
+            yourself
+    ]
 ]
 
 Object subclass: Hasher [

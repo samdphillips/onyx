@@ -1,0 +1,42 @@
+
+Object subclass: Task [
+    | deadSemaphore |
+
+    Task class [
+        on: aBlock [
+            self _taskNew: [| v |
+                v :=  aBlock value.
+                Task current value: v; terminate
+            ]
+        ]
+
+        current [
+            self _taskCurrent
+        ]
+    ]
+
+    resume [
+        self _taskResume
+    ]
+
+    join [
+        deadSemaphore ifNil:
+            [ deadSemaphore := Semaphore new ].
+        deadSemaphore wait
+    ]
+]
+
+Object subclass: Semaphore [
+    | count waiters |
+
+    Semaphore class [
+        new [
+            super new initialize; yourself
+        ]
+    ]
+
+    initialize [
+        count := 0.
+        waiters := OrderedCollection new.
+    ]
+]
