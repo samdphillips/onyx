@@ -489,9 +489,15 @@ class Parser:
         return self.parse_module_expr()
 
     def parse_module(self):
+        imports = []
         exprs = []
         source_info = self.current_token().source_info
         while not self.current_is_oneof('eof'):
-            exprs.append(self.parse_module_element())
+            e = self.parse_module_element()
+            if isinstance(e, ast.ModuleImport):
+                section = imports
+            else:
+                section = exprs
+            section.append(e)
         source_info += self.current_token().source_info
-        return ast.Seq(source_info, exprs)
+        return ast.Module(source_info, imports, ast.Seq(source_info, exprs))

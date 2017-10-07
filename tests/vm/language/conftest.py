@@ -15,11 +15,14 @@ class OnyxTestFile(pytest.File):
         from onyx.syntax.parser import Parser
         import onyx.objects as o
         import onyx.syntax.ast as ast
-        syntax = Parser.parse_file(self.fspath.strpath)
+        mod_syntax = Parser.parse_file(self.fspath.strpath)
+        imports = mod_syntax.imports
+        syntax = mod_syntax.body
         tester_name = ast.ModuleName(None, o.get_symbol('tests.tester'))
         tester_imp = ast.ModuleImport(None, tester_name)
-        assign = ast.Assign(None, o.get_symbol('testCase'), syntax)
-        return ast.Seq(None, [tester_imp, assign])
+        imports.append(tester_imp)
+        syntax = ast.Assign(None, o.get_symbol('testCase'), syntax)
+        return ast.Module(None, imports, syntax)
 
     def collect(self):
         syntax = self.load_syntax()

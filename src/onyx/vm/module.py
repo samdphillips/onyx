@@ -51,7 +51,7 @@ class AnalyzeModule:
                 if self.is_top_assign(r)]
 
     def check(self, syntax):
-        syntax.visit(self)
+        syntax.visit(self, [], True)
 
         assign_import = []
         undeclared = []
@@ -77,21 +77,19 @@ class AnalyzeModule:
     def visit_const(self, const, env, top):
         pass
 
-    def visit_seq(self, seq, env=None, top=True):
-        # XXX: are true, false, and nil necessary
-        env = (env or
-               [o.get_symbol('nil'), o.get_symbol('true'), o.get_symbol('false')])
+    def visit_seq(self, seq, env, top):
         for s in seq.statements:
             s.visit(self, env, top)
 
-    def visit_module_import(self, imp, env, top):
-        m = self.loader.visit_module(imp.name.id)
-        self.imports.add(imp.name.id)
-        for name in m.exports:
-            self.qnames[name] = (m.name, name)
-            self.add_flag(name, 'import')
-
-        self.class_slots.update(m.class_slots)
+    def visit_module(self, mod, env, top):
+        for i in mod.imports:
+            m = self.loader.visit_module(i.name.id)
+            self.imports.add(i.name.id)
+            for name in m.exports:
+                self.qnames[name] = (m.name, name)
+                self.add_flag(name, 'import')
+            self.class_slots.update(m.class_slots)
+        mod.body.visit(self, env, top)
 
     def visit_class(self, cls, env, top):
         self.add_flag(cls.name, 'top-assign')
@@ -190,8 +188,8 @@ class RewriteRefs:
             return self.module_info.qnames.get(name)
         return (self.module_info.name, name)
 
-    def visit_module_import(self, imp, env):
-        pass
+    def visit_module(self, mod, env):
+        return mod._replace(body=mod.body.visit(self, env))
 
     def visit_const(self, const, env):
         return const
@@ -294,21 +292,21 @@ class ModuleLoader:
     def is_module_instantiated(self, name):
         return self.status.get(name) == "instantiated"
 
-    def add_import(self, syntax, name):
+    def add_import(self, mod, name):
         mod_name = ast.ModuleName(None, name)
-        i = ast.ModuleImport(None, mod_name)
-        return ast.Seq(None, [i, syntax])
+        imp = ast.ModuleImport(None, mod_name)
+        mod.imports.append(imp)
 
     def add_core_import(self, syntax):
         return self.add_import(syntax, o.get_symbol('core'))
 
     def load_core_syntax(self):
         boot_sources = 'core exception number collection string stream'.split()
-        mods = []
+        syntaxes = []
         for root_name in boot_sources:
             src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
-            mods.append(Parser.parse_file(src))
-        return ast.Seq(None, mods)
+            syntaxes.append(Parser.parse_file(src).body)
+        return ast.Module(None, [], ast.Seq(None, syntaxes))
 
     def find_module_file(self, name):
         p = name.split('.')
@@ -321,19 +319,19 @@ class ModuleLoader:
         file_name = self.find_module_file(name)
         return Parser.parse_file(file_name)
 
-    def visit(self, name, syntax):
+    def visit(self, name, mod_syntax):
         self.status[name] = "loading"
         if name != 'core':
-            syntax = self.add_core_import(syntax)
+            self.add_core_import(mod_syntax)
 
-        syntax = Expander().expand(syntax)
+        mod_syntax = Expander().expand(mod_syntax)
         an_mod = AnalyzeModule(name, self)
-        an_mod.check(syntax)
+        an_mod.check(mod_syntax)
         exports = an_mod.get_exports()
         imports = an_mod.imports
         class_slots = {(name, k): an_mod.class_slots[k]
                        for k in exports if an_mod.is_class(k)}
-        code = RewriteRefs(an_mod).rewrite(syntax)
+        code = RewriteRefs(an_mod).rewrite(mod_syntax.body)
         m = Module(name, exports, imports, class_slots, code)
         self.modules[name] = m
         self.status[name] = 'loaded'

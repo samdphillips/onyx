@@ -1,6 +1,5 @@
 
 import attr
-from collections import namedtuple
 
 import onyx.objects as o
 import onyx.utils as u
@@ -163,6 +162,14 @@ class Message(Node):
 
     def code_text(self):
         return '{} {{{}}}'.format(self.selector, ' '.join([a.code_text() for a in self.args]))
+
+
+@visitee
+@attr.s(cmp=False)
+class Module(Node):
+    imports = child_attr(list)
+    body = child_attr()
+
 
 @visitee
 @attr.s(cmp=False)

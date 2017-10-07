@@ -112,7 +112,7 @@ class Interpreter:
         name = name or object()
         require = require or []
         for r in require:
-            syntax = self.module_loader.add_import(syntax, r)
+            self.module_loader.add_import(syntax, r)
         self.module_loader.visit(name, syntax)
         return self.module_loader.instantiate(name)
 
