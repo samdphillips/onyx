@@ -18,7 +18,7 @@ class OnyxTestFile(pytest.File):
         mod_syntax = Parser.parse_file(self.fspath.strpath)
         imports = mod_syntax.imports
         syntax = mod_syntax.body
-        tester_name = ast.ModuleName(None, o.get_symbol('tests.tester'))
+        tester_name = o.get_symbol('tests.tester')
         tester_imp = ast.ModuleImport(None, tester_name)
         imports.append(tester_imp)
         syntax = ast.Assign(None, o.get_symbol('testCase'), syntax)

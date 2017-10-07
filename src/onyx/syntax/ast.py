@@ -179,12 +179,6 @@ class ModuleImport(Node):
 
 @visitee
 @attr.s(cmp=False)
-class ModuleName(Node):
-    id = attr.ib()
-
-
-@visitee
-@attr.s(cmp=False)
 class PrimitiveMessage(Message):
     primitive = None
 

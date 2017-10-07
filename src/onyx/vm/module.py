@@ -83,8 +83,8 @@ class AnalyzeModule:
 
     def visit_module(self, mod, env, top):
         for i in mod.imports:
-            m = self.loader.visit_module(i.name.id)
-            self.imports.add(i.name.id)
+            m = self.loader.visit_module(i.name)
+            self.imports.add(i.name)
             for name in m.exports:
                 self.qnames[name] = (m.name, name)
                 self.add_flag(name, 'import')
@@ -293,8 +293,7 @@ class ModuleLoader:
         return self.status.get(name) == "instantiated"
 
     def add_import(self, mod, name):
-        mod_name = ast.ModuleName(None, name)
-        imp = ast.ModuleImport(None, mod_name)
+        imp = ast.ModuleImport(None, name)
         mod.imports.append(imp)
 
     def add_core_import(self, syntax):

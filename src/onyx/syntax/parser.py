@@ -464,7 +464,7 @@ class Parser:
             if self.current_token().matches(Token('rcurl', '}')):
                 si = start + self.current_token().source_info
                 self.step()
-                return ast.ModuleName(si, '.'.join(name))
+                return o.get_symbol('.'.join(name))
 
             self.expect('dot')
 
@@ -472,7 +472,7 @@ class Parser:
         start = self.current_token().source_info
         self.expect('kw', 'import:')
         name = self.parse_module_name()
-        return ast.ModuleImport(start + name.source_info, name)
+        return ast.ModuleImport(start + self.current_token().source_info, name)
 
     def parse_module_element(self):
         if self.current_token().matches(Token('kw', 'import:')):
