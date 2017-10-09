@@ -158,7 +158,7 @@ class Method(Node):
 class Message(Node):
     selector = attr.ib()
     args = child_attr(list)
-    method_cache = attr.ib(init=False, default=attr.Factory(dict))
+    method_cache = attr.ib(init=False, default=attr.Factory(dict), repr=False)
 
     def code_text(self):
         return '{} {{{}}}'.format(self.selector, ' '.join([a.code_text() for a in self.args]))
