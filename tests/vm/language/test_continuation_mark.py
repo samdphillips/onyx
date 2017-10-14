@@ -35,7 +35,7 @@ cmark := ContinuationMark new.
 assert_eval(
 """
 m := ContinuationMark new.
-[:p | foo := p.
+[:p || foo | foo := p.
     [
         [
             [ p abort: (m marks: p) ] withMark: m value: 1.

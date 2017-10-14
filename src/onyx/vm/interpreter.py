@@ -10,7 +10,7 @@ import onyx.vm.frame as k
 from onyx.syntax import ast
 from onyx.syntax.lexer import Lexer
 from onyx.syntax.parser import Parser
-from onyx.vm.env import BlockEnv, Env, GlobalEnv, MethodEnv
+from onyx.vm.env import EmptyEnv, GlobalEnv, MethodEnv
 from onyx.vm.module import ModuleLoader
 
 
@@ -57,7 +57,7 @@ class Done:
 class Task:
     state = attr.ib(default=None)
     stack = attr.ib(init=False, default=attr.Factory(k.Stack))
-    env = attr.ib(init=False, default=attr.Factory(Env))
+    env = attr.ib(init=False, default=attr.Factory(EmptyEnv))
     retp = attr.ib(init=False, default=None)
     marks = attr.ib(init=False, default=attr.Factory(dict))
 
@@ -123,8 +123,8 @@ class Interpreter:
         self.marks = frame.marks
         frame.do_continue(self, value)
 
-    def lookup_variable(self, name):
-        return self.env.lookup(name)
+    def lookup_variable(self, loc):
+        return loc.find_ref(self.globals, self.env)
 
     def core_lookup(self, name):
         name = ('core', name)
@@ -140,15 +140,12 @@ class Interpreter:
         return {m.name: m for m in methods}
 
     def make_block_env(self, block_closure, args):
-        env = BlockEnv(block_closure.env)
-        env.add_args(block_closure.block.args, args)
-        env.add_temps(block_closure.block.temps)
+        env = block_closure.env.extend(args,  len(block_closure.block.temps))
         return env
 
     def make_method_env(self, method, args, receiver, klass):
         env = MethodEnv(klass, receiver)
-        env.add_args(method.args, args)
-        env.add_temps(method.temps)
+        env = env.extend(args, len(method.temps))
         return env
 
     def make_dnu_args(self, selector, args):
@@ -248,8 +245,8 @@ class Interpreter:
         cascade.messages[0].visit(self, value)
 
     def visit_class(self, cls):
-        self.push_kassign(cls, cls.name)
-        super_cls = self.globals.lookup(cls.superclass_name).value
+        self.push_kassign(cls, cls.loc)
+        super_cls = cls.superclass_name and self.lookup_variable(cls.superclass_name).value
         method_dict = self.make_method_dict(cls.methods)
         if cls.meta:
             class_method_dict = self.make_method_dict(cls.meta.methods)
@@ -293,8 +290,7 @@ class Interpreter:
         self.doing(ret.expression)
 
     def visit_scope(self, scope):
-        self.env = BlockEnv(self.env)
-        self.env.add_temps(scope.temps)
+        self.env = self.env.extend([], len(scope.temps))
         self.doing(scope.body)
 
     def visit_send(self, send):
@@ -312,7 +308,7 @@ class Interpreter:
 
     def visit_trait(self, trait):
         name = trait.name
-        self.push_kassign(trait, name)
+        self.push_kassign(trait, trait.loc)
         method_dict = self.make_method_dict(trait.methods)
         if trait.meta:
             class_method_dict = self.make_method_dict(trait.meta.methods)
@@ -326,10 +322,7 @@ class Interpreter:
             self.doing(trait.trait_expr)
 
     def continue_kassign(self, k, value):
-        if type(k.name) == tuple:
-            var = self.globals.lookup(k.name)
-        else:
-            var = self.lookup_variable(k.name)
+        var = self.lookup_variable(k.name)
         var.assign(value)
 
     def continue_kcascade(self, k, value):
@@ -475,7 +468,8 @@ class Interpreter:
 
     def primitive_object_halt(self, o):
         self.halted = True
-        raise Exception('halting')
+        import pdb
+        pdb.set_trace()
 
     def primitive_prompt_abort_(self, prompt_tag, value):
         # XXX: check for invalid frame index

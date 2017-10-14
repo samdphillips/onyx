@@ -1,85 +1,75 @@
 
-from collections import namedtuple
+import attr
 
 import onyx.objects as o
 
-class ImmutableBinding(namedtuple('ImmutableBinding', 'name value')):
-    pass
+@attr.s(frozen=True)
+class ImmutableBinding:
+    value = attr.ib()
 
 
+@attr.s
 class MutableBinding:
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+    value = attr.ib()
 
     def assign(self, value):
         self.value = value
 
 
-class Env:
+class GlobalEnv:
     def __init__(self):
         self.bindings = {}
 
-    def add_binding(self, name, value, binding=MutableBinding):
-        b = binding(name, value)
+    def add_binding(self, name, value):
+        b = MutableBinding(value)
         self.bindings[name] = b
         return b
 
-    def add_args(self, names, values):
-        for n, v in zip(names, values):
-            self.add_binding(n, v, ImmutableBinding)
-
-    def add_temps(self, names):
-        for n in names:
-            self.add_binding(n, None)
-
     def lookup(self, name):
-        return self.bindings.get(name)
-
-class BlockEnv(Env):
-    def __init__(self, parent):
-        super(BlockEnv, self).__init__()
-        self.parent = parent
-
-    def lookup(self, name):
-        return (super().lookup(name) or
-                (self.parent and self.parent.lookup(name)))
+        b =  self.bindings.get(name)
+        if b is None:
+            b = self.add_binding(name, None)
+        return b
 
 
-class MethodEnv(Env):
+class EmptyEnv:
+    def extend(self, i_values, m_slots):
+        raise Exception((i_values, m_slots))
+
+    def extend(self, i_values, m_slots):
+        slots = ([ImmutableBinding(v) for v in i_values] +
+            [MutableBinding(None) for _ in range(m_slots)])
+        ribs = [slots]
+        return Env(ribs, None)
+
+@attr.s
+class Env:
+    ribs = attr.ib()
+    method_env = attr.ib()
+
+    @property
+    def self_slot(self):
+        return self.method_env.self_slot
+
+    @property
+    def super_slot(self):
+        return self.method_env.super_slot
+
+    def extend(self, i_values, m_slots):
+        slots = ([ImmutableBinding(v) for v in i_values] +
+            [MutableBinding(None) for _ in range(m_slots)])
+        ribs = [slots] + self.ribs
+        return Env(ribs, self.method_env)
+
+
+@attr.s(init=False)
+class MethodEnv:
     def __init__(self, klass, receiver):
-        super(MethodEnv, self).__init__()
-        self.klass = klass
-        self.receiver = receiver
-        self.self_slot = self.add_binding(o.get_symbol('self'),
-                                          self.receiver,
-                                          ImmutableBinding)
-        self.super_slot = self.add_binding(o.get_symbol('super'),
-                                           o.Super(receiver, klass),
-                                           ImmutableBinding)
+        self.super_slot = ImmutableBinding(o.Super(receiver, klass))
+        self.self_slot = ImmutableBinding(receiver)
 
-    def lookup(self, name):
-        if name == 'self':
-            return self.self_slot
-        elif name == 'super':
-            return self.super_slot
-        elif name in self.bindings:
-            return super().lookup(name)
-        elif (isinstance(self.receiver, o.Object) and
-              name in self.klass.all_instance_variables()):
-            slot = self.klass.instance_variable_slot(name)
-            return self.receiver.get_slot(slot)
-        else:
-            raise Exception('error finding variable: {}'.format(name))
-
-
-class GlobalEnv(Env):
-    def __init__(self):
-        super(GlobalEnv, self).__init__()
-        self.add_binding('nil', None, ImmutableBinding)
-
-    def lookup(self, name):
-        binding = super().lookup(name)
-        if binding is None:
-            binding = self.add_binding(name, None)
-        return binding
+    def extend(self, i_values, m_slots):
+        slots = ([ImmutableBinding(v) for v in i_values] +
+            [MutableBinding(None) for _ in range(m_slots)])
+        ribs = [slots]
+        return Env(ribs, self)

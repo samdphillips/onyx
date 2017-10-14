@@ -10,5 +10,5 @@ class Base:
     def deref(self):
         return self
 
-    def debug(self):
+    def debug(self, _):
         print(DEBUG_FMT.format(self))

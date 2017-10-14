@@ -5,6 +5,43 @@ import onyx.objects as o
 import onyx.utils as u
 
 
+@attr.s(frozen=True)
+class GlobalLoc:
+    module_name = attr.ib()
+    local_id = attr.ib()
+
+    def find_ref(self, genv, env):
+        return genv.lookup((self.module_name, self.local_id))
+
+@attr.s(frozen=True)
+class SelfLoc:
+    def find_ref(self, genv, env):
+        return env.self_slot
+
+
+@attr.s(frozen=True)
+class SlotLoc:
+    index = attr.ib()
+
+    def find_ref(self, genv, env):
+        return env.self_slot.value.get_slot(self.index)
+
+
+@attr.s(frozen=True)
+class SuperLoc:
+    def find_ref(self, genv, env):
+        return env.super_slot
+
+
+@attr.s(frozen=True)
+class LexLoc:
+    rib = attr.ib()
+    index = attr.ib()
+
+    def find_ref(self, genv, env):
+        return env.ribs[self.rib][self.index]
+
+
 @attr.s(cmp=False)
 class Node:
     source_info = attr.ib(repr=False)
@@ -99,6 +136,7 @@ class Class(Node):
     meta = child_attr(optional=True)
     methods = child_attr(list)
     trait_expr = child_attr(optional=True)
+    loc = attr.ib(default=None)
 
 
 @visitee
@@ -239,3 +277,4 @@ class Trait(Node):
     meta = child_attr(optional=True)
     methods = child_attr(list)
     trait_expr = child_attr(optional=True)
+    loc = attr.ib(default=None)
