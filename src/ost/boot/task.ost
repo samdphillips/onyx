@@ -1,42 +1,100 @@
 
 Object subclass: Task [
-    | deadSemaphore |
+    | deadChannel |
 
     Task class [
         on: aBlock [
-            self _taskNew: [| v |
-                v :=  aBlock value.
-                Task current value: v; terminate
-            ]
+            self new
+                resume: [
+                    aBlock ensure: [ Task current terminate ]
+                ];
+                yourself
+        ]
+
+        new [
+            self _taskNew
         ]
 
         current [
             self _taskCurrent
         ]
+
+        atomicBegin [
+            self _taskAtomicBegin
+        ]
+
+        atomicEnd [
+            self _taskAtomicEnd
+        ]
     ]
 
-    resume [
-        self _taskResume
+    resume: aValue [
+        self _taskResume: aValue
     ]
 
     join [
-        deadSemaphore ifNil:
-            [ deadSemaphore := Semaphore new ].
-        deadSemaphore wait
+        self isTerminated ifTrue: [ ^ self ].
+        deadChannel ifNil:
+            [ deadChannel := Channel new ].
+        deadChannel next
+    ]
+
+    state [
+        self _taskState
+    ]
+
+    suspend [
+        self _taskSuspend
+    ]
+
+    isTerminated [
+        self state = #terminated
+    ]
+
+    terminate [
+        deadChannel ifNotNil:
+            [ deadChannel nextPut: self ].
+        self _taskTerminate
     ]
 ]
 
-Object subclass: Semaphore [
-    | count waiters |
+Object subclass: Channel [
+    | readers writers |
 
-    Semaphore class [
+    Channel class [
         new [
             super new initialize; yourself
         ]
     ]
 
     initialize [
-        count := 0.
-        waiters := OrderedCollection new.
+        readers := OrderedCollection new.
+        writers := OrderedCollection new.
+    ]
+
+    immediateWrite: aValue [
+        | reader |
+        reader := readers removeFirst.
+        reader resume: aValue
+    ]
+
+    next [
+        [| task |
+          writers size > 0
+            ifTrue: [ ^ self immediateRead ].
+          task := Task current.
+          readers add: task.
+          task suspend
+        ] valueAtomically
+    ]
+
+    nextPut: aValue [
+        [| task |
+          readers size > 0
+            ifTrue: [ ^ self immediateWrite: aValue ].
+          task := Task current.
+          writers add: { aValue. task }.
+          task suspend
+        ] valueAtomically
     ]
 ]

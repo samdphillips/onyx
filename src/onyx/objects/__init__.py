@@ -71,7 +71,7 @@ def get_character(codepoint):
 
 @attr.s
 class Slot:
-    value = attr.ib()
+    value = attr.ib(default=None)
 
     def assign(self, value):
         self.value = value

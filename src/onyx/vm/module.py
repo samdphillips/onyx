@@ -197,7 +197,7 @@ class ModuleLoader:
 
     def load_core_syntax(self):
         boot_sources = 'core exception number collection task string stream'.split()
-        mods = []
+        syntaxes = []
         for root_name in boot_sources:
             src = os.path.join(ONYX_BOOT_SOURCES, '{}.ost'.format(root_name))
             syntaxes.append(Parser.parse_file(src).body)
