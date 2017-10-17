@@ -368,6 +368,14 @@ Object subclass: BlockClosure [
         [:p | self value: [:v | p abort: v ] ] withPrompt
     ]
 
+    withFullEscape [
+        [:p |
+            self value: [:v |
+                (CurtailedMark marks: p) do: [:b | b value ].
+                p abort: v ]
+        ] withPrompt
+    ]
+
     withMark: tag value: anObject [
         self _blockWithMark: tag value: anObject
     ]

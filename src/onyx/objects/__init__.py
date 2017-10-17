@@ -22,9 +22,6 @@ Symbol = type('Symbol', (str, Base), {})
 @attr.s(frozen=True, slots=True)
 class BlockClosure(Base):
     env = attr.ib()
-    retp = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(int))
-    )
     block = attr.ib()
 
 

@@ -138,3 +138,21 @@ Object subclass: TestCurtailed [
 [ TestCurtailed new foo ] on: Exception do: [:ex | nil ].
 CheckedValue
 """, 43)
+
+assert_eval(
+"""
+CheckedValue := 41.
+
+Object subclass: TestCurtailed [
+    foo [
+        [ self bar ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+
+    bar [
+        [ ^ nil ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+]
+
+TestCurtailed new foo.
+CheckedValue
+""", 42)

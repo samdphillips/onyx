@@ -8,6 +8,7 @@ import onyx.objects as o
 
 from onyx.syntax.macros import Expander
 from onyx.syntax.parser import Parser
+from onyx.syntax.escape import EscapeCompile
 
 
 ONYX_LIB_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
@@ -218,6 +219,7 @@ class ModuleLoader:
         if name != 'core':
             self.add_core_import(mod_syntax)
 
+        mod_syntax = EscapeCompile().compile(mod_syntax)
         mod_syntax = Expander().expand(mod_syntax)
         rcmp = RefCompile(name, self)
         code = rcmp.compile(mod_syntax)

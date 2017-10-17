@@ -88,7 +88,7 @@ class Frame:
                 "{0.ast.source_info}").format(self)
 
 
-_common_frame_fields = 'env retk marks ast'
+_common_frame_fields = 'env marks ast'
 def frame_type(name, *fields):
     # XXX: just use fields as a string
     all_fields = _common_frame_fields + " " + ' '.join(fields)

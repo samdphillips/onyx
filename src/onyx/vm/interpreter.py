@@ -58,7 +58,6 @@ class Task:
     state = attr.ib(default=None)
     stack = attr.ib(init=False, default=attr.Factory(k.Stack))
     env = attr.ib(init=False, default=attr.Factory(EmptyEnv))
-    retp = attr.ib(init=False, default=None)
     marks = attr.ib(init=False, default=attr.Factory(dict))
 
 
@@ -72,7 +71,6 @@ class Interpreter:
     state = task_attr('state')
     stack = task_attr('stack')
     env = task_attr('env')
-    retp = task_attr('retp')
     marks = task_attr('marks')
 
     def doing(self, node):
@@ -119,7 +117,6 @@ class Interpreter:
     def do_continue(self, value):
         frame = self.stack.pop()
         self.env = frame.env
-        self.retp = frame.retk
         self.marks = frame.marks
         frame.do_continue(self, value)
 
@@ -157,7 +154,6 @@ class Interpreter:
 
     def do_block(self, block_closure, args):
         self.env = self.make_block_env(block_closure, args)
-        self.retp = block_closure.retp
         self.doing(block_closure.block.statements)
 
     def do_message_dispatch(self, execute, message, value):
@@ -206,7 +202,6 @@ class Interpreter:
         receiver = self.deref_value(receiver)
         args = [self.deref_value(a) for a in args]
         self.env = self.make_method_env(result.method, args, receiver, result.cls)
-        self.retp = self.stack.top
         self.doing(result.method.statements)
 
     def do_primitive(self, message, receiver, args):
@@ -219,7 +214,7 @@ class Interpreter:
         primitive(receiver, *args)
 
     def pushk(self, kcls, ast, *args):
-        frame = kcls(self.env, self.retp, self.marks, ast, *args)
+        frame = kcls(self.env, self.marks, ast, *args)
         self.stack.push(frame)
 
     push_kassign = pusher(k.KAssign)
@@ -236,7 +231,7 @@ class Interpreter:
         self.doing(assignment.expr)
 
     def visit_block(self, block):
-        closure = o.BlockClosure(self.env, self.retp, block)
+        closure = o.BlockClosure(self.env, block)
         self.done(closure)
 
     def visit_cascade(self, cascade, value):
@@ -282,12 +277,6 @@ class Interpreter:
     def visit_repeat(self, repeat):
         self.push_kseq(repeat, [repeat])
         self.doing(repeat.body)
-
-    def visit_return(self, ret):
-        if self.retp is None:
-            raise TopReturnError()
-        self.stack.top = self.retp
-        self.doing(ret.expression)
 
     def visit_scope(self, scope):
         self.env = self.env.extend([], len(scope.temps))
@@ -379,10 +368,6 @@ class Interpreter:
 
     def primitive_block_argument_count(self, block):
         self.done(len(block.block.args))
-
-    def primitive_block_return_to(self, block):
-        block = attr.evolve(block, retp=self.stack.top)
-        self.do_block(block, [])
 
     def primitive_block_value_with_arguments_(self, block, array):
         self.do_block(block, array)
