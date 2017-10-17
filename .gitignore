@@ -7,3 +7,4 @@ dist
 .eggs
 *.pyc
 ubuntu-py35
+utils
