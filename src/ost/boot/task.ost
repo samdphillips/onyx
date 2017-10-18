@@ -72,10 +72,21 @@ Object subclass: Channel [
         writers := OrderedCollection new.
     ]
 
+    immediateRead [
+        | writer |
+        writer := writers removeFirst.
+        writer key resume: nil.
+        writer value
+    ]
+
     immediateWrite: aValue [
         | reader |
         reader := readers removeFirst.
         reader resume: aValue
+    ]
+
+    do: aBlock [
+        [ aBlock value: self next ] repeat
     ]
 
     next [
@@ -93,7 +104,7 @@ Object subclass: Channel [
           readers size > 0
             ifTrue: [ ^ self immediateWrite: aValue ].
           task := Task current.
-          writers add: { aValue. task }.
+          writers add: task -> aValue.
           task suspend
         ] valueAtomically
     ]
