@@ -60,6 +60,7 @@ class Done:
 class Task:
     state = attr.ib(default=None)
     priority = attr.ib(default=50)
+    main_task = attr.ib(default=False)
     stack = attr.ib(init=False, default=attr.Factory(k.Stack))
     env = attr.ib(init=False, default=attr.Factory(EmptyEnv))
     marks = attr.ib(init=False, default=attr.Factory(dict))
@@ -95,7 +96,7 @@ class ReadyQueue:
 
 class Interpreter:
     def __init__(self):
-        self.running_task = Task()
+        self.running_task = Task(main_task=True)
         self.globals = GlobalEnv()
         self.module_loader = ModuleLoader(self)
         self.halted = True
@@ -116,9 +117,13 @@ class Interpreter:
     def done(self, value):
         self.state = Done(value)
 
+    def should_stop(self):
+        return (self.running_task.main_task and
+            self.state.is_done and
+            self.stack.is_empty())
+
     def is_running(self):
-        return (not (self.state.is_done and self.stack.is_empty()) or
-            not self.ready_tasks.is_empty())
+        return not self.should_stop()
 
     def is_task_switch(self):
         if self.running_task is None:
