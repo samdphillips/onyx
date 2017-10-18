@@ -551,6 +551,13 @@ Collection subclass: OrderedCollection [
         elements := newElements
     ]
 
+    removeFirst [
+        | element |
+        element := self at: 0.
+        firstIndex := firstIndex + 1.
+        element
+    ]
+
     remove: anElement [
         | index |
         index := self indexOf: anElement.
