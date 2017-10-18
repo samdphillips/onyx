@@ -24,7 +24,10 @@ nil subclass: Object [
     ]
 
     error: aString [
-        Error signal: aString
+        Error new
+            receiver: self;
+            messageText: aString;
+            signal
     ]
 
     doesNotUnderstand: aMessage [

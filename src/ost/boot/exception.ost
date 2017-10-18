@@ -191,7 +191,12 @@ Object subclass: Exception [
      "
 ]
 
-Exception subclass: Error [ ]
+Exception subclass: Error [
+    | receiver |
+
+    receiver [ receiver ]
+    receiver: anObject [ receiver := anObject ]
+]
 
 Exception subclass: MessageNotUnderstood [
     | receiver message |
