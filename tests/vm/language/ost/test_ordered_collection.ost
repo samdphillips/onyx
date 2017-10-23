@@ -179,4 +179,38 @@ Tester new
         result
     ];
 
+    add: 'Array>>replaceFrom:to:with:startingAt:'
+    test: [| a |
+        a := #(nil nil nil 1 2 3 4).
+        a replaceFrom: 0 to: 3 with: a startingAt: 3.
+        a = #(1 2 3 4 2 3 4)
+    ];
+
+    add: 'Array>>replaceFrom:to:with:startingAt: reversed'
+    test: [| a |
+        a := #(1 2 3 4 nil nil nil).
+        a replaceFrom: 6 to: 3 with: a startingAt: 3.
+        a = #(1 2 3 1 2 3 4)
+    ];
+
+    add: 'OrderedCollection as fifo LR'
+    test: [:oc |
+        1 to: 30 do: [:i |
+            i isOdd
+                ifTrue: [ oc addLast: i ]
+                ifFalse: [ oc removeFirst ]
+        ].
+        true
+    ];
+
+    add: 'OrderedCollection as fifo RL'
+    test: [:oc |
+        1 to: 30 do: [:i |
+            i isOdd
+                ifTrue: [ oc addFirst: i ]
+                ifFalse: [ oc removeLast ]
+        ].
+        true
+    ];
+
     yourself

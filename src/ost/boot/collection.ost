@@ -336,7 +336,6 @@ Trait named: TSequencedCollection [
 
     atAll:put:
     atAllPut:
-    replaceFrom:to:with:startingAt:
     replaceFrom:to:withObject:
     "
 
@@ -348,16 +347,13 @@ Trait named: TSequencedCollection [
     ]
 
     replaceFrom: start to: end with: replace [
-        "replace debug.
-        (start asString, ' -> ', end asString) printNl."
-        start to: end do: [:i |
-            "(i asString, ' <- ', (i - start) asString) printNl."
-            self at: i put: (replace at: i - start)
-        ]
+        self replaceFrom: start to: end with: replace startingAt: 0
     ]
 
     replaceFrom: start to: end with: replace startingAt: replaceStart [
-        0 to: end - start do: [:i |
+        | step |
+        step := start < end ifTrue: [ 1 ] ifFalse: [ -1 ].
+        0 to: end - start by: step do: [:i |
             self at: start + i
                  put: (replace at: replaceStart + i)
         ]
@@ -526,12 +522,45 @@ Collection subclass: OrderedCollection [
     ]
 
     growForIndex: index [
-        | grow |
-        grow := self size // 2.
+        self size < (elements size // 2)
+            ifTrue: [
+                index < 0
+                    ifTrue: [ self moveUp ]
+                    ifFalse: [ self moveDown ]
+            ]
+            ifFalse: [| grow |
+                grow := self size // 2.
 
-        index < 0
-            ifTrue:  [ self growStart: grow ]
-            ifFalse: [ self growEnd:   grow ]
+                index < 0
+                    ifTrue:  [ self growStart: grow ]
+                    ifFalse: [ self growEnd:   grow ]
+            ]
+    ]
+
+    moveUp [
+        | newFirstIndex newLastIndex |
+        newLastIndex := (elements size // 2) - (self size // 2).
+        newFirstIndex := newLastIndex - self size.
+        elements
+            replaceFrom: newLastIndex
+            to: newFirstIndex
+            with: elements
+            startingAt: lastIndex.
+        firstIndex := newFirstIndex.
+        lastIndex := newLastIndex.
+    ]
+
+    moveDown [
+        | newFirstIndex newLastIndex |
+        newFirstIndex := (elements size // 2) - (self size // 2).
+        newLastIndex := newFirstIndex + self size.
+        elements
+            replaceFrom: newFirstIndex
+            to: newLastIndex
+            with: elements
+            startingAt: firstIndex.
+        firstIndex := newFirstIndex.
+        lastIndex := newLastIndex.
     ]
 
     growStart: grow [
@@ -555,6 +584,13 @@ Collection subclass: OrderedCollection [
         | element |
         element := self at: 0.
         firstIndex := firstIndex + 1.
+        element
+    ]
+
+    removeLast [
+        | element |
+        element := self at: self lastIndex.
+        lastIndex := lastIndex - 1.
         element
     ]
 
