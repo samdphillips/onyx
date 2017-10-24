@@ -311,22 +311,22 @@ Object subclass: Message [
 Object subclass: BlockClosure [
     argumentCount [ self _blockArgumentCount ]
 
-    value [ self valueWithArguments: {} ]
+    value [ self _blockValue ]
 
     value: a [
-        self valueWithArguments: { a }
+        self _blockValue: a
     ]
 
     value: a value: b [
-        self valueWithArguments: { a. b }
+        self _blockValue: a value: b
     ]
 
     value: a value: b value: c [
-        self valueWithArguments: { a. b. c }
+        self _blockValue: a value: b value: c
     ]
 
     value: a value: b value: c value: d [
-        self valueWithArguments: { a. b. c. d }
+        self _blockValue: a value: b value: c value: d
     ]
 
     valueWithArguments: aCollection [

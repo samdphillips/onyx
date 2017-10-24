@@ -432,6 +432,21 @@ class Interpreter:
     def primitive_block_argument_count(self, block):
         self.done(len(block.block.args))
 
+    def primitive_block_value(self, block):
+        self.do_block(block, [])
+
+    def primitive_block_value_(self, block, a):
+        self.do_block(block, [a])
+
+    def primitive_block_value_value_(self, block, a, b):
+        self.do_block(block, [a, b])
+
+    def primitive_block_value_value_value_(self, block, a, b, c):
+        self.do_block(block, [a, b, c])
+
+    def primitive_block_value_value_value_value_(self, block, a, b, c, d):
+        self.do_block(block, [a, b, c, d])
+
     def primitive_block_value_with_arguments_(self, block, array):
         self.do_block(block, array)
 
