@@ -558,6 +558,9 @@ class Interpreter:
     def primitive_small_int_equal_(self, a, b):
         self.done(a == b)
 
+    def primitive_small_int_gt_(self, a, b):
+        self.done(a > b)
+
     def primitive_small_int_lt_(self, a, b):
         self.done(a < b)
 

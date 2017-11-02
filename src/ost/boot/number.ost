@@ -66,6 +66,10 @@ Number subclass: SmallInt [
         aNumber _smallIntLt: self
     ]
 
+    gtToSmallInt: aNumber [
+        aNumber _smallIntGt: self
+    ]
+
     = aNumber [
         aNumber equalToSmallInt: self
     ]
@@ -95,7 +99,7 @@ Number subclass: SmallInt [
     ]
 
     > aNumber [
-        aNumber < self
+        aNumber gtToSmallInt: self
     ]
 
     <= aNumber [
