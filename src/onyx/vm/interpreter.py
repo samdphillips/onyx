@@ -67,6 +67,7 @@ class Interpreter:
         self.globals = GlobalEnv()
         self.module_loader = ModuleLoader(self)
         self.halted = True
+        self.msg_tally = Tally()
 
     state = task_attr('state')
     stack = task_attr('stack')
@@ -182,6 +183,7 @@ class Interpreter:
         return self.core_lookup(cls_name)
 
     def do_message_send(self, message, receiver, args):
+        self.msg_tally.tally(message.selector)
         receiver_class = self.get_onyx_class(receiver)
         is_class = getattr(receiver, 'is_class', False)
         if message.method_cache.get((receiver_class.name, is_class)):
@@ -205,6 +207,7 @@ class Interpreter:
         self.doing(result.method.statements)
 
     def do_primitive(self, message, receiver, args):
+        self.msg_tally.tally(message.selector)
         if message.primitive:
             primitive = message.primitive
         else:
