@@ -1,4 +1,5 @@
 
+import attr
 
 @attr.s
 class Tally:

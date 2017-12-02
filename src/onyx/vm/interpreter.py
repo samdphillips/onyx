@@ -100,7 +100,7 @@ class Interpreter:
         self.globals = GlobalEnv()
         self.module_loader = ModuleLoader(self)
         self.halted = True
-        self.msg_tally = Tally()
+        self.msg_tally = u.Tally()
         self.ready_tasks = ReadyQueue()
         self.waiting_tasks = set()
         self.atomic = False
