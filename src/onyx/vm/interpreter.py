@@ -1,6 +1,5 @@
 
 import attr
-import heapq
 import io
 import os.path
 
@@ -18,22 +17,12 @@ from onyx.vm.module import ModuleLoader
 ONYX_BOOT_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                   '..', 'ost', 'boot'))
 
-INITIAL_FUEL = 10000
-
 
 def pusher(cls):
     def _method(self, *args):
         self.pushk(cls, *args)
         self.marks = {}
     return _method
-
-
-def task_attr(name):
-    def _getter(self):
-        return getattr(self.running_task, name)
-    def _setter(self, value):
-        setattr(self.running_task, name, value)
-    return property(_getter, _setter)
 
 
 @attr.s(frozen=True)
@@ -56,60 +45,16 @@ class Done:
         vm.do_continue(self.value)
 
 
-@attr.s(hash=False, cmp=False, repr=False)
-class Task:
-    state = attr.ib(default=None)
-    priority = attr.ib(default=50)
-    main_task = attr.ib(default=False)
-    stack = attr.ib(init=False, default=attr.Factory(k.Stack))
-    env = attr.ib(init=False, default=attr.Factory(EmptyEnv))
-    marks = attr.ib(init=False, default=attr.Factory(dict))
-    dead_channel_slot = attr.ib(init=False, default=attr.Factory(o.Slot))
-
-    def get_slot(self, i):
-        if i == 0:
-            return self.dead_channel_slot
-        else:
-            raise KeyError(self, i)
-
-
-@attr.s
-class ReadyQueue:
-    queue = attr.ib(init=False, default=attr.Factory(list))
-    counter = attr.ib(init=False, default=0)
-
-    def is_empty(self):
-        return len(self.queue) == 0
-
-    def __contains__(self, task):
-        return task in (x[2] for x in self.queue)
-
-    def add(self, task):
-        item = (task.priority, self.counter, task)
-        self.counter += 1
-        heapq.heappush(self.queue, item)
-
-    def next(self):
-        _, _, task = heapq.heappop(self.queue)
-        return task
-
-
 class Interpreter:
     def __init__(self):
-        self.running_task = Task(main_task=True)
+        self.stack = k.Stack()
+        self.env = EmptyEnv()
         self.globals = GlobalEnv()
         self.module_loader = ModuleLoader(self)
+        self.retp = None
+        self.marks = {}
         self.halted = True
         self.msg_tally = u.Tally()
-        self.ready_tasks = ReadyQueue()
-        self.waiting_tasks = set()
-        self.atomic = False
-        self.fuel = INITIAL_FUEL
-
-    state = task_attr('state')
-    stack = task_attr('stack')
-    env = task_attr('env')
-    marks = task_attr('marks')
 
     def doing(self, node):
         self.state = Doing(node)
@@ -117,31 +62,16 @@ class Interpreter:
     def done(self, value):
         self.state = Done(value)
 
-    def should_stop(self):
-        return (self.running_task.main_task and
-            self.state.is_done and
-            self.stack.is_empty())
-
     def is_running(self):
-        return not self.should_stop()
-
-    def is_task_switch(self):
-        if self.running_task is None:
-            return True
-        if self.atomic:
-            return False
-        return self.fuel <= 0
+        return not (self.state.is_done and self.stack.is_empty())
 
     def step(self):
         self.state.step(self)
-        self.fuel = self.fuel - 1
 
     def run(self):
         self.halted = False
         while self.is_running() and not self.halted:
             self.step()
-            if self.is_task_switch():
-                self.do_task_switch()
         return self.state.value
 
     def run_script(self, filename):
@@ -231,7 +161,7 @@ class Interpreter:
         elif v is False:
             cls_name = 'False'
         else:
-            cls_name = o.onyx_class_map.get(type(v)) or v.__class__.__name__
+            cls_name = o.onyx_class_map.get(type(v))
         return self.core_lookup(cls_name)
 
     def do_message_send(self, message, receiver, args):
@@ -267,14 +197,6 @@ class Interpreter:
             primitive = getattr(self, name)
             message.primitive = primitive
         primitive(receiver, *args)
-
-    def do_task_switch(self):
-        if self.running_task is not None:
-            self.ready_tasks.add(self.running_task)
-        if self.ready_tasks.is_empty():
-            raise Exception('no ready tasks')
-        self.running_task = self.ready_tasks.next()
-        self.fuel = INITIAL_FUEL
 
     def pushk(self, kcls, ast, *args):
         frame = kcls(self.env, self.marks, ast, *args)
@@ -601,61 +523,6 @@ class Interpreter:
     def primitive_system_is_broken_(self, obj, msg):
         # XXX: make better
         raise Exception(obj, msg)
-
-    def primitive_task_atomic_begin(self, task_cls):
-        self.atomic = True
-        self.done(None)
-
-    def primitive_task_atomic_end(self, task_cls):
-        self.atomic = False
-        self.done(None)
-
-    def primitive_task_current(self, task_cls):
-        self.done(self.running_task)
-
-    def primitive_task_new(self, cls):
-        task = Task()
-        message = ast.Message(None, o.get_symbol('value'), [])
-        frame = k.KReceiver(EmptyEnv(), {}, None, message)
-        task.stack.push(frame)
-        self.waiting_tasks.add(task)
-        self.done(task)
-
-    def primitive_task_resume_(self, task, value):
-        self.waiting_tasks.discard(task)
-        if task not in self.ready_tasks:
-            task.state = Done(value)
-            self.ready_tasks.add(task)
-        self.done(None)
-
-    def primitive_task_state(self, task):
-        state = None
-        if task == self.running_task:
-            state = o.get_symbol('running')
-        elif task in self.ready_tasks:
-            state = o.get_symbol('ready')
-        elif task in self.waiting_tasks:
-            state = o.get_symbol('suspended')
-        else:
-            state = o.get_symbol('terminated')
-        self.done(state)
-
-    def primitive_task_suspend(self, task):
-        if task == self.running_task:
-            self.running_task = None
-            self.atomic = False
-        if task in self.ready_tasks:
-            self.ready_tasks.remove(task)
-        self.waiting_tasks.add(task)
-
-    def primitive_task_terminate(self, task):
-        if task == self.running_task:
-            self.running_task = None
-            self.atomic = False
-        if task in self.ready_tasks:
-            self.ready_tasks.remove(task)
-        if task in self.waiting_tasks:
-            self.waiting_tasks.remove()
 
     def primitive_trait_merge_(self, a, b):
         self.done(a.merge_trait(b))

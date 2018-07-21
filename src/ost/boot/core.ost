@@ -415,21 +415,6 @@ Object subclass: BlockClosure [
         [ self withPrompt ] withMark: CurtailedMark value: aBlock
     ]
 
-    ensure: aBlock [
-        | value |
-        value := self ifCurtailed: aBlock.
-        aBlock value.
-        value
-    ]
-
-    fork [
-        Task on: self
-    ]
-
-    valueAtomically [
-        Task atomicBegin.
-        self ensure: [ Task atomicEnd ]
-    ]
 ]
 
 Object subclass: Hasher [
