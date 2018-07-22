@@ -1,14 +1,18 @@
 
 import pytest
 
+def pytest_collect_file(parent, path):
+    if parent.config.getoption('--skip-ost'):
+        return
+
+    if path.ext == ".ost" and path.basename.startswith("test"):
+        return OnyxTestFile(path, parent)
+
+
 @pytest.fixture
 def vm():
     from onyx.vm.interpreter import Interpreter
     return Interpreter()
-
-def pytest_collect_file(parent, path):
-    if path.ext == ".ost" and path.basename.startswith("test"):
-        return OnyxTestFile(path, parent)
 
 class OnyxTestFile(pytest.File):
     def load_syntax(self):
