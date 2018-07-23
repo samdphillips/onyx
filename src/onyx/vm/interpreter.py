@@ -25,6 +25,14 @@ def pusher(cls):
     return _method
 
 
+def announcer(cls):
+    def _method(self, *args):
+        if self.announcer.wants(cls):
+            event = cls(self, *args)
+            self.announcer.announce(event)
+    return _method
+
+
 @attr.s(frozen=True)
 class Doing:
     node = attr.ib()
@@ -32,6 +40,7 @@ class Doing:
     is_doing = True
 
     def step(self, vm):
+        vm.announce_step(self.node)
         self.node.visit(vm)
 
 
@@ -54,7 +63,7 @@ class Interpreter:
         self.retp = None
         self.marks = {}
         self.halted = True
-        self.msg_tally = u.Tally()
+        self.announcer = u.Announcer()
 
     def doing(self, node):
         self.state = Doing(node)
@@ -98,6 +107,7 @@ class Interpreter:
         return self.module_loader.instantiate(name)
 
     def do_continue(self, value):
+        self.announce_continue(value, self.stack)
         frame = self.stack.pop()
         self.env = frame.env
         self.marks = frame.marks
@@ -135,6 +145,14 @@ class Interpreter:
         msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('arguments'))).assign(args)
         return [msg]
 
+    announce_continue  = announcer(u.Continue)
+    announce_msg_send  = announcer(u.MessageSend)
+    announce_prim_send = announcer(u.PrimitiveSend)
+    announce_step      = announcer(u.Step)
+
+    def listen_for(self, event_type, action):
+        self.announcer.listen_for(event_type, action)
+
     def do_block(self, block_closure, args):
         self.env = self.make_block_env(block_closure, args)
         self.doing(block_closure.block.statements)
@@ -165,7 +183,7 @@ class Interpreter:
         return self.core_lookup(cls_name)
 
     def do_message_send(self, message, receiver, args):
-        self.msg_tally.tally(message.selector)
+        self.announce_msg_send(receiver, message.selector, args)
         receiver_class = self.get_onyx_class(receiver)
         is_class = getattr(receiver, 'is_class', False)
         if message.method_cache.get((receiver_class.name, is_class)):
@@ -189,7 +207,7 @@ class Interpreter:
         self.doing(result.method.statements)
 
     def do_primitive(self, message, receiver, args):
-        self.msg_tally.tally(message.selector)
+        self.announce_prim_send(receiver, message.selector, args)
         if message.primitive:
             primitive = message.primitive
         else:
