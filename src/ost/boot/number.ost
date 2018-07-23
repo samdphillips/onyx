@@ -138,6 +138,10 @@ Number subclass: SmallInt [
         (self to: stop by: step) do: aBlock
     ]
 
+    timesRepeat: aBlock [
+        1 to: self do: aBlock
+    ]
+
     isOdd [
         (self bitAt: 0) = 1
     ]
