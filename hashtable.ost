@@ -1,0 +1,8 @@
+
+1 timesRepeat: [
+    [|table|
+      table := RHHashTable new.
+      1 to: 20 do: [:i | table insert: i ].
+    ] value
+]
+
