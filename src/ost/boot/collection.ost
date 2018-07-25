@@ -472,12 +472,30 @@ Collection subclass: Interval [
         start asString, ' to: ', stop asString, ' step: ', step asString
     ]
 
+    isReversed [
+        step sign < 0
+    ]
+
     size [
         stop - start // step + 1
     ]
 
     basicAt: i [
         (step * i) + start
+    ]
+
+    do: aBlock [
+        | i cmp |
+        i := start.
+
+        cmp := self isReversed
+            ifFalse: [ [ i <= stop ] ]
+            ifTrue:  [ [ i >= stop ] ].
+
+        cmp whileTrue: [
+            aBlock value: i.
+            i := i + step
+        ]
     ]
 
 ]
