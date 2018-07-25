@@ -16,6 +16,10 @@ class Stack:
     def is_full(self):
         return self.top == len(self.frames) - 1
 
+    @property
+    def top_frame(self):
+        return self.frames[self.top]
+
     def pop(self):
         v = self.frames[self.top]
         self.top -= 1

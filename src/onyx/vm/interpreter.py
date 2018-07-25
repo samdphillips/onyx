@@ -145,10 +145,11 @@ class Interpreter:
         msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('arguments'))).assign(args)
         return [msg]
 
-    announce_continue  = announcer(u.Continue)
-    announce_msg_send  = announcer(u.MessageSend)
-    announce_prim_send = announcer(u.PrimitiveSend)
-    announce_step      = announcer(u.Step)
+    announce_continue       = announcer(u.Continue)
+    announce_msg_send       = announcer(u.MessageSend)
+    announce_method_invoke  = announcer(u.MethodInvoke)
+    announce_prim_send      = announcer(u.PrimitiveSend)
+    announce_step           = announcer(u.Step)
 
     def listen_for(self, event_type, action):
         self.announcer.listen_for(event_type, action)
@@ -204,6 +205,7 @@ class Interpreter:
         receiver = self.deref_value(receiver)
         args = [self.deref_value(a) for a in args]
         self.env = self.make_method_env(result.method, args, receiver, result.cls)
+        self.announce_method_invoke(result.cls, receiver, result.method)
         self.doing(result.method.statements)
 
     def do_primitive(self, message, receiver, args):

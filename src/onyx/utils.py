@@ -18,6 +18,14 @@ class MessageSend:
 
 
 @attr.s
+class MethodInvoke:
+    vm = attr.ib()
+    klass = attr.ib()
+    receiver = attr.ib()
+    method = attr.ib()
+
+
+@attr.s
 class PrimitiveSend:
     vm = attr.ib()
     receiver = attr.ib()

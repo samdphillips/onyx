@@ -1,8 +1,6 @@
 
-1 timesRepeat: [
-    [|table|
-      table := RHHashTable new.
-      1 to: 20 do: [:i | table insert: i ].
-    ] value
+10 timesRepeat: [:n || table |
+  table := RHHashTable new: 32.
+  (n * 20) to: (n * 20 + 20) do: [:i | table insert: i ].
 ]
 
