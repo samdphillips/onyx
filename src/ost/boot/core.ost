@@ -432,6 +432,10 @@ Object subclass: Hasher [
         state := 5381
     ]
 
+    reset [
+        self initialize
+    ]
+
     hashValue [
         state
     ]
