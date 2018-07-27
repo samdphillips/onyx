@@ -137,7 +137,7 @@ class Match:
 
 @attr.s
 class Scanner:
-    pattern = attr.ib(convert=re.compile)
+    pattern = attr.ib(converter=re.compile)
     token_type = attr.ib(validator=attr.validators.instance_of(str))
     convert = attr.ib(default=extract_group(0))
     scan_func = attr.ib(default=None)

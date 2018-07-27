@@ -72,7 +72,7 @@ class Announcer:
 
 @attr.s
 class Tally:
-    counts = attr.ib(init=None, default=attr.Factory(dict))
+    counts = attr.ib(init=False, factory=dict)
 
     def tally(self, tag):
         self.counts[tag] = self.counts.get(tag, 0) + 1

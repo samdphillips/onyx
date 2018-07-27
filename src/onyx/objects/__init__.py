@@ -16,7 +16,8 @@ onyx_class_map = {
 }
 
 
-Symbol = type('Symbol', (str, Base), {})
+class Symbol(str, Base):
+    pass
 
 
 @attr.s(frozen=True, slots=True)

@@ -34,9 +34,6 @@ class GlobalEnv:
 
 class EmptyEnv:
     def extend(self, i_values, m_slots):
-        raise Exception((i_values, m_slots))
-
-    def extend(self, i_values, m_slots):
         slots = ([ImmutableBinding(v) for v in i_values] +
             [MutableBinding(None) for _ in range(m_slots)])
         ribs = [slots]
