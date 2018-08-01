@@ -750,7 +750,7 @@ Object subclass: RHHashTable [
 
     probeCount: slot [
         | hash initPos probes |
-        hash := hashStore at: slot.
+        hash := hashStore basicAt: slot.
 
         hash isNotNil ifTrue: [
             initPos := hash modulo: size.
@@ -765,8 +765,8 @@ Object subclass: RHHashTable [
 
     swap: slot with: value in: anArray [
         | origValue |
-        origValue := anArray at: slot.
-        anArray at: slot put: value.
+        origValue := anArray basicAt: slot.
+        anArray basicAt: slot put: value.
         origValue
     ]
 
@@ -783,15 +783,15 @@ Object subclass: RHHashTable [
             "new value"
             (self isEmptySlot: slot) ifTrue: [
                 count := count + 1.
-                hashStore at: slot put: hash.
-                slotStore at: slot put: value.
+                hashStore basicAt: slot put: hash.
+                slotStore basicAt: slot put: value.
                 ^ aValue
             ].
 
             slotProbeCount := self probeCount: slot.
             "duplicate"
             (probeCount = slotProbeCount
-                and: [ (slotStore at: slot) = value ]) ifTrue: [ ^value ].
+                and: [ (slotStore basicAt: slot) = value ]) ifTrue: [ ^value ].
 
             "replace existing"
             probeCount > slotProbeCount ifTrue: [
@@ -818,8 +818,8 @@ Object subclass: RHHashTable [
             slotProbeCount := self probeCount: slot.
             probes > slotProbeCount ifTrue: exitBlock.
 
-            ((hashStore at: slot) = hash
-                and: [ (slotStore at: slot) = aValue ]) ifTrue: [
+            ((hashStore basicAt: slot) = hash
+                and: [ (slotStore basicAt: slot) = aValue ]) ifTrue: [
                 ^slot
             ].
 
@@ -829,7 +829,7 @@ Object subclass: RHHashTable [
     ]
 
     find: aValue ifAbsent: absentBlock [
-        slotStore at:
+        slotStore basicAt:
             (self findIndexOf: aValue ifAbsent: [ ^absentBlock value ])
     ]
 
@@ -841,13 +841,13 @@ Object subclass: RHHashTable [
         "move values left until we hit an empty slot OR a slot with zero shifts"
         [ (self isEmptySlot: nextSlot) not
             and: [ (self probeCount: nextSlot) > 0 ] ] whileTrue: [
-            hashStore at: slot put: (hashStore at: nextSlot).
-            slotStore at: slot put: (slotStore at: nextSlot).
+            hashStore basicAt: slot put: (hashStore basicAt: nextSlot).
+            slotStore basicAt: slot put: (slotStore basicAt: nextSlot).
             slot := (slot + 1) modulo: size.
             nextSlot := (nextSlot + 1) modulo: size.
         ].
 
-        slotStore at: slot put: nil.
-        hashStore at: slot put: nil.
+        slotStore basicAt: slot put: nil.
+        hashStore basicAt: slot put: nil.
     ]
 ]
