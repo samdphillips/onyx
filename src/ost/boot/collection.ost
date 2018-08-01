@@ -737,11 +737,17 @@ Object subclass: RHHashTable [
     count [ count ]
 
     grow [
-        | origValues |
+        | origSize origValues origHashes |
         origValues := slotStore.
+        origHashes := hashStore.
+        origSize := size.
         self initialize: size * 2.
-        origValues do: [:v |
-            v isNotNil ifTrue: [ self insert: v ] ]
+        0 to: origSize - 1 do: [:i || v |
+            v := origValues basicAt: i.
+            v isNotNil ifTrue: [
+                self insert: v withHash: (origHashes basicAt: i)
+            ]
+        ]
     ]
 
     isEmptySlot: slot [
@@ -771,11 +777,16 @@ Object subclass: RHHashTable [
     ]
 
     insert: aValue [
-        | value hash slot probeCount |
+        | hash |
         count = size ifTrue: [ self grow ].
+        hash := aValue hash.
+        self insert: aValue withHash: hash
+    ]
 
+    insert: aValue withHash: aHashValue [
+        | value hash slot probeCount |
         value := aValue.
-        hash := value hash.
+        hash := aHashValue.
         slot := hash modulo: size.
         probeCount := 0.
 
