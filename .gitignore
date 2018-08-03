@@ -1,10 +1,11 @@
-prof
-build
+*.egg-info
+*.pyc
+.*
 .cache
 .coverage
-dist
-*.egg-info
 .eggs
-*.pyc
+build
+dist
+prof
 ubuntu-py35
 utils
