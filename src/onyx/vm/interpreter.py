@@ -187,9 +187,8 @@ class Interpreter:
         self.announce_msg_send(receiver, message.selector, args)
         receiver_class = self.get_onyx_class(receiver)
         is_class = getattr(receiver, 'is_class', False)
-        if message.method_cache.get((receiver_class.name, is_class)):
-            result = message.method_cache[(receiver_class.name, is_class)]
-        else:
+        result = message.method_cache.get((receiver_class.name, is_class))
+        if not result:
             result = receiver_class.lookup_method(self, message.selector, is_class)
             message.method_cache[(receiver_class.name, is_class)] = result
 
