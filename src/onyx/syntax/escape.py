@@ -33,6 +33,7 @@ class EscapeCompile:
     visit_meta = traverse()
     visit_module = traverse()
     visit_module_import = traverse()
+    visit_primitive_message = traverse()
     visit_ref = traverse()
     visit_send = traverse()
     visit_seq = traverse()
