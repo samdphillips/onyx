@@ -33,7 +33,7 @@ class CheckSourceInfo:
         return node.source_info is not None
 
 
-def parse_string(s, production, *args):
+def parse_string(s, production, *args, skip_sourceinfo=False):
     import io
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
@@ -41,7 +41,8 @@ def parse_string(s, production, *args):
     lex = Lexer(s, s_inp)
     p = Parser(lex)
     t = getattr(p, 'parse_{}'.format(production))(*args)
-    assert all(CheckSourceInfo(t))
+    if not skip_sourceinfo:
+        assert all(CheckSourceInfo(t))
     return t
 
 
@@ -124,6 +125,20 @@ def test_parse_block_char():
             t.Block(None, [], [],
                     t.Seq(None, [t.Const(None, o.Character(97))])))
 
+
+def test_parse_trait():
+    import onyx.syntax.ast as t
+    assert (parse_string('Trait named: Foo [ ]', 'module_element', skip_sourceinfo=True) ==
+            t.Trait(None, 'Foo', None, [], None, None))
+
+
+
+def test_parse_trait_expr():
+    import onyx.syntax.ast as t
+    assert (parse_string('Trait foo.', 'module_element') ==
+            t.Send(None,
+                   t.Ref(None, 'Trait'),
+                   t.Message(None, 'foo', [])))
 
 def test_parse_import():
     import onyx.objects as o

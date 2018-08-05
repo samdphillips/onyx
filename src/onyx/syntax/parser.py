@@ -439,7 +439,8 @@ class Parser:
         body = {
             'name': trait_name,
             'trait_expr': None,
-            'meta': None
+            'meta': None,
+            'methods': [],
         }
         self.parse_decl_body(body, skip_ivars=True)
         return ast.Trait(None, **body)
@@ -478,7 +479,12 @@ class Parser:
         if self.current_token().matches(Token('kw', 'import:')):
             return self.parse_import()
         elif self.current_token().matches(Token('id', 'Trait')):
-            return self.parse_trait()
+            t = self.current_token()
+            self.step()
+            if self.current_token().matches(Token('kw', 'named:')):
+                self.push_token(t)
+                return self.parse_trait()
+            self.push_token(t)
         elif self.current_is_oneof('id'):
             id = self.current_token()
             self.step()
