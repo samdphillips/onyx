@@ -4,6 +4,7 @@
 .cache
 .coverage
 .eggs
+_py*
 build
 dist
 prof
