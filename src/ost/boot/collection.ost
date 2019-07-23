@@ -1,5 +1,6 @@
 
-Object subclass: Association [
+"Object subclass: Association ["
+nil subclass: Association [
     | key value |
 
     Association class [
@@ -33,7 +34,10 @@ Object subclass: Association [
     ]
 ]
 
-Object subclass: Collection [
+"Object subclass: Collection ["
+Trait named: TCollection [
+    TCollection uses: TObject.
+
     allSatisfy: aBlock [
         self do: [:e |
             (aBlock value: e)
@@ -360,8 +364,9 @@ Trait named: TSequencedCollection [
     ]
 ]
 
-Collection subclass: Array [
-    Array uses: TSequencedCollection.
+"Collection subclass: Array ["
+nil subclass: Array [
+    Array uses: TCollection + TSequencedCollection.
 
     Array class [
         new: size [
@@ -410,8 +415,12 @@ Collection subclass: Array [
     asArray [ self ]
 ]
 
-Collection subclass: ByteArray [
-    ByteArray uses: TSequencedCollection.
+"Collection subclass: ByteArray ["
+nil subclass: ByteArray [
+    ByteArray uses: {
+        TCollection.
+        TSequencedCollection.
+    }.
 
     ByteArray class [
         new: size [
@@ -441,10 +450,14 @@ Collection subclass: ByteArray [
 ]
 
 
-Collection subclass: Interval [
+"Collection subclass: Interval ["
+nil subclass: Interval [
     | start stop step |
 
-    Interval uses: TSequencedReadableCollection.
+    Interval uses: {
+        TCollection.
+        TSequencedReadableCollection.
+    }.
 
     Interval class [
         from: start to: stop [
@@ -500,10 +513,12 @@ Collection subclass: Interval [
 
 ]
 
-Collection subclass: OrderedCollection [
+"Collection subclass: OrderedCollection ["
+nil subclass: OrderedCollection [
     | elements firstIndex lastIndex |
 
     OrderedCollection uses: {
+        TCollection.
         TExtensibleCollection.
         TSequencedCollection.
     }.
@@ -659,7 +674,8 @@ Collection subclass: OrderedCollection [
 
 ]
 
-Collection subclass: ConcatenatedSequence [
+"Collection subclass: ConcatenatedSequence ["
+nil subclass: ConcatenatedSequence [
     | collections |
     ConcatenatedSequence uses: TSequencedReadableCollection.
 
@@ -690,7 +706,8 @@ Collection subclass: ConcatenatedSequence [
     ]
 ]
 
-Collection subclass: ReversedSequence [
+"Collection subclass: ReversedSequence ["
+nil subclass: ReversedSequence [
     | collection |
     ReversedSequence uses: TSequencedReadableCollection.
 
@@ -713,7 +730,8 @@ Collection subclass: ReversedSequence [
     ]
 ]
 
-Object subclass: RHHashTable [
+"Object subclass: RHHashTable ["
+nil subclass: RHHashTable [
     | count size hashStore slotStore |
 
     RHHashTable class [

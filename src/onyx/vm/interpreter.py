@@ -54,6 +54,14 @@ class Done:
         vm.do_continue(self.value)
 
 
+@attr.s(frozen=True)
+class DoesNotUnderstand(Exception):
+    source_info = attr.ib()
+    receiver = attr.ib()
+    message = attr.ib()
+    args = attr.ib()
+
+
 class Interpreter:
     def __init__(self):
         self.stack = k.Stack()
@@ -201,7 +209,10 @@ class Interpreter:
             dnu_selector = o.get_symbol('doesNotUnderstand:')
             result = receiver_class.lookup_method(self, dnu_selector, is_class)
             if not result.is_success:
-                raise Exception('dnu')
+                raise DoesNotUnderstand(message.source_info,
+                                        receiver,
+                                        message.selector,
+                                        args)
 
             args = self.make_dnu_args(message.selector,
                                       [self.deref_value(a) for a in args])

@@ -15,3 +15,6 @@ Remove inheritance as primary method of code reuse.  Instead use composition of 
     2. Merge Trait methods with Class methods
     3. Assign Class value to name
 - Revise method lookup.  Traits should only require one level of lookup.
+
+## Notes
+- using `<class> uses: { T1. T2 }.` syntax fails before `Array` is defined.  Replace with `<class> uses: T1 + T2.`.

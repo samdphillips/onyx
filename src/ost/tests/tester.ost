@@ -1,5 +1,6 @@
 
-Object subclass: Test [
+"Object subclass: Test ["
+nil subclass: Test [
     | name setupBlock testBlock expected actual |
 
     Test class [
@@ -54,7 +55,8 @@ Object subclass: Test [
     ]
 ]
 
-Object subclass: TestErrorResult [
+"Object subclass: TestErrorResult ["
+nil subclass: TestErrorResult [
     | test exception |
 
     TestErrorResult class [
@@ -86,7 +88,8 @@ Object subclass: TestErrorResult [
     ]
 ]
 
-Object subclass: TestSuccess [
+"Object subclass: TestSuccess ["
+nil subclass: TestSuccess [
     | test |
 
     TestSuccess class [
@@ -106,7 +109,8 @@ Object subclass: TestSuccess [
     isError   [ false ]
 ]
 
-Object subclass: TestFailure [
+"Object subclass: TestFailure ["
+nil subclass: TestFailure [
     | test |
 
     TestFailure class [
@@ -134,7 +138,8 @@ Object subclass: TestFailure [
     ]
 ]
 
-Object subclass: TestReporter [
+"Object subclass: TestReporter ["
+nil subclass: TestReporter [
     | results |
 
     TestReporter class [
@@ -185,7 +190,8 @@ Object subclass: TestReporter [
     ]
 ]
 
-TestReporter subclass: VerboseTestReporter [
+"TestReporter subclass: VerboseTestReporter ["
+nil subclass: VerboseTestReporter [
     reportSuccess: aTest [
         (aTest name, '... ok') printNl.
         results add: (TestSuccess on: aTest)
@@ -202,7 +208,8 @@ TestReporter subclass: VerboseTestReporter [
     ]
 ]
 
-Object subclass: Tester [
+"Object subclass: Tester ["
+nil subclass: Tester [
     | setup tests reporter |
 
     Tester class [

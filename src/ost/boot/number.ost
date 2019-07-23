@@ -1,5 +1,8 @@
 
-Object subclass: Number [
+"Object subclass: Number ["
+Trait named: TNumber [
+    TNumber uses: TObject.
+
     between: min and: max [
         self >= min and: [ self <= max ]
     ]
@@ -33,8 +36,9 @@ Object subclass: Number [
     ]
 ]
 
-Number subclass: SmallInt [
-    SmallInt uses: THashable.
+"Number subclass: SmallInt ["
+nil subclass: SmallInt [
+    SmallInt uses: TNumber + THashable.
 
     isSmallInt [ true ]
 

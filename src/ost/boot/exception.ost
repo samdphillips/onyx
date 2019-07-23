@@ -1,5 +1,6 @@
 
-Object subclass: PromptTag [
+"Object subclass: PromptTag ["
+nil subclass: PromptTag [
     abort [
         self abort: nil
     ]
@@ -11,7 +12,8 @@ Object subclass: PromptTag [
 
 DefaultPromptTag := PromptTag new.
 
-Object subclass: Continuation [
+"Object subclass: Continuation ["
+nil subclass: Continuation [
     Continuation class [
         defaultTag [
             "this should really be ... (once class ivars work)"
@@ -37,7 +39,8 @@ Object subclass: Continuation [
 
 ]
 
-Object subclass: ContinuationMark [
+"Object subclass: ContinuationMark ["
+nil subclass: ContinuationMark [
     firstMark: promptTag [
         self _continuationMarkFirstMark: promptTag
     ]
@@ -50,7 +53,8 @@ Object subclass: ContinuationMark [
 ExceptionHandlerMark := ContinuationMark new.
 CurtailedMark := ContinuationMark new.
 
-Object subclass: ExceptionHandler [
+"Object subclass: ExceptionHandler ["
+nil subclass: ExceptionHandler [
     | handlerBlock selector tag |
 
     ExceptionHandler class [
@@ -105,7 +109,8 @@ Object subclass: ExceptionHandler [
 
 ]
 
-Object subclass: Exception [
+"Object subclass: Exception ["
+nil subclass: Exception [
     | handler resumer exitBlocks messageText |
 
     Exception class [
@@ -191,14 +196,16 @@ Object subclass: Exception [
      "
 ]
 
-Exception subclass: Error [
+"Exception subclass: Error ["
+nil subclass: Error [
     | receiver |
 
     receiver [ receiver ]
     receiver: anObject [ receiver := anObject ]
 ]
 
-Exception subclass: MessageNotUnderstood [
+"Exception subclass: MessageNotUnderstood ["
+nil subclass: MessageNotUnderstood [
     | receiver message |
 
     receiver: anObject [
@@ -216,9 +223,11 @@ Exception subclass: MessageNotUnderstood [
     ]
 ]
 
-Exception subclass: ImmutableCollectionError [ ]
+"Exception subclass: ImmutableCollectionError [ ]"
+nil subclass: ImmutableCollectionError [ ]
 
-Exception subclass: IncompleteTrait [
+"Exception subclass: IncompleteTrait ["
+nil subclass: IncompleteTrait [
     | missingSelectors |
 
     IncompleteTrait class [

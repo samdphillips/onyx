@@ -1,5 +1,6 @@
 
-Object subclass: ReadStream [
+"Object subclass: ReadStream ["
+nil subclass: ReadStream [
     | contents position |
 
     ReadStream class [

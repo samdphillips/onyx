@@ -1,5 +1,82 @@
 
-nil subclass: Object [
+"Object subclass: Trait ["
+nil subclass: Trait [
+    "knot that may need to be tied"
+    "Trait uses: TObject."
+
+    Trait class [
+        new [
+            self _traitNew
+        ]
+
+        build: aTrait [
+            aTrait asTrait
+        ]
+    ]
+
+    "part of knot tying"
+    yourself [ self ]
+
+    asTrait [ self ]
+
+    isTrait [ true ]
+
+    copy [
+        Trait new
+            merge: self;
+            yourself
+    ]
+
+    + aTrait [
+        Trait new
+            merge: self;
+            merge: aTrait asTrait;
+            yourself
+    ]
+
+    - aCollection [
+        | trait |
+        trait := self copy.
+        aCollection do: [:selector |
+            trait remove: selector
+        ].
+        trait
+    ]
+
+    @ aCollection [
+        | trait oldSelectors newSelectors |
+        trait := self copy.
+        oldSelectors := OrderedCollection new: aCollection size.
+        newSelectors := OrderedCollection new: aCollection size.
+
+        aCollection do: [:assoc |
+            oldSelectors add: assoc key.
+            newSelectors add: assoc value
+        ].
+        self rename: oldSelectors to: newSelectors.
+
+        trait
+    ]
+
+    merge: aTrait [
+        self _traitMerge: aTrait asTrait
+    ]
+
+    rename: srcSelectors to: destSelectors [
+        self _traitRename: srcSelectors asArray to: destSelectors asArray
+    ]
+
+    remove: aSelector [
+        self _traitRemove: aSelector
+    ]
+
+    validateUse: aClass [
+        self _traitValidateUse: aClass
+    ]
+]
+
+"nil subclass: Object ["
+Trait named: TObject [
 
     == anObject [
         self _objectEqual: anObject
@@ -115,7 +192,10 @@ nil subclass: Object [
     isContinuation [ false ]
 ]
 
-Object subclass: Class [
+"Object subclass: Class ["
+nil subclass: Class [
+    Class uses: TObject.
+
     new [
         self _classNew
     ]
@@ -133,75 +213,6 @@ Object subclass: Class [
     ]
 ]
 
-Object subclass: Trait [
-    Trait class [
-        new [
-            self _traitNew
-        ]
-
-        build: aTrait [
-            aTrait asTrait
-        ]
-    ]
-
-    asTrait [ self ]
-
-    isTrait [ true ]
-
-    copy [
-        Trait new
-            merge: self;
-            yourself
-    ]
-
-    + aTrait [
-        Trait new
-            merge: self;
-            merge: aTrait asTrait;
-            yourself
-    ]
-
-    - aCollection [
-        | trait |
-        trait := self copy.
-        aCollection do: [:selector |
-            trait remove: selector
-        ].
-        trait
-    ]
-
-    @ aCollection [
-        | trait oldSelectors newSelectors |
-        trait := self copy.
-        oldSelectors := OrderedCollection new: aCollection size.
-        newSelectors := OrderedCollection new: aCollection size.
-
-        aCollection do: [:assoc |
-            oldSelectors add: assoc key.
-            newSelectors add: assoc value
-        ].
-        self rename: oldSelectors to: newSelectors.
-
-        trait
-    ]
-
-    merge: aTrait [
-        self _traitMerge: aTrait asTrait
-    ]
-
-    rename: srcSelectors to: destSelectors [
-        self _traitRename: srcSelectors asArray to: destSelectors asArray
-    ]
-
-    remove: aSelector [
-        self _traitRemove: aSelector
-    ]
-
-    validateUse: aClass [
-        self _traitValidateUse: aClass
-    ]
-]
-
 Trait named: THashable [
     isHashable [ true ]
 
@@ -213,7 +224,8 @@ Trait named: THashable [
     ]
 ]
 
-Object subclass: UndefinedObject [
+"Object subclass: UndefinedObject ["
+nil subclass: UndefinedObject [
     isNil    [ true  ]
     isNotNil [ false ]
 
@@ -232,7 +244,8 @@ Object subclass: UndefinedObject [
     printString [ 'nil' ]
 ]
 
-Object subclass: Boolean [
+"Object subclass: Boolean ["
+nil subclass: Boolean [
     Boolean uses: THashable.
 
     isBoolean [ true ]
@@ -249,7 +262,8 @@ Object subclass: Boolean [
     ]
 ]
 
-Boolean subclass: True [
+"Boolean subclass: True ["
+nil subclass: True [
     ifTrue: aBlock [
         aBlock value
     ]
@@ -275,7 +289,8 @@ Boolean subclass: True [
     asString [ 'true' ]
 ]
 
-Boolean subclass: False [
+"Boolean subclass: False ["
+nil subclass: False [
     ifTrue: aBlock [
         nil
     ]
@@ -301,14 +316,16 @@ Boolean subclass: False [
     asString [ 'false' ]
 ]
 
-Object subclass: Message [
+"Object subclass: Message ["
+nil subclass: Message [
     | selector arguments |
 
     selector  [ selector  ]
     arguments [ arguments ]
 ]
 
-Object subclass: BlockClosure [
+"Object subclass: BlockClosure ["
+nil subclass: BlockClosure [
     argumentCount [ self _blockArgumentCount ]
 
     value [ self _blockValue ]
@@ -417,7 +434,8 @@ Object subclass: BlockClosure [
 
 ]
 
-Object subclass: Hasher [
+"Object subclass: Hasher ["
+nil subclass: Hasher [
     "
     Implementation of DJB hashing function
     http://www.partow.net/programming/hashfunctions/#DJBHashFunction
