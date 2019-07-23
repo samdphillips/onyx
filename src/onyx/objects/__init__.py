@@ -53,6 +53,8 @@ class Super(Base):
 
 
 _symbols = WeakValueDictionary()
+
+
 def get_symbol(name):
     s = _symbols.get(name)
     if not s:
@@ -62,6 +64,8 @@ def get_symbol(name):
 
 
 _chars = WeakValueDictionary()
+
+
 def get_character(codepoint):
     c = _chars.get(codepoint)
     if not c:
@@ -123,18 +127,19 @@ class Class(Base):
         return self
 
     def merge_trait(self, trait):
-        for k,v in trait.method_dict.items():
+        for k, v in trait.method_dict.items():
             if k not in self.method_dict:
                 self.method_dict[k] = v
 
-        for k,v in trait.class_method_dict.items():
+        for k, v in trait.class_method_dict.items():
             if k not in self.class_method_dict:
                 self.class_method_dict[k] = v
         return self
 
     def all_instance_variables(self):
         if self.super_class:
-            return self.super_class.all_instance_variables() + self.instance_variables
+            return (self.super_class.all_instance_variables() +
+                    self.instance_variables)
         else:
             return self.instance_variables
 

@@ -128,9 +128,9 @@ def test_parse_block_char():
 
 def test_parse_trait():
     import onyx.syntax.ast as t
-    assert (parse_string('Trait named: Foo [ ]', 'module_element', skip_sourceinfo=True) ==
+    assert (parse_string('Trait named: Foo [ ]', 'module_element',
+                         skip_sourceinfo=True) ==
             t.Trait(None, 'Foo', None, [], None, None))
-
 
 
 def test_parse_trait_expr():
@@ -140,17 +140,20 @@ def test_parse_trait_expr():
                    t.Ref(None, 'Trait'),
                    t.Message(None, 'foo', [])))
 
+
 def test_parse_import():
     import onyx.objects as o
     import onyx.syntax.ast as t
     assert (parse_string('import: #{collections.stuff}', 'import') ==
             t.ModuleImport(None, o.get_symbol('collections.stuff')))
 
+
 def test_parse_system():
     from onyx.syntax.lexer import Lexer
     from onyx.syntax.parser import Parser
     for source in 'collection core exception number stream string'.split():
-        with closing(Lexer.from_file('src/ost/boot/{}.ost'.format(source))) as lexer:
+        with closing(Lexer.from_file('src/ost/boot/{}.ost'.format(source))) \
+                as lexer:
             parser = Parser(lexer)
             t = parser.parse_module()
         assert all(CheckSourceInfo(t))

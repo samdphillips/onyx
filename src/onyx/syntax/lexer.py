@@ -13,6 +13,7 @@ EmptyMatch = namedtuple('EmptyMatch', 'is_success')(False)
 # XXX: InvalidInput
 # XXX: AmbiguousToken
 
+
 @attr.s
 class FileSource:
     file_name = attr.ib()
@@ -173,7 +174,8 @@ class Lexer:
         Scanner(r':([a-zA-Z_][a-zA-Z0-9]*)', 'blockarg', extract_group(1)),
         Scanner(r'([a-zA-Z_][a-zA-Z0-9]*:)', 'kw', make_symbol),
         Scanner(r'[+-]?[0-9_]+', 'int', convert_int),
-        Scanner(r'([+-]?)([2-9]|[12][0-9]|3[0-6])r([0-9a-zA-Z_]+)', 'int', convert_nrm_int),
+        Scanner(r'([+-]?)([2-9]|[12][0-9]|3[0-6])r([0-9a-zA-Z_]+)',
+                'int', convert_nrm_int),
         Scanner(r'([`~!@%&*+=|\\?/<>,-]+)', 'binsel', make_symbol),
         Scanner(r'\$(.)', 'character', make_character),
         Scanner(r'#([a-zA-Z_][a-zA-Z0-9]*)', 'symbol', make_symbol),

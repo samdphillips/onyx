@@ -3,12 +3,14 @@ import pytest
 import onyx.objects as o
 
 t = []
+
+
 def assert_eval(e, v, *_):
     global t
-    t.append((e,v))
+    t.append((e, v))
 
 
-@pytest.mark.parametrize("expr,value", t)
+@pytest.mark.parametrize("expr, value", t)
 def test_evaluation(vm, expr, value):
     assert vm.eval_string(expr) == value
 
@@ -16,8 +18,7 @@ def test_evaluation(vm, expr, value):
 assert_eval('[ 42 ] on: Exception do: [:exc | 43 ]', 42)
 assert_eval('[ Exception signal. 42 ] on: Exception do: [:exc | 43 ]', 43)
 
-assert_eval(
-"""
+assert_eval("""
 Object subclass: ExcPass [
     start [
         [ self next ]
@@ -35,8 +36,7 @@ Object subclass: ExcPass [
 ExcPass new start
 """, 42)
 
-assert_eval(
-"""
+assert_eval("""
 Object subclass: TestResume [
     start [
         [ self foo + 40 ] on: Exception do: [:e | e resume: 2 ]
@@ -50,8 +50,7 @@ Object subclass: TestResume [
 TestResume new start
 """, 42)
 
-assert_eval(
-"""
+assert_eval("""
 Object subclass: TestMNU [
     start [
         [ self foo ]
@@ -67,8 +66,7 @@ Object subclass: TestMNU [
 TestMNU new start
 """, True)
 
-assert_eval(
-"""
+assert_eval("""
 Object subclass: Foo [
     | record |
 
@@ -100,8 +98,7 @@ Object subclass: Foo [
 Foo new start record
 """, [True, False])
 
-assert_eval(
-"""
+assert_eval("""
 CheckedValue := 41.
 
 Object subclass: TestCurtailed [
@@ -121,8 +118,7 @@ Object subclass: TestCurtailed [
 CheckedValue
 """, 42)
 
-assert_eval(
-"""
+assert_eval("""
 CheckedValue := 41.
 
 Object subclass: TestCurtailed [
@@ -139,8 +135,7 @@ Object subclass: TestCurtailed [
 CheckedValue
 """, 43)
 
-assert_eval(
-"""
+assert_eval("""
 CheckedValue := 41.
 
 Object subclass: TestCurtailed [

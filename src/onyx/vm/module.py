@@ -108,7 +108,8 @@ class RefCompile:
         self.class_slots[loc] = instance_vars
         self.export_classes.add(loc)
         cls = cls._replace(loc=loc, superclass_name=super_cls_loc)
-        return cls.visit_children_static(self.visit, instance_vars, lex_env, False)
+        return cls.visit_children_static(self.visit, instance_vars, lex_env,
+                                         False)
 
     def visit_meta(self, meta, cls_env, lex_env, top):
         return meta.visit_children_static(self.visit, [], lex_env, top)
@@ -140,7 +141,7 @@ class RefCompile:
         trait = trait._replace(loc=loc)
         return trait.visit_children_static(self.visit, [], lex_env, False)
 
-    ### traversals
+    # traversals
 
     def visit_cascade(self, cascade, cls_env, lex_env, top):
         return cascade.visit_children_static(self.visit, cls_env, lex_env, top)

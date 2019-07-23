@@ -3,12 +3,14 @@ import pytest
 import onyx.objects as o
 
 t = []
+
+
 def assert_eval(e, v, *_):
     global t
-    t.append((e,v))
+    t.append((e, v))
 
 
-@pytest.mark.parametrize("expr,value", t)
+@pytest.mark.parametrize("expr, value", t)
 def test_evaluation(vm, expr, value):
     assert vm.eval_string(expr) == value
 

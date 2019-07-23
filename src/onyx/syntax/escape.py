@@ -5,6 +5,7 @@ import onyx.syntax.ast as t
 
 from onyx.syntax.macros import gensym, _sym
 
+
 def traverse():
     def __inner(self, node, *args):
         return node.visit_children_static(self.visit, *args)

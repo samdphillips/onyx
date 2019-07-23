@@ -8,10 +8,13 @@ import onyx.syntax.ast as t
 _sym = o.get_symbol
 
 counter = 0
+
+
 def gensym(name):
     global counter
     counter += 1
     return _sym('%s%05d' % (name, counter))
+
 
 class Expander:
     macros = []

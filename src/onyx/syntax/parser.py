@@ -169,7 +169,8 @@ class Parser:
         source_info = self.current_token().source_info
         self.expect('lparray')
         elements = []
-        while self.current_is_oneof('id', 'string', 'int', 'symbol', 'character'):
+        while self.current_is_oneof('id', 'string', 'int', 'symbol',
+                                    'character'):
             elements.append(self.current_token().value)
             self.step()
         source_info += self.current_token().source_info

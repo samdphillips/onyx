@@ -1,0 +1,4 @@
+attrs==19.1.0
+pep8==1.7.1
+pytest==5.0.1
+pytest-cover==3.0.0

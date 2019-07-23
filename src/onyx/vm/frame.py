@@ -93,10 +93,13 @@ class Frame:
 
 
 _common_frame_fields = 'env marks ast'
+
+
 def frame_type(name, *fields):
     # XXX: just use fields as a string
     all_fields = _common_frame_fields + " " + ' '.join(fields)
     nt = namedtuple(name, all_fields)
+
     class _frame(nt, Frame):
         continue_name = "continue_" + name.lower()
     _frame.__name__ = name
@@ -112,6 +115,10 @@ KMessage = frame_type('KMessage',
                       'receiver_value',
                       'arg_values',
                       'next_arg')
+KReceiver = frame_type('KReceiver', 'message')
+KSeq = frame_type('KSeq', 'statements')
+KTrait = frame_type('KTrait', 'declaration')
+
 
 class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
     def has_tag(self, prompt_tag):
@@ -119,8 +126,6 @@ class KPrompt(frame_type('KPrompt', 'prompt_tag', 'abort_block')):
 
     @property
     def extra_frame_info(self):
-        return ' <<{}>>\nabort -> {}'.format(hex(id(self.prompt_tag)), self.abort_block.block.source_info)
-
-KReceiver = frame_type('KReceiver', 'message')
-KSeq = frame_type('KSeq', 'statements')
-KTrait = frame_type('KTrait', 'declaration')
+        printable_tag = hex(id(self.prompt_tag))
+        abort_source_info = self.abort_block.block.source_info
+        return ' <<{}>>\nabort -> {}'.format(printable_tag, abort_source_info)

@@ -11,6 +11,7 @@ def test_merge_trait_to_class():
     assert c.method_dict['method'] == a
     assert c.class_method_dict['classmethod'] == b
 
+
 def test_trait_rename():
     import onyx.objects as o
     m1 = object()

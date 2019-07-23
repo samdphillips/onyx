@@ -13,6 +13,7 @@ class GlobalLoc:
     def find_ref(self, genv, env):
         return genv.lookup((self.module_name, self.local_id))
 
+
 @attr.s(frozen=True)
 class SelfLoc:
     def find_ref(self, genv, env):
@@ -50,7 +51,7 @@ class Node:
     @property
     def fields(self):
         return [f.name for f in attr.fields(self.__class__)
-                    if f.name != 'source_info']
+                if f.name != 'source_info']
 
     def _replace(self, *args, **kwargs):
         return attr.evolve(self, *args, **kwargs)
@@ -105,6 +106,7 @@ class Assign(Node):
     def code_text(self):
         return '{} := {}'.format(self.var, self.expr.code_text())
 
+
 @visitee
 @attr.s(cmp=False)
 class Block(Node):
@@ -147,7 +149,8 @@ class Cond(Node):
     iff = child_attr()
 
     def code_text(self):
-        return '<COND>\n    [ {} ]\n    [ {} ]\n    [ {} ]'.format(self.test, self.ift, self.iff)
+        fmt = '<COND>\n    [ {} ]\n    [ {} ]\n    [ {} ]'
+        return fmt.format(self.test, self.ift, self.iff)
 
 
 # XXX: mark value immutable
@@ -169,6 +172,7 @@ class Const(Node):
 
     def code_text(self):
         return '{}'.format(self.value)
+
 
 @visitee
 @attr.s(cmp=False)
@@ -199,7 +203,8 @@ class Message(Node):
     method_cache = attr.ib(init=False, default=attr.Factory(dict), repr=False)
 
     def code_text(self):
-        return '{} {{{}}}'.format(self.selector, ' '.join([a.code_text() for a in self.args]))
+        return '{} {{{}}}'.format(self.selector,
+                                  ' '.join([a.code_text() for a in self.args]))
 
 
 @visitee
@@ -259,7 +264,8 @@ class Send(Node):
     message = child_attr()
 
     def code_text(self):
-        return '({0} {1})'.format(self.receiver.code_text(), self.message.code_text())
+        return '({0} {1})'.format(self.receiver.code_text(),
+                                  self.message.code_text())
 
 
 @visitee
@@ -269,6 +275,7 @@ class Seq(Node):
 
     def code_text(self):
         return '. '.join([s.code_text() for s in self.statements])
+
 
 @visitee
 @attr.s(cmp=False)

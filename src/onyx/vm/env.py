@@ -3,6 +3,7 @@ import attr
 
 import onyx.objects as o
 
+
 @attr.s(frozen=True)
 class ImmutableBinding:
     value = attr.ib()
@@ -26,7 +27,7 @@ class GlobalEnv:
         return b
 
     def lookup(self, name):
-        b =  self.bindings.get(name)
+        b = self.bindings.get(name)
         if b is None:
             b = self.add_binding(name, None)
         return b
@@ -35,9 +36,10 @@ class GlobalEnv:
 class EmptyEnv:
     def extend(self, i_values, m_slots):
         slots = ([ImmutableBinding(v) for v in i_values] +
-            [MutableBinding(None) for _ in range(m_slots)])
+                 [MutableBinding(None) for _ in range(m_slots)])
         ribs = [slots]
         return Env(ribs, None)
+
 
 @attr.s
 class Env:
@@ -54,7 +56,7 @@ class Env:
 
     def extend(self, i_values, m_slots):
         slots = ([ImmutableBinding(v) for v in i_values] +
-            [MutableBinding(None) for _ in range(m_slots)])
+                 [MutableBinding(None) for _ in range(m_slots)])
         ribs = [slots] + self.ribs
         return Env(ribs, self.method_env)
 
@@ -67,6 +69,6 @@ class MethodEnv:
 
     def extend(self, i_values, m_slots):
         slots = ([ImmutableBinding(v) for v in i_values] +
-            [MutableBinding(None) for _ in range(m_slots)])
+                 [MutableBinding(None) for _ in range(m_slots)])
         ribs = [slots]
         return Env(ribs, self)

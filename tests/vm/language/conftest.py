@@ -1,10 +1,10 @@
 
 import pytest
 
+
 def pytest_collect_file(parent, path):
     if parent.config.getoption('--skip-ost'):
         return
-
     if path.ext == ".ost" and path.basename.startswith("test"):
         return OnyxTestFile(path, parent)
 
@@ -13,6 +13,7 @@ def pytest_collect_file(parent, path):
 def vm():
     from onyx.vm.interpreter import Interpreter
     return Interpreter()
+
 
 class OnyxTestFile(pytest.File):
     def load_syntax(self):
@@ -29,9 +30,10 @@ class OnyxTestFile(pytest.File):
         return ast.Module(None, imports, syntax)
 
     def collect(self):
+        from onyx.vm.interpreter import Interpreter
         syntax = self.load_syntax()
         ns = '<<{}>>'.format(self.fspath.basename)
-        interpreter = vm()
+        interpreter = Interpreter()
         interpreter.module_loader.visit(ns, syntax)
         interpreter.module_loader.instantiate(ns)
         num_tests = interpreter.eval_string('testCase numTests', require=[ns])
@@ -41,6 +43,7 @@ class OnyxTestFile(pytest.File):
             )
             yield OnyxTest('{}::{}'.format(self.fspath.strpath, name),
                            self, interpreter, ns, i)
+
 
 class OnyxTest(pytest.Item):
     def __init__(self, name, parent, vm, ns, test_number):
@@ -54,4 +57,4 @@ class OnyxTest(pytest.Item):
         result = self.vm.eval_string(
             'testCase runTest: %d' % self.test_number, require=[self.ns]
         )
-        assert result == True
+        assert result is True

@@ -3,19 +3,20 @@ import pytest
 import onyx.objects as o
 
 t = []
+
+
 def assert_eval(e, v, *_):
     global t
-    t.append((e,v))
+    t.append((e, v))
 
 
-@pytest.mark.parametrize("expr,value", t)
+@pytest.mark.parametrize("expr, value", t)
 def test_evaluation(vm, expr, value):
     assert vm.eval_string(expr) == value
 
 
 assert_eval("[ 3 + 4 ] withMark: #foo value: #bar", 7)
-assert_eval(
-"""
+assert_eval("""
 cmark := ContinuationMark new.
 [:p | [ 3 + (cmark firstMark: p) ]
   withMark: cmark
@@ -23,8 +24,7 @@ cmark := ContinuationMark new.
 """, 7)
 
 
-assert_eval(
-"""
+assert_eval("""
 cmark := ContinuationMark new.
 [:p | [ [:p1 | 3 + (cmark firstMark: p) ] withPrompt ]
   withMark: cmark
@@ -32,8 +32,7 @@ cmark := ContinuationMark new.
 """, 7)
 
 
-assert_eval(
-"""
+assert_eval("""
 m := ContinuationMark new.
 [:p || foo | foo := p.
     [
@@ -46,8 +45,7 @@ m := ContinuationMark new.
 ] withPrompt
 """, [1, 2, 3])
 
-assert_eval(
-"""
+assert_eval("""
 Object subclass: AbortsRestoreMarks [
     | mark prompt1 prompt2 |
 

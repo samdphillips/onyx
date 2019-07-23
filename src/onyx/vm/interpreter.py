@@ -141,15 +141,19 @@ class Interpreter:
     def make_dnu_args(self, selector, args):
         msg_cls = self.core_lookup(o.get_symbol('Message'))
         msg = msg_cls.new_instance()
-        msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('selector'))).assign(selector)
-        msg.get_slot(msg_cls.instance_variable_slot(o.get_symbol('arguments'))).assign(args)
+        selector_slot_num = \
+            msg_cls.instance_variable_slot(o.get_symbol('selector'))
+        arguments_slot_num = \
+            msg_cls.instance_variable_slot(o.get_symbol('arguments'))
+        msg.get_slot(selector_slot_num).assign(selector)
+        msg.get_slot(arguments_slot_num).assign(args)
         return [msg]
 
-    announce_continue       = announcer(u.Continue)
-    announce_msg_send       = announcer(u.MessageSend)
-    announce_method_invoke  = announcer(u.MethodInvoke)
-    announce_prim_send      = announcer(u.PrimitiveSend)
-    announce_step           = announcer(u.Step)
+    announce_continue = announcer(u.Continue)
+    announce_msg_send = announcer(u.MessageSend)
+    announce_method_invoke = announcer(u.MethodInvoke)
+    announce_prim_send = announcer(u.PrimitiveSend)
+    announce_step = announcer(u.Step)
 
     def listen_for(self, event_type, action):
         self.announcer.listen_for(event_type, action)
@@ -189,7 +193,8 @@ class Interpreter:
         is_class = getattr(receiver, 'is_class', False)
         result = message.method_cache.get((receiver_class.name, is_class))
         if not result:
-            result = receiver_class.lookup_method(self, message.selector, is_class)
+            result = receiver_class.lookup_method(self, message.selector,
+                                                  is_class)
             message.method_cache[(receiver_class.name, is_class)] = result
 
         if not result.is_success:
@@ -203,7 +208,8 @@ class Interpreter:
 
         receiver = self.deref_value(receiver)
         args = [self.deref_value(a) for a in args]
-        self.env = self.make_method_env(result.method, args, receiver, result.cls)
+        self.env = self.make_method_env(result.method, args, receiver,
+                                        result.cls)
         self.announce_method_invoke(result.cls, receiver, result.method)
         self.doing(result.method.statements)
 
@@ -245,7 +251,8 @@ class Interpreter:
 
     def visit_class(self, cls):
         self.push_kassign(cls, cls.loc)
-        super_cls = cls.superclass_name and self.lookup_variable(cls.superclass_name).value
+        super_cls = (cls.superclass_name and
+                     self.lookup_variable(cls.superclass_name).value)
         method_dict = self.make_method_dict(cls.methods)
         if cls.meta:
             class_method_dict = self.make_method_dict(cls.meta.methods)
@@ -399,7 +406,8 @@ class Interpreter:
         self.marks[mark] = value
         self.do_block(block, [])
 
-    def primitive_block_with_prompt_abort_(self, block, prompt_tag, abort_block):
+    def primitive_block_with_prompt_abort_(self, block, prompt_tag,
+                                           abort_block):
         self.push_kprompt(block.block, prompt_tag, abort_block)
         self.do_block(block, [])
 
