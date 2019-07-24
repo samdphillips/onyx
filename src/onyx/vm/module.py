@@ -16,6 +16,12 @@ ONYX_LIB_SOURCES = os.path.realpath(os.path.join(os.path.dirname(__file__),
 ONYX_BOOT_SOURCES = os.path.join(ONYX_LIB_SOURCES, 'boot')
 
 
+@attr.s(frozen=True)
+class UnresolvedReferences(Exception):
+    module_name = attr.ib()
+    references = attr.ib()
+
+
 @attr.s
 class RefCompile:
     module_name = attr.ib()
@@ -37,7 +43,7 @@ class RefCompile:
         self.load_import_names(mod_syntax.imports)
         compiled = self.visit(mod_syntax.body, [], [], True)
         if len(self.unresolved) > 0:
-            raise Exception('unresolved', self.unresolved)
+            raise UnresolvedReferences(self.module_name, self.unresolved)
         return compiled
 
     def clear_unresolved(self, name):
