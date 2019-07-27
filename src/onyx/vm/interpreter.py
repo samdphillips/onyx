@@ -567,3 +567,7 @@ class Interpreter:
 
     def primitive_trait_new(self, trait):
         self.done(o.Trait(None, {}, {}))
+
+    def primitive_trait_rename_to_(self, trait, old_selectors,
+                                   new_selectors):
+        self.done(trait.rename(old_selectors, new_selectors))

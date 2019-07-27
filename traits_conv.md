@@ -17,4 +17,9 @@ Remove inheritance as primary method of code reuse.  Instead use composition of 
 - Revise method lookup.  Traits should only require one level of lookup.
 
 ## Notes
-- using `<class> uses: { T1. T2 }.` syntax fails before `Array` is defined.  Replace with `<class> uses: T1 + T2.`.
+- using `<class> uses: { T1. T2 }.` syntax fails before `Array` is defined.
+  - Replace with `<class> uses: T1 + T2.`.
+  - There are a few other places like this where `Trait` shorthand doesn't work.  Replacing it with low level manipulators.
+- Explicit `super` calls don't work anymore.
+  - It is specifically a problem because there is a semi-implicit in the VM superclass linkage on the class side methods.  `<classname> new` needs to be able to work for slotted classes.
+  - Solution is probably to ensure that there is a distinction between class and instance method sides of traits.  I can't remember if this was implemented already.

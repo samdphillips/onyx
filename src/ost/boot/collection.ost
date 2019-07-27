@@ -3,6 +3,8 @@
 nil subclass: Association [
     | key value |
 
+    Association uses: TObject.
+
     Association class [
         key: key value: value [
             self new
@@ -518,7 +520,7 @@ nil subclass: OrderedCollection [
     | elements firstIndex lastIndex |
 
     OrderedCollection uses: {
-        TCollection.
+        TCollection @ { Association key: #collectionNew value: #new }.
         TExtensibleCollection.
         TSequencedCollection.
     }.

@@ -1,4 +1,5 @@
 
+
 "Object subclass: Trait ["
 nil subclass: Trait [
     "knot that may need to be tied"
@@ -46,12 +47,12 @@ nil subclass: Trait [
     @ aCollection [
         | trait oldSelectors newSelectors |
         trait := self copy.
-        oldSelectors := OrderedCollection new: aCollection size.
-        newSelectors := OrderedCollection new: aCollection size.
+        oldSelectors := Array new: aCollection size.
+        newSelectors := Array new: aCollection size.
 
-        aCollection do: [:assoc |
-            oldSelectors add: assoc key.
-            newSelectors add: assoc value
+        aCollection keysAndValuesDo: [:i :assoc |
+            newSelectors at: i put: assoc key.
+            oldSelectors at: i put: assoc value
         ].
         self rename: oldSelectors to: newSelectors.
 
@@ -75,8 +76,26 @@ nil subclass: Trait [
     ]
 ]
 
+
 "nil subclass: Object ["
 Trait named: TObject [
+    TObject class [
+        new [
+            self _classNew
+        ]
+
+        superclass [
+            self _systemIsBroken: 'no more superclass'
+        ]
+
+        name [
+            self _className
+        ]
+
+        printString [
+            'the ', self name asString, ' class'
+        ]
+    ]
 
     == anObject [
         self _objectEqual: anObject
@@ -84,7 +103,7 @@ Trait named: TObject [
 
     = anObject   [ self == anObject ]
     ~= anObject  [ (self = anObject) not ]
-    ~~ anObject [ (self == anObject) not ]
+    ~~ anObject  [ (self == anObject) not ]
 
     equalToSmallInt: aSmallInt [ false ]
 
@@ -192,6 +211,7 @@ Trait named: TObject [
     isContinuation [ false ]
 ]
 
+
 "Object subclass: Class ["
 nil subclass: Class [
     Class uses: TObject.
@@ -245,8 +265,8 @@ nil subclass: UndefinedObject [
 ]
 
 "Object subclass: Boolean ["
-nil subclass: Boolean [
-    Boolean uses: THashable.
+Trait named: TBoolean [
+    TBoolean uses: TObject + THashable.
 
     isBoolean [ true ]
 
@@ -264,6 +284,8 @@ nil subclass: Boolean [
 
 "Boolean subclass: True ["
 nil subclass: True [
+    True uses: TBoolean.
+
     ifTrue: aBlock [
         aBlock value
     ]
@@ -291,6 +313,8 @@ nil subclass: True [
 
 "Boolean subclass: False ["
 nil subclass: False [
+    False uses: TBoolean.
+
     ifTrue: aBlock [
         nil
     ]
