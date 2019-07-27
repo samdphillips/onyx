@@ -46,8 +46,10 @@ m := ContinuationMark new.
 """, [1, 2, 3])
 
 assert_eval("""
-Object subclass: AbortsRestoreMarks [
+nil subclass: AbortsRestoreMarks [
     | mark prompt1 prompt2 |
+
+    AbortsRestoreMarks uses: TObject.
 
     start [
         mark    := ContinuationMark new.
