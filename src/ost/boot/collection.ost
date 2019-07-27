@@ -531,7 +531,7 @@ nil subclass: OrderedCollection [
         ]
 
         new: size [
-            super new initialize: size * 2; yourself
+            self collectionNew initialize: size * 2; yourself
         ]
 
         defaultSize [ 8 ]

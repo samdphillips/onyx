@@ -54,9 +54,7 @@ nil subclass: Trait [
             newSelectors at: i put: assoc key.
             oldSelectors at: i put: assoc value
         ].
-        self rename: oldSelectors to: newSelectors.
-
-        trait
+        trait rename: oldSelectors to: newSelectors.
     ]
 
     merge: aTrait [

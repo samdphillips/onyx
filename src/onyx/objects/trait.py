@@ -24,4 +24,7 @@ class Trait(Base):
         m = dict(zip(old_selectors, new_selectors))
         self.method_dict = \
             {m.get(name, name): v for name, v in self.method_dict.items()}
+        self.class_method_dict = \
+            {m.get(name, name): v
+             for name, v in self.class_method_dict.items()}
         return self
