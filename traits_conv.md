@@ -23,3 +23,5 @@ Remove inheritance as primary method of code reuse.  Instead use composition of 
 - Explicit `super` calls don't work anymore.
   - It is specifically a problem because there is a semi-implicit in the VM superclass linkage on the class side methods.  `<classname> new` needs to be able to work for slotted classes.
   - Solution is probably to ensure that there is a distinction between class and instance method sides of traits.  I can't remember if this was implemented already.
+- no hierarchy means that the Exception hierarchy for Exception selectors has to be recreated.
+  - will create a protocol to establish kind of hierarchy

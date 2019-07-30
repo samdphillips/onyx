@@ -57,6 +57,8 @@ CurtailedMark := ContinuationMark new.
 nil subclass: ExceptionHandler [
     | handlerBlock selector tag |
 
+    ExceptionHandler uses: TObject.
+
     ExceptionHandler class [
         mark [
             ExceptionHandlerMark
@@ -109,14 +111,27 @@ nil subclass: ExceptionHandler [
 
 ]
 
+Trait named: TException [
+    TException class [
+        handles: anException [
+            (anException class == self) or:
+                [
+                    | parent |
+                    parent := self parentException.
+                    (parent isNotNil) and: [ parent handles: anException ]
+                ]
+        ]
+    ]
+
+]
+
 "Object subclass: Exception ["
 nil subclass: Exception [
     | handler resumer exitBlocks messageText |
 
+    Exception uses: TObject + TException.
+
     Exception class [
-        handles: anException [
-            anException isKindOf: self
-        ]
 
         signal [
             self new signal
