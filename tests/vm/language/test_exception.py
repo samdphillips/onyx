@@ -19,7 +19,7 @@ assert_eval('[ 42 ] on: Exception do: [:exc | 43 ]', 42)
 assert_eval('[ Exception signal. 42 ] on: Exception do: [:exc | 43 ]', 43)
 
 assert_eval("""
-Object subclass: ExcPass [
+nil subclass: ExcPass [
     start [
         [ self next ]
             on: Exception
@@ -37,7 +37,7 @@ ExcPass new start
 """, 42)
 
 assert_eval("""
-Object subclass: TestResume [
+nil subclass: TestResume [
     start [
         [ self foo + 40 ] on: Exception do: [:e | e resume: 2 ]
     ]
@@ -51,7 +51,7 @@ TestResume new start
 """, 42)
 
 assert_eval("""
-Object subclass: TestMNU [
+nil subclass: TestMNU [
     start [
         [ self foo ]
             on: MessageNotUnderstood
@@ -67,7 +67,7 @@ TestMNU new start
 """, True)
 
 assert_eval("""
-Object subclass: Foo [
+nil subclass: Foo [
     | record |
 
     record [
@@ -101,7 +101,7 @@ Foo new start record
 assert_eval("""
 CheckedValue := 41.
 
-Object subclass: TestCurtailed [
+nil subclass: TestCurtailed [
     foo [
         [ self bar ]
             ifCurtailed: [ CheckedValue := 42 ]
@@ -121,7 +121,7 @@ CheckedValue
 assert_eval("""
 CheckedValue := 41.
 
-Object subclass: TestCurtailed [
+nil subclass: TestCurtailed [
     foo [
         [ self bar ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
     ]
@@ -138,7 +138,7 @@ CheckedValue
 assert_eval("""
 CheckedValue := 41.
 
-Object subclass: TestCurtailed [
+nil subclass: TestCurtailed [
     foo [
         [ self bar ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
     ]
