@@ -17,7 +17,7 @@ def test_evaluation(vm, expr, value):
 
 assert_eval("""
 a := 19.
-Object subclass: Foo [
+nil subclass: Foo [
     | a |
     bar [ a := 42 ]
 ]
@@ -26,7 +26,7 @@ a
 """, 19, 'scope_1')
 
 assert_eval("""
-Object subclass: Foo [
+nil subclass: Foo [
     bar [| a | a := 19 ]
 ]
 a := 42.
@@ -43,18 +43,3 @@ a
 assert_eval("""
 [| x | x ] value
 """, None, 'init vars nil')
-
-assert_eval("""
-Object subclass: Foo [
-    bar [ a ]
-]
-
-Foo subclass: Baz [
-    | a |
-    initialize [ a := 41 ]
-]
-
-a := 42.
-f := Baz new initialize; yourself.
-f bar.
-""", 42, "super doesn't access child instance variables")
