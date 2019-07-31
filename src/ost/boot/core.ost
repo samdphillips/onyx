@@ -45,6 +45,7 @@ nil subclass: Trait [
     ]
 
     @ aCollection [
+        "XXX: aSequencedCollection"
         | trait oldSelectors newSelectors |
         trait := self copy.
         oldSelectors := Array new: aCollection size.

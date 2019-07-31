@@ -1,5 +1,7 @@
 "Object subclass: Character ["
 nil subclass: Character [
+    Character uses: TObject.
+
     Character class [
         codePoint: anInteger [
             self _characterCodePoint: anInteger
@@ -61,7 +63,7 @@ Trait named: TStringy [
 
 "Collection subclass: Symbol ["
 nil subclass: Symbol [
-    Symbol uses: TStringy.
+    Symbol uses: { TObject. TStringy }.
 
     Symbol class [
         internString: aString [
@@ -80,7 +82,7 @@ nil subclass: Symbol [
 
 "Collection subclass: String ["
 nil subclass: String [
-    String uses: TStringy.
+    String uses: { TObject. TStringy }.
 
     isString [ true ]
 

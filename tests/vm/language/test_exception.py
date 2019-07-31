@@ -52,6 +52,8 @@ TestResume new start
 
 assert_eval("""
 nil subclass: TestMNU [
+    TestMNU uses: TObject @ { #objectDoesNotUnderstand: -> #doesNotUnderstand: }.
+
     start [
         [ self foo ]
             on: MessageNotUnderstood
@@ -59,7 +61,7 @@ nil subclass: TestMNU [
     ]
 
     doesNotUnderstand: aMessage [
-        super doesNotUnderstand: aMessage
+        self objectDoesNotUnderstand: aMessage
     ]
 ]
 

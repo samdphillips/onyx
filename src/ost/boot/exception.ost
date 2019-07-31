@@ -215,6 +215,8 @@ nil subclass: Exception [
 nil subclass: Error [
     | receiver |
 
+    Error uses: TException.
+
     receiver [ receiver ]
     receiver: anObject [ receiver := anObject ]
 ]
@@ -222,6 +224,8 @@ nil subclass: Error [
 "Exception subclass: MessageNotUnderstood ["
 nil subclass: MessageNotUnderstood [
     | receiver message |
+
+    MessageNotUnderstood uses: TException.
 
     receiver: anObject [
         receiver := anObject

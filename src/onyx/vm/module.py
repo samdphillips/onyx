@@ -99,6 +99,7 @@ class RefCompile:
         return block.visit_children_static(self.visit, cls_env, lex_env, False)
 
     def visit_class(self, cls, cls_env, lex_env, top):
+        # XXX: remove super
         super_name = cls.superclass_name
         if super_name == o.get_symbol('nil'):
             super_slots = []
